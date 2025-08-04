@@ -1,5 +1,7 @@
 package com.enemaru;
 
+import com.enemaru.block.ModBlocks;
+import com.enemaru.blockentity.ModBlockEntities;
 import com.enemaru.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 
@@ -20,6 +22,8 @@ public class Enemaru implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		ModItems.initialize();
+		ModBlocks.initialize();
+		ModBlockEntities.initialize();
 		LOGGER.info("Hello Fabric world!");
 	}
 }

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "enemaru:block/condensed_oak_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "enemaru:block/condensed_oak_log"
+    },
+    "axis=z": {
+      "model": "enemaru:block/condensed_oak_log_horizontal",
+      "x": 90
+    }
+  }
+}

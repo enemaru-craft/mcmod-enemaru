@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "activated=false": {
+      "model": "enemaru:block/prismarine_lamp"
+    },
+    "activated=true": {
+      "model": "enemaru:block/prismarine_lamp_on"
+    }
+  }
+}
