@@ -27,6 +27,9 @@ public class ModBlocks {
         ItemGroupEvents.modifyEntriesEvent(ModItems.CUSTOM_ITEM_GROUP_KEY).register((itemGroup) -> {
             itemGroup.add(ModBlocks.COUNTER_BLOCK.asItem());
         });
+        ItemGroupEvents.modifyEntriesEvent(ModItems.CUSTOM_ITEM_GROUP_KEY).register((itemGroup) -> {
+            itemGroup.add(ModBlocks.STREET_LIGHT_BLOCK.asItem());
+        });
     }
     public static Block register(Block block, String name, boolean shouldRegisterItem) {
         // Register the block and its item.
@@ -65,5 +68,11 @@ public class ModBlocks {
 
     public static final Block COUNTER_BLOCK = register(
             new CounterBlock(AbstractBlock.Settings.create()), "counter_block", true
+    );
+
+    public static final Block STREET_LIGHT_BLOCK = register(
+            new StreetLightBlock(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.LANTERN)
+                    .luminance(StreetLightBlock::getLuminance))
+                    , "street_light_block", true
     );
 }

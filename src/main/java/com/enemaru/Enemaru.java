@@ -3,8 +3,11 @@ package com.enemaru;
 import com.enemaru.block.ModBlocks;
 import com.enemaru.blockentity.ModBlockEntities;
 import com.enemaru.item.ModItems;
+import com.enemaru.power.PowerNetwork;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.world.ServerWorld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +27,13 @@ public class Enemaru implements ModInitializer {
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
+		// サーバーのワールド毎ティック（20ティック＝1秒ごと）に
+		// PowerNetwork.tick(...) を呼び出す
+		ServerTickEvents.END_WORLD_TICK.register(world -> {
+			if (world instanceof ServerWorld sw) {
+				PowerNetwork.get(sw).tick(sw);
+			}
+		});
 		LOGGER.info("Hello Fabric world!");
 	}
 }
