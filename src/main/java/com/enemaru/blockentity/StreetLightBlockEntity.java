@@ -20,38 +20,25 @@ import net.minecraft.world.World;
  * PowerNetwork から受け取ったフラグで点灯状態を updatePowered() で反映します。
  */
 public class StreetLightBlockEntity extends BlockEntity {
-    //private boolean powered = false;
+    private boolean powered = false;
 
     public StreetLightBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.STREET_LIGHT_ENTITY, pos, state);
     }
 
-//    /** チャンク読み込み時にネットワークへ登録 */
-//    @Override
-//    public void onLoad() {
-//        if (world instanceof ServerWorld sw) {
-//            PowerNetwork.get(sw).registerStreetLight(this);
-//        }
-//    }
-//
-//    /** チャンク削除／ブロック破壊時に登録解除 */
-//    @Override
-//    public void markRemoved() {
-//        super.markRemoved();
-//        if (world instanceof ServerWorld sw) {
-//            PowerNetwork.get(sw).unregisterStreetLight(this);
-//        }
-//    }
-//
-//    /** PowerNetwork から呼ばれる一斉制御メソッド */
-//    public void updatePowered(boolean shouldBeLit) {
-//        if (this.powered == shouldBeLit) return;
-//        this.powered = shouldBeLit;
-//        world.setBlock(pos,
-//                world.getBlockState(pos).with(StreetLightBlock.LIT, shouldBeLit),
-//                Block.NOTIFY_LISTENERS
-//        );
-//    }
+    public void updatePowered(boolean shouldBeLit) {
+        // 変化がないならスキップ
+        if (this.powered == shouldBeLit) return;
+        this.powered = shouldBeLit;
+
+        // 現在の BlockState を取得
+        BlockState oldState = world.getBlockState(pos);
+        // LIT プロパティだけ上書きした新しい状態を作成
+        BlockState newState = oldState.with(StreetLightBlock.LIT, shouldBeLit);
+
+        // ブロックを差し替え（3 = CLIENT & RENDERER に通知）
+        world.setBlockState(pos, newState, 3);
+    }
 
     /** tick() の中身は空で OK（一斉制御は PowerNetwork 側で） */
     public static void tick(World world, BlockPos blockPos, BlockState blockState, StreetLightBlockEntity entity) {

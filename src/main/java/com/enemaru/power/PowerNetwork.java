@@ -1,5 +1,6 @@
 package com.enemaru.power;
 
+import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import net.minecraft.nbt.NbtCompound;
@@ -13,6 +14,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -21,7 +24,11 @@ public class PowerNetwork extends PersistentState {
     private double fetchedEnergy = 0.0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private int count = 1;
-    public boolean isStreetLightEnabled = false; // ストリートライトの有効フラグ
+
+    /** ユーザー操作で点灯／消灯を切り替えるフラグ */
+    private boolean streetlightsEnabled = false;
+    /** 登録制リスト：現在読み込まれている街灯の BlockEntity */
+    private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
 
     private PowerNetwork() {
         super();
@@ -58,7 +65,6 @@ public class PowerNetwork extends PersistentState {
         if(count==10){
             count = 1; // リセット
         }
-        isStreetLightEnabled= !isStreetLightEnabled; // ストリートライトの有効フラグを切り替え
 //        fetchSensorDataAsync()
 //                .thenAccept(json -> {
 //
@@ -108,4 +114,37 @@ public class PowerNetwork extends PersistentState {
             }
         });
     }
+
+
+    /** 街灯 BlockEntity を登録 */
+    public void registerStreetLight(StreetLightBlockEntity te) {
+        if (!streetLights.contains(te)) {
+            streetLights.add(te);
+        }
+    }
+
+    /** 街灯 BlockEntity を登録解除 */
+    public void unregisterStreetLight(StreetLightBlockEntity te) {
+        streetLights.remove(te);
+    }
+
+    /** 許可フラグを取得 */
+    public boolean isStreetlightsEnabled() {
+        return streetlightsEnabled;
+    }
+
+    /** ユーザー操作で呼ばれるメソッド */
+    public void setStreetlightsEnabled(boolean enable) {
+        this.streetlightsEnabled = enable;
+        applyStreetLightState();  // 一斉オン／オフ
+        markDirty();
+    }
+
+    /** すべての登録ライトに current フラグを反映 */
+    private void applyStreetLightState() {
+        for (var light : streetLights) {
+            light.updatePowered(streetlightsEnabled);
+        }
+    }
+
 }

@@ -27,6 +27,7 @@ public class ModItems {
         ItemGroupEvents.modifyEntriesEvent(CUSTOM_ITEM_GROUP_KEY).register(itemGroup -> {
             itemGroup.add(ModItems.SUSPICIOUS_SUBSTANCE);
             itemGroup.add(ModItems.GUIDITE_SWORD);
+            itemGroup.add(ModItems.CONTROL_PANEL_ITEM);
             // ...
         });
     }
@@ -42,15 +43,22 @@ public class ModItems {
         return registeredItem;
     }
 
-    public static final Item SUSPICIOUS_SUBSTANCE = register(
-            new Item(new Item.Settings()),
-            "suspicious_substance"
-    );
-    public static final Item GUIDITE_SWORD = register(new SwordItem(GuiditeMaterial.INSTANCE, new Item.Settings()), "guidite_sword");
-
+    // Custom item group key and item group instance.
     public static final RegistryKey<ItemGroup> CUSTOM_ITEM_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(Enemaru.MOD_ID, "item_group"));
     public static final ItemGroup CUSTOM_ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(ModItems.GUIDITE_SWORD))
             .displayName(Text.translatable("itemGroup.enemaru"))
             .build();
+
+    // Register items.
+    public static final Item SUSPICIOUS_SUBSTANCE = register(
+            new Item(new Item.Settings()),
+            "suspicious_substance"
+    );
+    public static final Item GUIDITE_SWORD = register(new SwordItem(GuiditeMaterial.INSTANCE, new Item.Settings()), "guidite_sword");
+    public static final Item CONTROL_PANEL_ITEM = register(
+            new ControlPanelItem(new Item.Settings()),
+            "control_panel"
+    );
+
 }
