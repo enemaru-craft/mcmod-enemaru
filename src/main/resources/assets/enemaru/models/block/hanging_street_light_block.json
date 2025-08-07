@@ -1,0 +1,6 @@
+{
+  "parent": "enemaru:block/template_hanging_street_light_block",
+  "textures": {
+    "lantern": "enemaru:block/street_light_block"
+  }
+}

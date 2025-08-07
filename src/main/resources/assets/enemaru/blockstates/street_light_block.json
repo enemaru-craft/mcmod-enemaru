@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "hanging=false,lit=false": { "model": "enemaru:block/street_light_block" },
+    "hanging=false,lit=true":  { "model": "enemaru:block/lit_street_light_block" },
+    "hanging=true,lit=false": { "model": "enemaru:block/hanging_street_light_block" },
+    "hanging=true,lit=true":  { "model": "enemaru:block/hanging_lit_street_light_block" }
+  }
+}
