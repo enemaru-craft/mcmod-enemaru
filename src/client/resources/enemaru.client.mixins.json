@@ -3,7 +3,12 @@
 	"package": "com.enemaru.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"ExampleClientMixin",
+        "BubblesHolderMixin",
+        "BubblesRendererMixin",
+        "BubblesTickMixin$EntityHolder",
+        "ChatHudMixin",
+        "DrawContextAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1
