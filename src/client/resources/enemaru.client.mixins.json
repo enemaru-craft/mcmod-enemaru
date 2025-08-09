@@ -1,9 +1,13 @@
 {
 	"required": true,
-	"package": "com.enemaru.mixin.client",
+	"package": "com.enemaru.talkingclouds.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+      "BubblesHolderMixin",
+      "BubblesRendererMixin",
+      "BubblesTickMixin$EntityHolder",
+      "ChatHudMixin",
+      "DrawContextAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -4,11 +4,14 @@ import com.enemaru.block.ModBlocks;
 import com.enemaru.blockentity.ModBlockEntities;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.item.ModItems;
+import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
 import com.enemaru.power.PowerNetwork;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
+import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -49,6 +52,7 @@ public class Enemaru implements ModInitializer {
         ModBlockEntities.initialize();
 
         PayloadTypeRegistry.playC2S().register(SetStreetLightsC2SPayload.ID, SetStreetLightsC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(SetStreetLightsC2SPayload.ID, (payload, context) -> {
             boolean enabled = payload.value();
@@ -57,6 +61,10 @@ public class Enemaru implements ModInitializer {
             ServerWorld world = context.player().getServerWorld();
             PowerNetwork network = PowerNetwork.get(world);
             network.setStreetlightsEnabled(enabled);
+        });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            TalkCloudCommand.register(dispatcher, registryAccess);
         });
 
         // サーバーのワールド毎ティック（20ティック＝1秒ごと）に
