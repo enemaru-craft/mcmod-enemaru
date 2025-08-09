@@ -19,6 +19,6 @@ public class ModBlockEntities {
                                                                        BlockEntityType.BlockEntityFactory<? extends T> entityFactory,
                                                                        Block... blocks) {
         Identifier id = Identifier.of(Enemaru.MOD_ID, name);
-        return Registry.register(Registries.BLOCK_ENTITY_TYPE, id, BlockEntityType.Builder.<T>create(entityFactory, blocks).build());
+        return Registry.register(Registries.BLOCK_ENTITY_TYPE, id, BlockEntityType.Builder.<T>create(entityFactory, blocks).build(null));
     }
 }
