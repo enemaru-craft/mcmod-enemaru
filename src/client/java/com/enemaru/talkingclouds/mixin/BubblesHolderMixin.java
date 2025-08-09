@@ -1,4 +1,4 @@
-package com.enemaru.mixin.client;
+package com.enemaru.talkingclouds.mixin;
 
 import com.enemaru.talkingclouds.api.BubblesContainer;
 import com.enemaru.talkingclouds.api.BubblesHolder;

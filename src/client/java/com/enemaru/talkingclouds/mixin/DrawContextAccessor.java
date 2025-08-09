@@ -1,4 +1,4 @@
-package com.enemaru.mixin.client;
+package com.enemaru.talkingclouds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
