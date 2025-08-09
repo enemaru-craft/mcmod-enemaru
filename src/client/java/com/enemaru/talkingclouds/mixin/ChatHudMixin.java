@@ -1,4 +1,4 @@
-package com.enemaru.mixin.client;
+package com.enemaru.talkingclouds.mixin;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.MinecraftClient;

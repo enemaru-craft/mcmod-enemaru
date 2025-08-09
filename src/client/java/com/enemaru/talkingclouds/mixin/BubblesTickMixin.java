@@ -1,7 +1,6 @@
-package com.enemaru.mixin.client;
+package com.enemaru.talkingclouds.mixin;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

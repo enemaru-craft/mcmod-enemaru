@@ -1,4 +1,4 @@
-package com.enemaru.mixin.client;
+package com.enemaru.talkingclouds.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -11,7 +11,6 @@ import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -26,8 +25,6 @@ import com.enemaru.Enemaru;
 import com.enemaru.talkingclouds.api.Bubble;
 import com.enemaru.talkingclouds.api.BubblesContainer;
 import com.enemaru.talkingclouds.config.ConfigManager;
-
-import static com.enemaru.Enemaru.LOGGER;
 
 @Mixin(EntityRenderer.class)
 public abstract class BubblesRendererMixin<T extends Entity> {
