@@ -1,11 +1,14 @@
 package com.enemaru.power;
 
 import com.enemaru.blockentity.StreetLightBlockEntity;
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.world.PersistentState;
 
 import java.net.URI;
@@ -21,7 +24,6 @@ public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private double fetchedEnergy = 0.0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private int count = 1;
 
     /** ユーザー操作で点灯／消灯を切り替えるフラグ */
     private boolean streetlightsEnabled = false;
@@ -58,61 +60,64 @@ public class PowerNetwork extends PersistentState {
 
 
     public void tick(ServerWorld world) {
-        // 5秒ごと（100ティック）にだけ動かす
-        if (world.getTime() % 100 != 0) return;
-        if(count==10){
-            count = 1; // リセット
-        }
-//        fetchSensorDataAsync()
-//                .thenAccept(json -> {
-//
-//                    fetchedEnergy = json.get(count).getAsJsonObject().getAsJsonObject("address").getAsJsonObject("geo").get("lat").getAsDouble();
-//
-//                    // サーバースレッドに戻して全プレイヤーへメッセージ送信 & 保存フラグ
-//                    world.getServer().execute(() -> {
-//                        for (ServerPlayerEntity player : world.getPlayers()) {
-//                            player.sendMessage(
-//                                    Text.literal(
-//                                            String.format("緯度: %.1f",
-//                                                    fetchedEnergy)
-//                                    ),
-//                                    false
-//                            );
-//                        }
-//                        markDirty();
-//                    });
-//                })
-//                .exceptionally(ex -> {
-//                    world.getServer().execute(() -> {
-//                        for (ServerPlayerEntity player : world.getPlayers()) {
-//                            player.sendMessage(Text.literal("エネルギーデータの取得に失敗しました"), false);
-//                        }
-//                    });
-//                    ex.printStackTrace();
-//                    return null;
-//                });
-//        count++;
+        // 3秒ごとに動かす
+        if (world.getTime() % 60 != 0) return;
+        fetchWorldStateAsync()
+                .thenAccept(json -> {
+                    Gson gson = new Gson();
+                    WorldState states = gson.fromJson(json, WorldState.class);
+                    updateState(states);
+
+                    // デバッグ用
+                    world.getServer().execute(() -> {
+                        for (ServerPlayerEntity player : world.getPlayers()) {
+                            player.sendMessage(
+                                    Text.literal(
+                                            String.format("fetched")
+                                    ),
+                                    false
+                            );
+                        }
+                    });
+
+                    markDirty();
+                })
+                .exceptionally(ex -> {
+                    world.getServer().execute(() -> {
+                        for (ServerPlayerEntity player : world.getPlayers()) {
+                            player.sendMessage(Text.literal("エネルギーデータの取得に失敗しました"), false);
+                        }
+                    });
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
 
     /** 非同期で HTTP GET → JSON パース */
-    private CompletableFuture<JsonArray> fetchSensorDataAsync() {
+    private CompletableFuture<JsonObject> fetchWorldStateAsync() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 HttpRequest req = HttpRequest.newBuilder()
-                        .uri(URI.create("https://jsonplaceholder.typicode.com/users"))
+//                        .uri(URI.create("https://jsonplaceholder.typicode.com/users"))
+                        .uri(URI.create("http://localhost:3000/energy"))
                         .GET()
                         .build();
                 HttpResponse<String> res = HTTP_CLIENT.send(
                         req, HttpResponse.BodyHandlers.ofString()
                 );
-                return JsonParser.parseString(res.body()).getAsJsonArray();
+                return JsonParser.parseString(res.body()).getAsJsonObject();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
+    /** ワールドの状態を更新 */
+    private void updateState(WorldState states) {
+        // ここでワールドのギミックのオンオフを更新
+        setStreetlightsEnabled(states.state.isLightEnabled);
+    }
 
     /** 街灯 BlockEntity を登録 */
     public void registerStreetLight(StreetLightBlockEntity te) {
