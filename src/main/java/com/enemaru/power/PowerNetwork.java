@@ -23,7 +23,9 @@ import java.util.concurrent.CompletableFuture;
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private double fetchedEnergy = 0.0;
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
 
     /** ユーザー操作で点灯／消灯を切り替えるフラグ */
     private boolean streetlightsEnabled = false;
@@ -93,13 +95,29 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
+    public void syncWorldState(WorldStateUpdate update) {
+        Gson gson = new Gson();
+        String statePayload = gson.toJson(update);
+        postWorldStateAsync(statePayload)
+                .thenAccept(response -> {
+                    //レスポンスを受け取った後の処理
+                    Gson gson1 = new Gson();
+                    WorldState states = gson1.fromJson(response, WorldState.class);
+                    updateState(states);
+                    System.out.println("State updated successfully: " + response);
+                })
+                .exceptionally(ex -> {
+                    System.out.println("State update failed");
+                    ex.printStackTrace();
+                    return null;
+                });
+    }
 
     /** 非同期で HTTP GET → JSON パース */
     private CompletableFuture<JsonObject> fetchWorldStateAsync() {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 HttpRequest req = HttpRequest.newBuilder()
-//                        .uri(URI.create("https://jsonplaceholder.typicode.com/users"))
                         .uri(URI.create("http://localhost:3000/energy"))
                         .GET()
                         .build();
@@ -111,6 +129,23 @@ public class PowerNetwork extends PersistentState {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private CompletableFuture<JsonObject> postWorldStateAsync(String json) {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:3000/state"))
+                .header("Content-Type", "application/json; charset=utf-8")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+        System.out.println("送信JSON: " + json);
+        return HTTP_CLIENT.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(res -> {
+                    int code = res.statusCode();
+                    if (code < 200 || code >= 300) {
+                        throw new RuntimeException("HTTP " + code + " : " + res.body());
+                    }
+                    return JsonParser.parseString(res.body()).getAsJsonObject();
+                });
     }
 
     /** ワールドの状態を更新 */
