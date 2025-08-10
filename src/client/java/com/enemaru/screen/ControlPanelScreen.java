@@ -1,6 +1,7 @@
 package com.enemaru.screen;
 
 import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
+import com.enemaru.networking.payload.StateUpdateRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
@@ -27,12 +28,14 @@ public class ControlPanelScreen extends HandledScreen<ControlPanelScreenHandler>
         int centerY = (height - backgroundHeight) / 2;
 
         addDrawableChild(ButtonWidget.builder(Text.literal("街灯をオン"), button -> {
-            SetStreetLightsC2SPayload payload = new SetStreetLightsC2SPayload(true);
+//            SetStreetLightsC2SPayload payload = new SetStreetLightsC2SPayload(true);
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(true, true, true);
             ClientPlayNetworking.send(payload);
         }).position(centerX + 38, centerY + 30).size(100, 20).build());
 
         addDrawableChild(ButtonWidget.builder(Text.literal("街灯をオフ"), button -> {
-            SetStreetLightsC2SPayload payload = new SetStreetLightsC2SPayload(false);
+//            SetStreetLightsC2SPayload payload = new SetStreetLightsC2SPayload(false);
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(false, true, true);
             ClientPlayNetworking.send(payload);
         }).position(centerX + 38, centerY + 55).size(100, 20).build());
     }
