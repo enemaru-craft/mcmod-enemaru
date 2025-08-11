@@ -26,15 +26,15 @@ public class BubblesContainer {
     }
 
     public void addBubble(Text text) {
-        this.addBubble(text, false);
+        this.addBubble(text, false, false);
     }
 
-    public void addBubble(Text text, boolean enableFormatting) {
+    public void addBubble(Text text, boolean enableFormatting, boolean isPersistent) {
         if (!holder.isAlive()) {
             return;
         }
 
-        this.bubbles.add(new Bubble(text, holder.age, enableFormatting));
+        this.bubbles.add(new Bubble(text, holder.age, enableFormatting, isPersistent));
         this.calculateTotalLines();
 
         var maxStack = ConfigManager.getMaxBubblesStackCount();
@@ -75,25 +75,42 @@ public class BubblesContainer {
             return;
         }
 
-        var lastBubble = this.bubbles.get(0);
+        for (Bubble bubble : this.bubbles){
+            if(bubble.isPersistent() & !bubble.isRemoved()){
+                if(!holder.isAlive()){
+                    // holderのentityが死んでいれば削除
+                    bubble.markRemoved(holder.age);
+                }
+            }else{
+                var lastBubble = bubble;
+                if (holder.isAlive()) {
+                    var lifeSpan = holder.age - lastBubble.getTimings().getSpawnAge();
+                    // 時間を超えていれば削除フラグを立てる
+                    if (lifeSpan > lastBubble.getTimings().getLifeDuration()) {
+                        lastBubble.markRemoved(holder.age);
+                    }
+                } else {
+                    for (Bubble bubble2 : this.bubbles) {
+                        bubble2.markRemoved(holder.age);
+                    }
+                }
 
-        if (holder.isAlive()) {
-            var lifeSpan = holder.age - lastBubble.getTimings().getSpawnAge();
-            if (lifeSpan > lastBubble.getTimings().getLifeDuration()) {
-                lastBubble.markRemoved(holder.age);
-            }
-        } else {
-            for (Bubble bubble : this.bubbles) {
-                bubble.markRemoved(holder.age);
+                if (lastBubble.isRemoved()) {
+                    var dieDuration = ConfigManager.getBubbleDieDuration();
+                    if (holder.age - lastBubble.getTimings().getRemoveAge() > dieDuration) {
+                        this.bubbles.remove(lastBubble);
+                        this.calculateTotalLines();
+                    }
+                }
+                break;
             }
         }
+    }
 
-        if (lastBubble.isRemoved()) {
-            var dieDuration = ConfigManager.getBubbleDieDuration();
-            if (holder.age - lastBubble.getTimings().getRemoveAge() > dieDuration) {
-                this.bubbles.remove(0);
-                this.calculateTotalLines();
-            }
+    public void resetAll(){
+        // bubblesに入っている全てのbubbleを削除
+        for(Bubble bubble : this.bubbles){
+            bubble.markRemoved(holder.age);
         }
     }
 }

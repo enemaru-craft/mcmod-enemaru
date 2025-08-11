@@ -14,6 +14,8 @@ public class NetworkClient {
         ClientPlayNetworking.registerGlobalReceiver(SendBubbleS2CPayload.ID, (payload, context) -> {
             var entityId = payload.entityId();
             var text = payload.text();
+            var isPersistent = payload.isPersistent();
+            var isReset = payload.isReset();
 
             context.client().execute(() -> {
                 var instance = MinecraftClient.getInstance();
@@ -21,8 +23,11 @@ public class NetworkClient {
 
                 var entity = instance.world.getEntityById(entityId);
                 if (entity == null) return;
-
-                BubblesContainer.of(entity).addBubble(text, true);
+                if(isReset){
+                    BubblesContainer.of(entity).resetAll();
+                }else{
+                    BubblesContainer.of(entity).addBubble(text, true, isPersistent);
+                }
             });
         });
     }
