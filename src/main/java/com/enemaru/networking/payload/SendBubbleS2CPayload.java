@@ -10,7 +10,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
 import net.minecraft.util.Identifier;
 
-public record SendBubbleS2CPayload(int entityId, Text text) implements CustomPayload{
+public record SendBubbleS2CPayload(int entityId, Text text, boolean isPersistent) implements CustomPayload{
     public static final Identifier SEND_BUBBLE_PAYLOAD_ID = Identifier.of(Enemaru.MOD_ID, "send_bubble");
     public static final Id<SendBubbleS2CPayload> ID = new Id<>(SEND_BUBBLE_PAYLOAD_ID);
     public static final PacketCodec<RegistryByteBuf, SendBubbleS2CPayload> CODEC =
@@ -19,6 +19,8 @@ public record SendBubbleS2CPayload(int entityId, Text text) implements CustomPay
                     SendBubbleS2CPayload::entityId,
                     TextCodecs.PACKET_CODEC,        // Text text
                     SendBubbleS2CPayload::text,     // getter
+                    PacketCodecs.BOOL,            // boolean isPersistent
+                    SendBubbleS2CPayload::isPersistent, // getter
                     SendBubbleS2CPayload::new       // boolean → payload 再構築
             );
 
