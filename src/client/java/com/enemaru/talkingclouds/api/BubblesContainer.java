@@ -105,8 +105,12 @@ public class BubblesContainer {
                 break;
             }
         }
-//        var lastBubble = this.bubbles.get(0);
+    }
 
-
+    public void resetAll(){
+        // bubblesに入っている全てのbubbleを削除
+        for(Bubble bubble : this.bubbles){
+            bubble.markRemoved(holder.age);
+        }
     }
 }

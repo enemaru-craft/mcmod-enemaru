@@ -26,7 +26,7 @@ public final class TalkCloudCommand {
                                     var jsonText = TextArgumentType.getTextArgument(context, "jsonText");
                                     var text = Texts.parse(context.getSource(), jsonText, entity, 0);
 
-                                    TalkCloudCommand.sendBubble(entity, text, false);
+                                    TalkCloudCommand.sendBubble(entity, text, false,false);
 
                                     return Command.SINGLE_SUCCESS;
                                 }))
@@ -35,7 +35,7 @@ public final class TalkCloudCommand {
                                     var entity = EntityArgumentType.getEntity(context, "entity");
                                     var text = MessageArgumentType.getMessage(context, "formattedText");
 
-                                    TalkCloudCommand.sendBubble(entity, text, false);
+                                    TalkCloudCommand.sendBubble(entity, text, false,false);
 
                                     return Command.SINGLE_SUCCESS;
                                 }))
@@ -46,7 +46,7 @@ public final class TalkCloudCommand {
                                             var jsonText = TextArgumentType.getTextArgument(context, "jsonText");
                                             var text = Texts.parse(context.getSource(), jsonText, entity, 0);
 
-                                            TalkCloudCommand.sendBubble(entity, text, true);
+                                            TalkCloudCommand.sendBubble(entity, text, true,false);
 
                                             return Command.SINGLE_SUCCESS;
                                         }))
@@ -55,17 +55,26 @@ public final class TalkCloudCommand {
                                             var entity = EntityArgumentType.getEntity(context, "entity");
                                             var text = MessageArgumentType.getMessage(context, "formattedText");
 
-                                            TalkCloudCommand.sendBubble(entity, text, true);
+                                            TalkCloudCommand.sendBubble(entity, text, true,false);
 
                                             return Command.SINGLE_SUCCESS;
-                                        }))))
+                                        })))
+                        .then(CommandManager.literal("reset")
+                                .executes(context->{
+                                    var entity = EntityArgumentType.getEntity(context, "entity");
+                                    TalkCloudCommand.sendBubble(entity, Text.of(""), false, true);
+
+                                    return Command.SINGLE_SUCCESS;
+                                })
+
+                        ))
         );
     }
 
-    private static void sendBubble(Entity entity, Text text, boolean isPersistent) {
+    private static void sendBubble(Entity entity, Text text, boolean isPersistent, boolean isReset) {
         var receivers = entity.getWorld().getPlayers();
         for (var player : receivers) {
-            Network.sendBubbleData((ServerPlayerEntity) player, entity, text, isPersistent);
+            Network.sendBubbleData((ServerPlayerEntity) player, entity, text, isPersistent, isReset);
         }
     }
 }

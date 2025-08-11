@@ -7,8 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class Network {
-    public static void sendBubbleData(ServerPlayerEntity player, Entity entity, Text text, boolean isPersistent) {
-        SendBubbleS2CPayload payload = new SendBubbleS2CPayload(entity.getId(), text, isPersistent);
+    public static void sendBubbleData(ServerPlayerEntity player, Entity entity, Text text, boolean isPersistent, boolean isReset) {
+        SendBubbleS2CPayload payload = new SendBubbleS2CPayload(entity.getId(), text, isPersistent, isReset);
         ServerPlayNetworking.send(player, payload);
     }
 }
