@@ -10,11 +10,13 @@ public class Bubble {
     private final List<Text> textLines;
     private final BubbleTimings timings;
     private boolean removed;
+    private boolean isPersistent;
 
-    public Bubble(Text text, int holderAge, boolean enableFormatting) {
+    public Bubble(Text text, int holderAge, boolean enableFormatting, boolean isPersistent) {
         this.textLines = Bubble.splitTextToLines(text, enableFormatting);
         this.timings = new BubbleTimings();
         this.timings.spawnAge = holderAge;
+        this.isPersistent = isPersistent;
 
         var oneLineDuration = ConfigManager.getBubbleLineDuration();
         this.timings.lifeDuration = this.textLines.size() > 1
@@ -40,6 +42,10 @@ public class Bubble {
 
     public boolean isRemoved() {
         return this.removed;
+    }
+
+    public boolean isPersistent(){
+        return this.isPersistent;
     }
 
     public BubbleTimings getTimings() {
