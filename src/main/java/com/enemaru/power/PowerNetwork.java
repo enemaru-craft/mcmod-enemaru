@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
-    private double fetchedEnergy = 0.0;
+    private int generatedEnergy = 0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .build();
@@ -50,13 +50,11 @@ public class PowerNetwork extends PersistentState {
 
     private static PowerNetwork createFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         PowerNetwork powerNetwork = new PowerNetwork();
-        powerNetwork.fetchedEnergy = nbt.getDouble("fetchedEnergy");
         return powerNetwork;
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        nbt.putDouble("fetchedEnergy", fetchedEnergy);
         return nbt;
     }
 
@@ -152,6 +150,9 @@ public class PowerNetwork extends PersistentState {
     private void updateState(WorldState states) {
         // ここでワールドのギミックのオンオフを更新
         setStreetlightsEnabled(states.state.isLightEnabled);
+        this.generatedEnergy = (int)states.variables.totalPower;
+        // デバッグ用
+        System.out.println(states.variables.totalPower);
     }
 
     /** 街灯 BlockEntity を登録 */
@@ -183,6 +184,10 @@ public class PowerNetwork extends PersistentState {
         for (var light : streetLights) {
             light.updatePowered(streetlightsEnabled);
         }
+    }
+
+    public int getGeneratedEnergy() {
+        return generatedEnergy;
     }
 
 }
