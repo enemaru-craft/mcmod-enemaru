@@ -1,12 +1,13 @@
-// ControlPanelItem.java
 package com.enemaru.item;
 
+import com.enemaru.power.PowerNetwork;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -14,21 +15,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
-public class ControlPanelItem extends Item implements NamedScreenHandlerFactory {
+public class ControlPanelItem extends Item {
     public ControlPanelItem(Settings settings) {
         super(settings);
-    }
-
-    // GUI のタイトル
-    @Override
-    public Text getDisplayName() {
-        return Text.literal("Control Panel");
-    }
-
-    // ScreenHandler（サーバー／共通側）のインスタンスを生成
-    @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return new ControlPanelScreenHandler(syncId, inv);
     }
 
     // 右クリック時に GUI を開く
@@ -36,7 +25,34 @@ public class ControlPanelItem extends Item implements NamedScreenHandlerFactory 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
         if (!world.isClient && player instanceof ServerPlayerEntity serverPlayer) {
-            serverPlayer.openHandledScreen(this);
+            serverPlayer.openHandledScreen(new NamedScreenHandlerFactory() {
+                @Override
+                public Text getDisplayName() {
+                    return Text.translatable("screen.enemaru.control_panel");
+                }
+
+                @Override
+                public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity p) {
+                    // delegate を使ってサーバ側のエネルギー量とクライアント側を同期する
+                    PropertyDelegate delegate = new PropertyDelegate() {
+                        @Override
+                        public int get(int index) {
+                            return PowerNetwork.get(serverPlayer.getServerWorld()).getGeneratedEnergy();
+                        }
+
+                        @Override
+                        public void set(int index, int value) {
+
+                        }
+
+                        @Override
+                        public int size() {
+                            return 1;
+                        }
+                    };
+                    return new ControlPanelScreenHandler(syncId, inv, delegate);
+                }
+            });
         }
         return TypedActionResult.success(stack, world.isClient());
     }
