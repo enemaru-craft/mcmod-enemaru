@@ -4,12 +4,32 @@ import com.enemaru.Enemaru;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 
 public class ControlPanelScreenHandler extends ScreenHandler {
-    public ControlPanelScreenHandler(int syncId, PlayerInventory playerInventory) {
+    public static final int PROP_ENERGY = 0;
+    private final PropertyDelegate propertyDelegate;
+
+    /**
+     * クライアント側
+     */
+    public ControlPanelScreenHandler(int syncId, PlayerInventory inv) {
+        this(syncId, inv, new ArrayPropertyDelegate(1));
+    }
+
+    /**
+     * サーバ側
+     */
+    public ControlPanelScreenHandler(int syncId, PlayerInventory inv, PropertyDelegate delegate) {
         super(Enemaru.PANEL_SCREEN_HANDLER, syncId);
-        // インベントリスロットを追加しないなら空でOK
+        this.propertyDelegate = delegate;
+        this.addProperties(delegate); // ★ これでintが自動同期対象になる
+    }
+
+    public int getGeneratedEnergy() {
+        return propertyDelegate.get(PROP_ENERGY);
     }
 
     @Override
