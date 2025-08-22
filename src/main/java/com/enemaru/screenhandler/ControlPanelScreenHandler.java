@@ -11,6 +11,8 @@ import net.minecraft.screen.ScreenHandler;
 public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_ENERGY = 0;
     private final PropertyDelegate propertyDelegate;
+    private boolean streetLightOn;
+    private int powerLevel;
 
     /**
      * クライアント側
@@ -30,6 +32,24 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     public int getGeneratedEnergy() {
         return propertyDelegate.get(PROP_ENERGY);
+    }
+
+    // 街灯の状態
+    public boolean isStreetLightOn() {
+        return streetLightOn;
+    }
+
+    public void setStreetLightOn(boolean state) {
+        this.streetLightOn = state;
+    }
+
+    // パワーレベル
+    public int getPowerLevel() {
+        return powerLevel;
+    }
+
+    public void setPowerLevel(int level) {
+        this.powerLevel = level;
     }
 
     @Override
