@@ -1,9 +1,12 @@
 package com.enemaru.power;
 
 import com.enemaru.blockentity.StreetLightBlockEntity;
+import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,6 +34,7 @@ public class PowerNetwork extends PersistentState {
     private boolean streetlightsEnabled = false;
     /** 登録制リスト：現在読み込まれている街灯の BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
+    private List<String> lastTexts = new ArrayList<>();
 
     private PowerNetwork() {
         super();
@@ -66,7 +70,7 @@ public class PowerNetwork extends PersistentState {
                 .thenAccept(json -> {
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(json, WorldState.class);
-                    updateState(states);
+                    updateState(states, world);
 
                     // デバッグ用
                     world.getServer().execute(() -> {
@@ -93,7 +97,7 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    public void syncWorldState(WorldStateUpdate update) {
+    public void syncWorldState(WorldStateUpdate update, ServerWorld world) {
         Gson gson = new Gson();
         String statePayload = gson.toJson(update);
         postWorldStateAsync(statePayload)
@@ -101,7 +105,7 @@ public class PowerNetwork extends PersistentState {
                     //レスポンスを受け取った後の処理
                     Gson gson1 = new Gson();
                     WorldState states = gson1.fromJson(response, WorldState.class);
-                    updateState(states);
+                    updateState(states, world);
                     System.out.println("State updated successfully: " + response);
                 })
                 .exceptionally(ex -> {
@@ -147,12 +151,30 @@ public class PowerNetwork extends PersistentState {
     }
 
     /** ワールドの状態を更新 */
-    private void updateState(WorldState states) {
+    private void updateState(WorldState states, ServerWorld world) {
         // ここでワールドのギミックのオンオフを更新
         setStreetlightsEnabled(states.state.isLightEnabled);
         this.generatedEnergy = (int)states.variables.totalPower;
-        // デバッグ用
-        System.out.println(states.variables.totalPower);
+
+        // 村人の吹き出しにメッセージを分配
+        if(states.texts.equals(this.lastTexts)){
+            return; // 前回と同じなら更新しない
+        }
+        // 村人のエンティティリストを取得
+        var villagers = world.getEntitiesByType(EntityType.VILLAGER,v -> true);
+        var numTexts = states.texts.size();
+        int counter = 0;
+        System.out.println("Villager count: " + villagers.size());
+        for (Entity entity : villagers) {
+            TalkCloudCommand.sendBubble(entity, Text.of(""), false, true);
+            if(counter < numTexts) {
+                TalkCloudCommand.sendBubble(entity, Text.of(states.texts.get(counter)), true,false);
+            }else{
+                System.out.println("Texts count Overflow!!!!");
+            }
+            counter++;
+        }
+        this.lastTexts = states.texts;
     }
 
     /** 街灯 BlockEntity を登録 */
