@@ -71,7 +71,7 @@ public final class TalkCloudCommand {
         );
     }
 
-    private static void sendBubble(Entity entity, Text text, boolean isPersistent, boolean isReset) {
+    public static void sendBubble(Entity entity, Text text, boolean isPersistent, boolean isReset) {
         var receivers = entity.getWorld().getPlayers();
         for (var player : receivers) {
             Network.sendBubbleData((ServerPlayerEntity) player, entity, text, isPersistent, isReset);
