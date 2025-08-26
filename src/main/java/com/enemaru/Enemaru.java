@@ -78,7 +78,7 @@ public class Enemaru implements ModInitializer {
             update.isFactoryEnabled = payload.isFactoryEnabled();
             update.isBlackout = false; // 適切な値を設定
 
-            network.syncWorldState(update);
+            network.syncWorldState(update, world);
         });
 
 
