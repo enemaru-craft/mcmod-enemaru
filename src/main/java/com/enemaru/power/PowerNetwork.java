@@ -26,12 +26,16 @@ import java.util.concurrent.CompletableFuture;
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private int generatedEnergy = 0;
+    private int surplusEnergy = 0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .build();
 
     /** ユーザー操作で点灯／消灯を切り替えるフラグ */
-    private boolean streetlightsEnabled = false;
+    private boolean isStreetlightsEnabled = false;
+    private boolean isTrainEnabled = false;
+    private boolean isFactoryEnabled = false;
+    private boolean isBlackout = false;
     /** 登録制リスト：現在読み込まれている街灯の BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
     private List<String> lastTexts = new ArrayList<>();
@@ -154,8 +158,15 @@ public class PowerNetwork extends PersistentState {
     private void updateState(WorldState states, ServerWorld world) {
         // ここでワールドのギミックのオンオフを更新
         setStreetlightsEnabled(states.state.isLightEnabled);
-        this.generatedEnergy = (int)states.variables.totalPower;
 
+        // TODO: 他のギミックもここで更新する
+        // とりあえずフィールドのみ変更
+        this.isTrainEnabled = states.state.isTrainEnabled;
+        this.isFactoryEnabled = states.state.isFactoryEnabled;
+        this.isBlackout = states.state.isBlackout;
+
+        this.generatedEnergy = (int)states.variables.totalPower;
+        this.surplusEnergy = (int)states.variables.surplusPower;
         // 村人の吹き出しにメッセージを分配
         if(states.texts.equals(this.lastTexts)){
             return; // 前回と同じなら更新しない
@@ -190,13 +201,25 @@ public class PowerNetwork extends PersistentState {
     }
 
     /** 許可フラグを取得 */
-    public boolean isStreetlightsEnabled() {
-        return streetlightsEnabled;
+    public boolean getStreetlightsEnabled() {
+        return isStreetlightsEnabled;
+    }
+
+    public boolean getTrainEnabled() {
+        return isTrainEnabled;
+    }
+
+    public boolean getFactoryEnabled() {
+        return isFactoryEnabled;
+    }
+
+    public boolean getBlackout() {
+        return isBlackout;
     }
 
     /** ユーザー操作で呼ばれるメソッド */
     public void setStreetlightsEnabled(boolean enable) {
-        this.streetlightsEnabled = enable;
+        this.isStreetlightsEnabled = enable;
         applyStreetLightState();  // 一斉オン／オフ
         markDirty();
     }
@@ -204,12 +227,16 @@ public class PowerNetwork extends PersistentState {
     /** すべての登録ライトに current フラグを反映 */
     private void applyStreetLightState() {
         for (var light : streetLights) {
-            light.updatePowered(streetlightsEnabled);
+            light.updatePowered(isStreetlightsEnabled);
         }
     }
 
     public int getGeneratedEnergy() {
         return generatedEnergy;
+    }
+
+    public int getSurplusEnergy() {
+        return surplusEnergy;
     }
 
 }
