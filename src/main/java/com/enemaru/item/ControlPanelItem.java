@@ -37,7 +37,16 @@ public class ControlPanelItem extends Item {
                     PropertyDelegate delegate = new PropertyDelegate() {
                         @Override
                         public int get(int index) {
-                            return PowerNetwork.get(serverPlayer.getServerWorld()).getGeneratedEnergy();
+                            var network = PowerNetwork.get(serverPlayer.getServerWorld());
+                            return switch (index) {
+                                case ControlPanelScreenHandler.PROP_ENERGY -> network.getGeneratedEnergy();
+                                case ControlPanelScreenHandler.PROP_SURPLUS -> network.getSurplusEnergy();
+                                case ControlPanelScreenHandler.PROP_LIGHT -> network.getStreetlightsEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_TRAIN -> network.getTrainEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_FACTORY -> network.getFactoryEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_BLACKOUT -> network.getBlackout() ? 1 : 0;
+                                default -> -1;
+                            };
                         }
 
                         @Override
@@ -47,7 +56,7 @@ public class ControlPanelItem extends Item {
 
                         @Override
                         public int size() {
-                            return 1;
+                            return ControlPanelScreenHandler.NUM_PROPS;
                         }
                     };
                     return new ControlPanelScreenHandler(syncId, inv, delegate);
