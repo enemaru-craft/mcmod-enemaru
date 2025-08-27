@@ -101,7 +101,7 @@ public class Enemaru implements ModInitializer {
                 // 登録して最新のフラグを反映
                 PowerNetwork net = PowerNetwork.get(sw);
                 net.registerStreetLight(sle);
-                sle.updatePowered(net.isStreetlightsEnabled());
+                sle.updatePowered(net.getStreetlightsEnabled());
             }
         });
 
