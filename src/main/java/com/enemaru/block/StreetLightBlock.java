@@ -105,7 +105,7 @@ public class StreetLightBlock extends BlockWithEntity {
             // サーバー側で PowerNetwork のフラグをトグル
             ServerWorld sw = (ServerWorld) world;
             PowerNetwork net = PowerNetwork.get(sw);
-            boolean newState = !net.isStreetlightsEnabled();
+            boolean newState = !net.getStreetlightsEnabled();
 
             // テスト用なので世界とフラグを渡して一斉更新
             net.setStreetlightsEnabled(newState);

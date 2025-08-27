@@ -54,12 +54,22 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // ScreenHandlerに用意したゲッター経由で取得
         int energy = screenHandler.getGeneratedEnergy();
+        int surplus = screenHandler.getSurplusEnergy();
+        boolean light = screenHandler.isLightEnabled();
+        boolean train = screenHandler.isTrainEnabled();
+        boolean factory = screenHandler.isFactoryEnabled();
+        boolean blackout = screenHandler.isBlackout();
 
         // 画面左上からの相対座標（背景の左上は this.x / this.y）
         int textX = this.x + 8;
-        int textY = this.y + 24;
+        int textY = this.y + 90;
 
         context.drawText(this.textRenderer, "Generated Energy: " + energy, textX, textY, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Surplus Energy: " + surplus, textX, textY+10, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX, textY+20, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX, textY+30, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX, textY+40, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY+50, 0xFFFFFF, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 }

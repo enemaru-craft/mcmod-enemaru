@@ -10,13 +10,19 @@ import net.minecraft.screen.ScreenHandler;
 
 public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_ENERGY = 0;
+    public static final int PROP_SURPLUS = 1;
+    public static final int PROP_LIGHT = 2;
+    public static final int PROP_TRAIN = 3;
+    public static final int PROP_FACTORY = 4;
+    public static final int PROP_BLACKOUT = 5;
+    public static final int NUM_PROPS = 6;
     private final PropertyDelegate propertyDelegate;
 
     /**
      * クライアント側
      */
     public ControlPanelScreenHandler(int syncId, PlayerInventory inv) {
-        this(syncId, inv, new ArrayPropertyDelegate(1));
+        this(syncId, inv, new ArrayPropertyDelegate(NUM_PROPS));
     }
 
     /**
@@ -30,6 +36,26 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     public int getGeneratedEnergy() {
         return propertyDelegate.get(PROP_ENERGY);
+    }
+
+    public int getSurplusEnergy() {
+        return propertyDelegate.get(PROP_SURPLUS);
+    }
+
+    public boolean isLightEnabled() {
+        return propertyDelegate.get(PROP_LIGHT) != 0;
+    }
+
+    public boolean isTrainEnabled() {
+        return propertyDelegate.get(PROP_TRAIN) != 0;
+    }
+
+    public boolean isFactoryEnabled() {
+        return propertyDelegate.get(PROP_FACTORY) != 0;
+    }
+
+    public boolean isBlackout() {
+        return propertyDelegate.get(PROP_BLACKOUT) != 0;
     }
 
     @Override
