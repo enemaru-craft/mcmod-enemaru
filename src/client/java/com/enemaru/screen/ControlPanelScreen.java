@@ -24,19 +24,60 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     @Override
     protected void init() {
         super.init();
-        int centerX = (width - backgroundWidth) / 2;
-        int centerY = (height - backgroundHeight) / 2;
 
-        addDrawableChild(ButtonWidget.builder(Text.literal("街灯をオン"), button -> {
+        // 背景の中心座標
+        int centerX = this.x + (this.backgroundWidth / 2);
+        int centerY = this.y + (this.backgroundHeight / 2);
+
+        // 現在のライト状態を取得
+        boolean lightOn = screenHandler.isLightEnabled();
+
+        int buttonWidth = 45;
+        int buttonHeight = 20;
+
+        // ONボタン
+        ButtonWidget onButton = ButtonWidget.builder(Text.literal("ON"), button -> {
             StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(true, true, true);
             ClientPlayNetworking.send(payload);
-        }).position(centerX + 38, centerY + 30).size(100, 20).build());
+            updateLightButtons(true);
+        }).position(centerX - buttonWidth - 2, centerY - 50).size(buttonWidth, buttonHeight).build();
 
-        addDrawableChild(ButtonWidget.builder(Text.literal("街灯をオフ"), button -> {
+        // OFFボタン
+        ButtonWidget offButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
             StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(false, true, true);
             ClientPlayNetworking.send(payload);
-        }).position(centerX + 38, centerY + 55).size(100, 20).build());
+            updateLightButtons(false);
+        }).position(centerX + 2, centerY - 50).size(buttonWidth, buttonHeight).build();
+
+        this.addDrawableChild(onButton);
+        this.addDrawableChild(offButton);
+
+        // ボタンを保持しておいて状態反映用に使う
+        this.lightOnButton = onButton;
+        this.lightOffButton = offButton;
+
+        // 初期状態を反映
+        updateLightButtons(lightOn);
+
+        // ラベル用の位置を保持
+        this.labelX = centerX;
+        this.labelY = centerY - 60; // ボタンの少し上に表示
     }
+
+    // ON/OFFの状態でボタンの色や有効状態を変える
+    private void updateLightButtons(boolean lightOn) {
+        if (lightOn) {
+            lightOnButton.active = false;   // ONのときはONボタンを暗く
+            lightOffButton.active = true;
+        } else {
+            lightOnButton.active = true;
+            lightOffButton.active = false;  // OFFのときはOFFボタンを暗く
+        }
+    }
+
+    // フィールド追加
+    private ButtonWidget lightOnButton;
+    private ButtonWidget lightOffButton;
 
 
     @Override
@@ -47,10 +88,21 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.fill(x, y, x + backgroundWidth, y + backgroundHeight, 0xFF202020);
     }
 
+    private int labelX;
+    private int labelY;
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
+
+        // ラベルを中央寄せで描画
+        String label = "街灯";
+        int textWidth = this.textRenderer.getWidth(label);
+        context.drawText(this.textRenderer, label, labelX - textWidth / 2, labelY, 0xFFFFFF, false);
+
+        // サーバー側の状態を毎回チェックして反映
+        updateLightButtons(screenHandler.isLightEnabled());
 
         // ScreenHandlerに用意したゲッター経由で取得
         int energy = screenHandler.getGeneratedEnergy();
