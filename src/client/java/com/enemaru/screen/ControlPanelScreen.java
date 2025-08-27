@@ -17,7 +17,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     public ControlPanelScreen(ScreenHandler handler, PlayerInventory inv, Text title) {
         super(handler, inv, title);
         this.backgroundWidth = 176;
-        this.backgroundHeight = 166;
+        this.backgroundHeight = 186;
         screenHandler = (ControlPanelScreenHandler) handler;
     }
 
@@ -30,54 +30,130 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int centerY = this.y + (this.backgroundHeight / 2);
 
         // 現在のライト状態を取得
-        boolean lightOn = screenHandler.isLightEnabled();
+        // boolean lightOn = screenHandler.isLightEnabled();
 
         int buttonWidth = 45;
         int buttonHeight = 20;
 
-        // ONボタン
-        ButtonWidget onButton = ButtonWidget.builder(Text.literal("ON"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(true, true, true);
+        // ==========================
+        // 街灯 (Streetlights)
+        // ==========================
+        lightOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    true,   // light
+                    screenHandler.isTrainEnabled(),   // trainの現在値を維持
+                    screenHandler.isFactoryEnabled()  // factoryの現在値を維持
+            );
             ClientPlayNetworking.send(payload);
             updateLightButtons(true);
-        }).position(centerX - buttonWidth - 2, centerY - 50).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 2, centerY - 60).size(buttonWidth, buttonHeight).build();
 
-        // OFFボタン
-        ButtonWidget offButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(false, true, true);
+        lightOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    false,   // light
+                    screenHandler.isTrainEnabled(),   // trainの現在値を維持
+                    screenHandler.isFactoryEnabled()  // factoryの現在値を維持
+            );
             ClientPlayNetworking.send(payload);
             updateLightButtons(false);
-        }).position(centerX + 2, centerY - 50).size(buttonWidth, buttonHeight).build();
+        }).position(centerX + 2, centerY - 60).size(buttonWidth, buttonHeight).build();
 
-        this.addDrawableChild(onButton);
-        this.addDrawableChild(offButton);
+        this.addDrawableChild(lightOnButton);
+        this.addDrawableChild(lightOffButton);
 
-        // ボタンを保持しておいて状態反映用に使う
-        this.lightOnButton = onButton;
-        this.lightOffButton = offButton;
+        lightLabelX = centerX;
+        lightLabelY = centerY - 70;
+
+        // ==========================
+        // 電車 (Train)
+        // ==========================
+        trainOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    screenHandler.isLightEnabled(),
+                    true,
+                    screenHandler.isFactoryEnabled()
+            );
+            ClientPlayNetworking.send(payload);
+            updateTrainButtons(true);
+        }).position(centerX - buttonWidth - 2, centerY - 20).size(buttonWidth, buttonHeight).build();
+
+        trainOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    screenHandler.isLightEnabled(),
+                    false,
+                    screenHandler.isFactoryEnabled()
+            );
+            ClientPlayNetworking.send(payload);
+            updateTrainButtons(false);
+        }).position(centerX + 2, centerY - 20).size(buttonWidth, buttonHeight).build();
+
+        this.addDrawableChild(trainOnButton);
+        this.addDrawableChild(trainOffButton);
+
+        trainLabelX = centerX;
+        trainLabelY = centerY - 30;
+
+        // ==========================
+        // 工場 (Factory)
+        // ==========================
+        factoryOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    screenHandler.isLightEnabled(),
+                    screenHandler.isTrainEnabled(),
+                    true
+            );
+            ClientPlayNetworking.send(payload);
+            updateFactoryButtons(true);
+        }).position(centerX - buttonWidth - 2, centerY + 20).size(buttonWidth, buttonHeight).build();
+
+        factoryOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
+                    screenHandler.isLightEnabled(),
+                    screenHandler.isTrainEnabled(),
+                    false
+            );
+            ClientPlayNetworking.send(payload);
+            updateFactoryButtons(false);
+        }).position(centerX + 2, centerY + 20).size(buttonWidth, buttonHeight).build();
+
+        this.addDrawableChild(factoryOnButton);
+        this.addDrawableChild(factoryOffButton);
+
+        factoryLabelX = centerX;
+        factoryLabelY = centerY + 10;
 
         // 初期状態を反映
-        updateLightButtons(lightOn);
-
-        // ラベル用の位置を保持
-        this.labelX = centerX;
-        this.labelY = centerY - 60; // ボタンの少し上に表示
+        updateLightButtons(screenHandler.isLightEnabled());
+        updateTrainButtons(screenHandler.isTrainEnabled());
+        updateFactoryButtons(screenHandler.isFactoryEnabled());
     }
 
-    // ON/OFFの状態でボタンの色や有効状態を変える
+    // =============================
+    // ON/OFFボタン制御
+    // =============================
     private void updateLightButtons(boolean lightOn) {
-        if (lightOn) {
-            lightOnButton.active = false;   // ONのときはONボタンを暗く
-            lightOffButton.active = true;
-        } else {
-            lightOnButton.active = true;
-            lightOffButton.active = false;  // OFFのときはOFFボタンを暗く
-        }
+        lightOnButton.active = !lightOn;
+        lightOffButton.active = lightOn;
     }
 
-    // フィールド追加
-    private ButtonWidget lightOnButton;
-    private ButtonWidget lightOffButton;
+    private void updateTrainButtons(boolean trainOn) {
+        trainOnButton.active = !trainOn;
+        trainOffButton.active = trainOn;
+    }
+
+    private void updateFactoryButtons(boolean factoryOn) {
+        factoryOnButton.active = !factoryOn;
+        factoryOffButton.active = factoryOn;
+    }
+
+    // フィールド
+    private ButtonWidget lightOnButton, lightOffButton;
+    private ButtonWidget trainOnButton, trainOffButton;
+    private ButtonWidget factoryOnButton, factoryOffButton;
+
+    private int lightLabelX, lightLabelY;
+    private int trainLabelX, trainLabelY;
+    private int factoryLabelX, factoryLabelY;
 
 
     @Override
@@ -88,21 +164,20 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.fill(x, y, x + backgroundWidth, y + backgroundHeight, 0xFF202020);
     }
 
-    private int labelX;
-    private int labelY;
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
-        // ラベルを中央寄せで描画
-        String label = "街灯";
-        int textWidth = this.textRenderer.getWidth(label);
-        context.drawText(this.textRenderer, label, labelX - textWidth / 2, labelY, 0xFFFFFF, false);
+        // ラベルを描画
+        drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
+        drawCenteredLabel(context, "電車", trainLabelX, trainLabelY);
+        drawCenteredLabel(context, "工場", factoryLabelX, factoryLabelY);
 
-        // サーバー側の状態を毎回チェックして反映
+        // サーバーの状態を毎フレーム反映
         updateLightButtons(screenHandler.isLightEnabled());
+        updateTrainButtons(screenHandler.isTrainEnabled());
+        updateFactoryButtons(screenHandler.isFactoryEnabled());
 
         // ScreenHandlerに用意したゲッター経由で取得
         int energy = screenHandler.getGeneratedEnergy();
@@ -113,15 +188,40 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         boolean blackout = screenHandler.isBlackout();
 
         // 画面左上からの相対座標（背景の左上は this.x / this.y）
-        int textX = this.x + 8;
-        int textY = this.y + 90;
+         int textX = this.x + 8;
+         int textY = this.y + 140;
 
-        context.drawText(this.textRenderer, "Generated Energy: " + energy, textX, textY, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Surplus Energy: " + surplus, textX, textY+10, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX, textY+20, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX, textY+30, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX, textY+40, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY+50, 0xFFFFFF, false);
+        // ======================
+        // Energy Bar
+        // ======================
+        int maxEnergy = 4000;
+        int barWidth = 100; // バーの最大幅
+        int barHeight = 10;
+        int filled = (int) ((double) energy / maxEnergy * barWidth);
+
+        int barX = textX;
+        int barY = textY;
+
+        // バー背景（灰色）
+        context.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
+        // バー中身（緑）
+        context.fill(barX, barY, barX + filled, barY + barHeight, 0xFF00FF00);
+
+        // 数字表示（バーの右側に表示）
+        context.drawText(this.textRenderer, energy + " / " + maxEnergy, barX + barWidth + 5, barY, 0xFFFFFF, false);
+
+
+        // context.drawText(this.textRenderer, "Generated Energy: " + energy, textX, textY, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Surplus Energy: " + surplus, textX, textY+15, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX + 200, textY-50, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX + 200, textY-40, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX + 200, textY-30, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY+25, 0xFFFFFF, false);
         drawMouseoverTooltip(context, mouseX, mouseY);
+    }
+
+    private void drawCenteredLabel(DrawContext context, String text, int cx, int cy) {
+        int w = this.textRenderer.getWidth(text);
+        context.drawText(this.textRenderer, text, cx - w / 2, cy, 0xFFFFFF, false);
     }
 }
