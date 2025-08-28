@@ -7,6 +7,7 @@ import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
 import com.enemaru.networking.payload.StateUpdateRequestC2SPayload;
+import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.power.PowerNetwork;
 import com.enemaru.power.WorldStateUpdate;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
@@ -57,6 +58,7 @@ public class Enemaru implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(SetStreetLightsC2SPayload.ID, SetStreetLightsC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(StateUpdateRequestC2SPayload.ID, StateUpdateRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(EquipmentRequestC2SPayload.ID, EquipmentRequestC2SPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(SetStreetLightsC2SPayload.ID, (payload, context) -> {
             boolean enabled = payload.value();
@@ -78,7 +80,14 @@ public class Enemaru implements ModInitializer {
             update.isFactoryEnabled = payload.isFactoryEnabled();
             update.isBlackout = false; // 適切な値を設定
 
-            network.syncWorldState(update, world);
+//            network.syncWorldState(update, world);
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(EquipmentRequestC2SPayload.ID, (payload, context) -> {
+            ServerWorld world = context.player().getServerWorld();
+            PowerNetwork network = PowerNetwork.get(world);
+
+            network.sendWorldState(payload.equipment(), payload.enable(), world);
         });
 
 
