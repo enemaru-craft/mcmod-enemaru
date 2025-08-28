@@ -5,6 +5,7 @@ import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -18,6 +19,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +28,26 @@ import java.util.concurrent.CompletableFuture;
 
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
+    private static String API_URL = "http://localhost:3000";
+    static {
+        try {
+            Path cfg = FabricLoader.getInstance().getConfigDir().resolve("enemaru.json");
+            System.out.println("Place config json to: "+FabricLoader.getInstance().getConfigDir());
+            if (Files.exists(cfg)) {
+                String json = Files.readString(cfg);
+                JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+                if (obj.has("backendBaseUrl")) {
+                    API_URL = obj.get("backendBaseUrl").getAsString();
+                    System.out.println("[enemaru] API_URL loaded from config: " + API_URL);
+                }
+            } else {
+                System.out.println("[enemaru] No config file found, using default API_URL=" + API_URL);
+            }
+        } catch (Exception e) {
+            System.err.println("[enemaru] Failed to load config, using default API_URL=" + API_URL);
+        }
+    }
+    private int sessionId = 2021;
     private int generatedEnergy = 0;
     private int surplusEnergy = 0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
@@ -68,9 +91,21 @@ public class PowerNetwork extends PersistentState {
 
 
     public void tick(ServerWorld world) {
+        // サーバー側でのみ実行
+        if (world.isClient) {
+            return;
+        }
+        // オーバーワールドでのみ実行
+        if (!world.getRegistryKey().equals(ServerWorld.OVERWORLD)) {
+            return;
+        }
         // 3秒ごとに動かす
         if (world.getTime() % 60 != 0) return;
-        fetchWorldStateAsync()
+
+        JsonObject obj = new JsonObject();
+        obj.addProperty("sessionId", Integer.toString(sessionId));
+        String session = obj.toString();
+        postAsync(session, "/get-current-world-state")
                 .thenAccept(json -> {
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(json, WorldState.class);
@@ -81,7 +116,7 @@ public class PowerNetwork extends PersistentState {
                         for (ServerPlayerEntity player : world.getPlayers()) {
                             player.sendMessage(
                                     Text.literal(
-                                            String.format("fetched")
+                                            String.format("fetched:"+json)
                                     ),
                                     false
                             );
@@ -101,10 +136,13 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    public void syncWorldState(WorldStateUpdate update, ServerWorld world) {
-        Gson gson = new Gson();
-        String statePayload = gson.toJson(update);
-        postWorldStateAsync(statePayload)
+    public void sendWorldState(String equipment, boolean enable, ServerWorld world) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("sessionId", Integer.toString(sessionId));
+        obj.addProperty("equipment", equipment);
+        String statePayload = obj.toString();
+        String endpoint = enable ? "/turn-on-equipment" : "/turn-off-equipment";
+        postAsync(statePayload, endpoint)
                 .thenAccept(response -> {
                     //レスポンスを受け取った後の処理
                     Gson gson1 = new Gson();
@@ -119,27 +157,9 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    /** 非同期で HTTP GET → JSON パース */
-    private CompletableFuture<JsonObject> fetchWorldStateAsync() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                HttpRequest req = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:3000/energy"))
-                        .GET()
-                        .build();
-                HttpResponse<String> res = HTTP_CLIENT.send(
-                        req, HttpResponse.BodyHandlers.ofString()
-                );
-                return JsonParser.parseString(res.body()).getAsJsonObject();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    private CompletableFuture<JsonObject> postWorldStateAsync(String json) {
+    private CompletableFuture<JsonObject> postAsync(String json, String endpoint) {
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:3000/state"))
+                .uri(URI.create(API_URL+endpoint))
                 .header("Content-Type", "application/json; charset=utf-8")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
