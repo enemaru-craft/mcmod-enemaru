@@ -1,6 +1,6 @@
 package com.enemaru.screen;
 
-import com.enemaru.networking.payload.StateUpdateRequestC2SPayload;
+import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
@@ -39,21 +39,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 街灯 (Streetlights)
         // ==========================
         lightOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    true,   // light
-                    screenHandler.isTrainEnabled(),   // trainの現在値を維持
-                    screenHandler.isFactoryEnabled()  // factoryの現在値を維持
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", true);
             ClientPlayNetworking.send(payload);
             updateLightButtons(true);
         }).position(centerX - buttonWidth - 2, centerY - 60).size(buttonWidth, buttonHeight).build();
 
         lightOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    false,   // light
-                    screenHandler.isTrainEnabled(),   // trainの現在値を維持
-                    screenHandler.isFactoryEnabled()  // factoryの現在値を維持
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", false);
             ClientPlayNetworking.send(payload);
             updateLightButtons(false);
         }).position(centerX + 2, centerY - 60).size(buttonWidth, buttonHeight).build();
@@ -68,21 +60,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 電車 (Train)
         // ==========================
         trainOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    screenHandler.isLightEnabled(),
-                    true,
-                    screenHandler.isFactoryEnabled()
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
         }).position(centerX - buttonWidth - 2, centerY - 20).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    screenHandler.isLightEnabled(),
-                    false,
-                    screenHandler.isFactoryEnabled()
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
         }).position(centerX + 2, centerY - 20).size(buttonWidth, buttonHeight).build();
@@ -97,21 +81,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 工場 (Factory)
         // ==========================
         factoryOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    screenHandler.isLightEnabled(),
-                    screenHandler.isTrainEnabled(),
-                    true
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", true);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(true);
         }).position(centerX - buttonWidth - 2, centerY + 20).size(buttonWidth, buttonHeight).build();
 
         factoryOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
-            StateUpdateRequestC2SPayload payload = new StateUpdateRequestC2SPayload(
-                    screenHandler.isLightEnabled(),
-                    screenHandler.isTrainEnabled(),
-                    false
-            );
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", false);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(false);
         }).position(centerX + 2, centerY + 20).size(buttonWidth, buttonHeight).build();
