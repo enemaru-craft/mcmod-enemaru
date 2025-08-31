@@ -1,5 +1,6 @@
 package com.enemaru.power;
 
+import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import com.google.gson.Gson;
@@ -25,10 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private static String API_URL = "http://localhost:3000";
+
     static {
         try {
             Path cfg = FabricLoader.getInstance().getConfigDir().resolve("enemaru.json");
@@ -47,6 +48,7 @@ public class PowerNetwork extends PersistentState {
             System.err.println("[enemaru] Failed to load config, using default API_URL=" + API_URL);
         }
     }
+
     private int sessionId = 2021;
     private int generatedEnergy = 0;
     private int surplusEnergy = 0;
@@ -59,8 +61,10 @@ public class PowerNetwork extends PersistentState {
     private boolean isTrainEnabled = false;
     private boolean isFactoryEnabled = false;
     private boolean isBlackout = false;
-    /** 登録制リスト：現在読み込まれている街灯の BlockEntity */
+
+    /** 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
+    private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
     private List<String> lastTexts = new ArrayList<>();
 
     private PowerNetwork() {
@@ -89,22 +93,15 @@ public class PowerNetwork extends PersistentState {
         return nbt;
     }
 
-
     public void tick(ServerWorld world) {
-        // サーバー側でのみ実行
-        if (world.isClient) {
-            return;
-        }
-        // オーバーワールドでのみ実行
-        if (!world.getRegistryKey().equals(ServerWorld.OVERWORLD)) {
-            return;
-        }
-        // 3秒ごとに動かす
+        if (world.isClient) return;
+        if (!world.getRegistryKey().equals(ServerWorld.OVERWORLD)) return;
         if (world.getTime() % 60 != 0) return;
 
         JsonObject obj = new JsonObject();
         obj.addProperty("sessionId", Integer.toString(sessionId));
         String session = obj.toString();
+
         postAsync(session, "/get-current-world-state")
                 .thenAccept(json -> {
                     Gson gson = new Gson();
@@ -115,9 +112,7 @@ public class PowerNetwork extends PersistentState {
                     world.getServer().execute(() -> {
                         for (ServerPlayerEntity player : world.getPlayers()) {
                             player.sendMessage(
-                                    Text.literal(
-                                            String.format("fetched:"+json)
-                                    ),
+                                    Text.literal("fetched:" + json),
                                     false
                             );
                         }
@@ -142,11 +137,11 @@ public class PowerNetwork extends PersistentState {
         obj.addProperty("equipment", equipment);
         String statePayload = obj.toString();
         String endpoint = enable ? "/turn-on-equipment" : "/turn-off-equipment";
+
         postAsync(statePayload, endpoint)
                 .thenAccept(response -> {
-                    //レスポンスを受け取った後の処理
-                    Gson gson1 = new Gson();
-                    WorldState states = gson1.fromJson(response, WorldState.class);
+                    Gson gson = new Gson();
+                    WorldState states = gson.fromJson(response, WorldState.class);
                     updateState(states, world);
                     System.out.println("State updated successfully: " + response);
                 })
@@ -159,7 +154,7 @@ public class PowerNetwork extends PersistentState {
 
     private CompletableFuture<JsonObject> postAsync(String json, String endpoint) {
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL+endpoint))
+                .uri(URI.create(API_URL + endpoint))
                 .header("Content-Type", "application/json; charset=utf-8")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -174,45 +169,35 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    /** ワールドの状態を更新 */
     private void updateState(WorldState states, ServerWorld world) {
-        // ここでワールドのギミックのオンオフを更新
         setStreetlightsEnabled(states.state.isLightEnabled);
-
-        // TODO: 他のギミックもここで更新する
-        // とりあえずフィールドのみ変更
         this.isTrainEnabled = states.state.isTrainEnabled;
         this.isFactoryEnabled = states.state.isFactoryEnabled;
         this.isBlackout = states.state.isBlackout;
 
-        this.generatedEnergy = (int)states.variables.totalPower;
-        this.surplusEnergy = (int)states.variables.surplusPower;
-        // 村人の吹き出しにメッセージを分配
-        if(states.texts.equals(this.lastTexts)){
-            return; // 前回と同じなら更新しない
-        }
-        // 村人のエンティティリストを取得
-        var villagers = world.getEntitiesByType(EntityType.VILLAGER,v -> true);
+        this.generatedEnergy = (int) states.variables.totalPower;
+        this.surplusEnergy = (int) states.variables.surplusPower;
+
+        if(states.texts.equals(this.lastTexts)) return;
+
+        var villagers = world.getEntitiesByType(EntityType.VILLAGER, v -> true);
         var numTexts = states.texts.size();
         int counter = 0;
-        System.out.println("Villager count: " + villagers.size());
+
         for (Entity entity : villagers) {
             TalkCloudCommand.sendBubble(entity, Text.of(""), false, true);
             if(counter < numTexts) {
                 TalkCloudCommand.sendBubble(entity, Text.of(states.texts.get(counter)), true,false);
-            }else{
-                System.out.println("Texts count Overflow!!!!");
             }
             counter++;
         }
+
         this.lastTexts = states.texts;
     }
 
     /** 街灯 BlockEntity を登録 */
     public void registerStreetLight(StreetLightBlockEntity te) {
-        if (!streetLights.contains(te)) {
-            streetLights.add(te);
-        }
+        if (!streetLights.contains(te)) streetLights.add(te);
     }
 
     /** 街灯 BlockEntity を登録解除 */
@@ -220,27 +205,26 @@ public class PowerNetwork extends PersistentState {
         streetLights.remove(te);
     }
 
+    /** シーランタン BlockEntity を登録 */
+    public void registerSeaLantern(SeaLanternLampBlockEntity te) {
+        if (!seaLanterns.contains(te)) seaLanterns.add(te);
+    }
+
+    /** シーランタン BlockEntity を登録解除 */
+    public void unregisterSeaLantern(SeaLanternLampBlockEntity te) {
+        seaLanterns.remove(te);
+    }
+
     /** 許可フラグを取得 */
-    public boolean getStreetlightsEnabled() {
-        return isStreetlightsEnabled;
-    }
-
-    public boolean getTrainEnabled() {
-        return isTrainEnabled;
-    }
-
-    public boolean getFactoryEnabled() {
-        return isFactoryEnabled;
-    }
-
-    public boolean getBlackout() {
-        return isBlackout;
-    }
+    public boolean getStreetlightsEnabled() { return isStreetlightsEnabled; }
+    public boolean getTrainEnabled() { return isTrainEnabled; }
+    public boolean getFactoryEnabled() { return isFactoryEnabled; }
+    public boolean getBlackout() { return isBlackout; }
 
     /** ユーザー操作で呼ばれるメソッド */
     public void setStreetlightsEnabled(boolean enable) {
         this.isStreetlightsEnabled = enable;
-        applyStreetLightState();  // 一斉オン／オフ
+        applyStreetLightState();
         markDirty();
     }
 
@@ -249,14 +233,11 @@ public class PowerNetwork extends PersistentState {
         for (var light : streetLights) {
             light.updatePowered(isStreetlightsEnabled);
         }
+        for (var lantern : seaLanterns) {
+            lantern.updatePowered(isStreetlightsEnabled);
+        }
     }
 
-    public int getGeneratedEnergy() {
-        return generatedEnergy;
-    }
-
-    public int getSurplusEnergy() {
-        return surplusEnergy;
-    }
-
+    public int getGeneratedEnergy() { return generatedEnergy; }
+    public int getSurplusEnergy() { return surplusEnergy; }
 }

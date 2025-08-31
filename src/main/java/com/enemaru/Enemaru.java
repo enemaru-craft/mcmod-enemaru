@@ -2,6 +2,7 @@ package com.enemaru;
 
 import com.enemaru.block.ModBlocks;
 import com.enemaru.blockentity.ModBlockEntities;
+import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
@@ -106,19 +107,26 @@ public class Enemaru implements ModInitializer {
         // サーバー側でブロックエンティティが「ロード」されるたびに呼ばれる
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, world) -> {
             if (!(world instanceof ServerWorld sw)) return;
+            PowerNetwork net = PowerNetwork.get(sw);
+
             if (be instanceof StreetLightBlockEntity sle) {
-                // 登録して最新のフラグを反映
-                PowerNetwork net = PowerNetwork.get(sw);
                 net.registerStreetLight(sle);
                 sle.updatePowered(net.getStreetlightsEnabled());
+            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
+                net.registerSeaLantern(sleLantern);
+                sleLantern.updatePowered(net.getStreetlightsEnabled());
             }
         });
 
         // ブロックエンティティが「アンロード」されるとき
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, world) -> {
             if (!(world instanceof ServerWorld sw)) return;
+            PowerNetwork net = PowerNetwork.get(sw);
+
             if (be instanceof StreetLightBlockEntity sle) {
-                PowerNetwork.get(sw).unregisterStreetLight(sle);
+                net.unregisterStreetLight(sle);
+            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
+                net.unregisterSeaLantern(sleLantern);
             }
         });
         LOGGER.info("Hello Fabric world!");
