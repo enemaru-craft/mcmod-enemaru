@@ -18,7 +18,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -31,7 +30,6 @@ import net.minecraft.world.World;
  */
 public class SeaLanternLampBlock extends BlockWithEntity {
     public static final BooleanProperty LIT = Properties.LIT;
-    public static final BooleanProperty HANGING = Properties.HANGING;
 
     public SeaLanternLampBlock(Settings settings) {
         super(settings);
@@ -51,7 +49,7 @@ public class SeaLanternLampBlock extends BlockWithEntity {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(HANGING, LIT);
+        builder.add(LIT);
     }
 
     @Override
@@ -67,10 +65,7 @@ public class SeaLanternLampBlock extends BlockWithEntity {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        boolean hanging = ctx.getSide() == Direction.DOWN;
-        return this.getDefaultState()
-                .with(HANGING, hanging)
-                .with(LIT, false);
+        return this.getDefaultState().with(LIT, false);
     }
 
     @Override
