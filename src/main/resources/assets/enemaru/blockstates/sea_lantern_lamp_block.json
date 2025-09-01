@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "lit=false": { "model": "enemaru:block/sea_lantern_lamp_block" },
+    "lit=true":  { "model": "enemaru:block/lit_sea_lantern_lamp_block" }
+  }
+}

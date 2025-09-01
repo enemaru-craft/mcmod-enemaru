@@ -15,10 +15,17 @@ public class ModBlockEntities {
     public static final BlockEntityType<StreetLightBlockEntity> STREET_LIGHT_ENTITY =
             register("street_light", StreetLightBlockEntity::new, ModBlocks.STREET_LIGHT_BLOCK);
 
+    public static final BlockEntityType<SeaLanternLampBlockEntity> SEA_LANTERN_LAMP_ENTITY =
+            register("sea_lantern_lamp", SeaLanternLampBlockEntity::new, ModBlocks.SEA_LANTERN_LAMP_BLOCK);
+
     private static <T extends BlockEntity> BlockEntityType<T> register(String name,
                                                                        BlockEntityType.BlockEntityFactory<? extends T> entityFactory,
                                                                        Block... blocks) {
         Identifier id = Identifier.of(Enemaru.MOD_ID, name);
-        return Registry.register(Registries.BLOCK_ENTITY_TYPE, id, BlockEntityType.Builder.<T>create(entityFactory, blocks).build(null));
+        return Registry.register(
+                Registries.BLOCK_ENTITY_TYPE,
+                id,
+                BlockEntityType.Builder.<T>create(entityFactory, blocks).build(null)
+        );
     }
 }
