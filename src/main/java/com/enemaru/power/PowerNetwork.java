@@ -1,5 +1,6 @@
 package com.enemaru.power;
 
+import com.enemaru.blockentity.EndRodLampBlockEntity;
 import com.enemaru.blockentity.GlowstoneLampBlockEntity;
 import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
@@ -67,6 +68,7 @@ public class PowerNetwork extends PersistentState {
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
     private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
     private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
+    private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
 
     private List<String> lastTexts = new ArrayList<>();
 
@@ -228,6 +230,17 @@ public class PowerNetwork extends PersistentState {
         glowstoneLamps.remove(te);
     }
 
+    /** エンドロッドランプ BlockEntity を登録 */
+    public void registerEndRodLamp(EndRodLampBlockEntity te) {
+        if (!endRodLamps.contains(te)) endRodLamps.add(te);
+    }
+
+    /** エンドロッドランプ BlockEntity を登録解除 */
+    public void unregisterEndRodLamp(EndRodLampBlockEntity te) {
+        endRodLamps.remove(te);
+    }
+
+
 
     /** 許可フラグを取得 */
     public boolean getStreetlightsEnabled() { return isStreetlightsEnabled; }
@@ -253,7 +266,11 @@ public class PowerNetwork extends PersistentState {
         for (var glow : glowstoneLamps) {
             glow.updatePowered(isStreetlightsEnabled);
         }
+        for (var endRod : endRodLamps) {
+            endRod.updatePowered(isStreetlightsEnabled);
+        }
     }
+
 
 
     public int getGeneratedEnergy() { return generatedEnergy; }

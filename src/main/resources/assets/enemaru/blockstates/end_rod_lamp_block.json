@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "lit=false": { "model": "enemaru:block/end_rod_lamp_block" },
+    "lit=true":  { "model": "enemaru:block/lit_end_rod_lamp_block" }
+  }
+}
