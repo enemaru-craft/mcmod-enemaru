@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "lit=false": { "model": "enemaru:block/glowstone_lamp_block" },
+    "lit=true":  { "model": "enemaru:block/lit_glowstone_lamp_block" }
+  }
+}

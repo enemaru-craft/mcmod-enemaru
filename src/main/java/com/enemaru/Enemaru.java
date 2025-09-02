@@ -1,6 +1,7 @@
 package com.enemaru;
 
 import com.enemaru.block.ModBlocks;
+import com.enemaru.blockentity.GlowstoneLampBlockEntity;
 import com.enemaru.blockentity.ModBlockEntities;
 import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
@@ -115,6 +116,9 @@ public class Enemaru implements ModInitializer {
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.registerSeaLantern(sleLantern);
                 sleLantern.updatePowered(net.getStreetlightsEnabled());
+            } else if (be instanceof GlowstoneLampBlockEntity glow) {   // ← Glowstone を追加
+                net.registerGlowstone(glow);
+                glow.updatePowered(net.getStreetlightsEnabled());
             }
         });
 
@@ -127,6 +131,8 @@ public class Enemaru implements ModInitializer {
                 net.unregisterStreetLight(sle);
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.unregisterSeaLantern(sleLantern);
+            } else if (be instanceof GlowstoneLampBlockEntity glow) {   // ← Glowstone を追加
+                net.unregisterGlowstone(glow);
             }
         });
         LOGGER.info("Hello Fabric world!");

@@ -1,5 +1,6 @@
 package com.enemaru.power;
 
+import com.enemaru.blockentity.GlowstoneLampBlockEntity;
 import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
@@ -65,6 +66,8 @@ public class PowerNetwork extends PersistentState {
     /** 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
     private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
+    private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
+
     private List<String> lastTexts = new ArrayList<>();
 
     private PowerNetwork() {
@@ -215,6 +218,17 @@ public class PowerNetwork extends PersistentState {
         seaLanterns.remove(te);
     }
 
+    /** Glowstone BlockEntity を登録 */
+    public void registerGlowstone(GlowstoneLampBlockEntity te) {
+        if (!glowstoneLamps.contains(te)) glowstoneLamps.add(te);
+    }
+
+    /** Glowstone BlockEntity を登録解除 */
+    public void unregisterGlowstone(GlowstoneLampBlockEntity te) {
+        glowstoneLamps.remove(te);
+    }
+
+
     /** 許可フラグを取得 */
     public boolean getStreetlightsEnabled() { return isStreetlightsEnabled; }
     public boolean getTrainEnabled() { return isTrainEnabled; }
@@ -236,7 +250,11 @@ public class PowerNetwork extends PersistentState {
         for (var lantern : seaLanterns) {
             lantern.updatePowered(isStreetlightsEnabled);
         }
+        for (var glow : glowstoneLamps) {
+            glow.updatePowered(isStreetlightsEnabled);
+        }
     }
+
 
     public int getGeneratedEnergy() { return generatedEnergy; }
     public int getSurplusEnergy() { return surplusEnergy; }

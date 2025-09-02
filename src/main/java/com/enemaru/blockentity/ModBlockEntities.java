@@ -18,6 +18,9 @@ public class ModBlockEntities {
     public static final BlockEntityType<SeaLanternLampBlockEntity> SEA_LANTERN_LAMP_ENTITY =
             register("sea_lantern_lamp", SeaLanternLampBlockEntity::new, ModBlocks.SEA_LANTERN_LAMP_BLOCK);
 
+    public static final BlockEntityType<GlowstoneLampBlockEntity> GLOWSTONE_LAMP_ENTITY =
+            register("glowstone_lamp_block", GlowstoneLampBlockEntity::new, ModBlocks.GLOWSTONE_LAMP_BLOCK);
+
     private static <T extends BlockEntity> BlockEntityType<T> register(String name,
                                                                        BlockEntityType.BlockEntityFactory<? extends T> entityFactory,
                                                                        Block... blocks) {
