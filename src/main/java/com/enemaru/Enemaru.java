@@ -1,9 +1,7 @@
 package com.enemaru;
 
 import com.enemaru.block.ModBlocks;
-import com.enemaru.blockentity.ModBlockEntities;
-import com.enemaru.blockentity.SeaLanternLampBlockEntity;
-import com.enemaru.blockentity.StreetLightBlockEntity;
+import com.enemaru.blockentity.*;
 import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
@@ -115,8 +113,15 @@ public class Enemaru implements ModInitializer {
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.registerSeaLantern(sleLantern);
                 sleLantern.updatePowered(net.getStreetlightsEnabled());
+            } else if (be instanceof GlowstoneLampBlockEntity glow) {
+                net.registerGlowstone(glow);
+                glow.updatePowered(net.getStreetlightsEnabled());
+            } else if (be instanceof EndRodLampBlockEntity endRod) {
+                net.registerEndRodLamp(endRod);
+                endRod.updatePowered(net.getStreetlightsEnabled());
             }
         });
+
 
         // ブロックエンティティが「アンロード」されるとき
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, world) -> {
@@ -127,8 +132,13 @@ public class Enemaru implements ModInitializer {
                 net.unregisterStreetLight(sle);
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.unregisterSeaLantern(sleLantern);
+            } else if (be instanceof GlowstoneLampBlockEntity glow) {
+                net.unregisterGlowstone(glow);
+            } else if (be instanceof EndRodLampBlockEntity endRod) {
+                net.unregisterEndRodLamp(endRod);
             }
         });
+
         LOGGER.info("Hello Fabric world!");
     }
 }
