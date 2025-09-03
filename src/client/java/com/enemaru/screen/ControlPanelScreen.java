@@ -165,8 +165,8 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ======================
         // Energy Bar
         // ======================
-        int maxEnergy = 4200;
-        int barWidth = 150;
+        int maxEnergy = 4200; //バーの最大値
+        int barWidth = 150; //バーの幅
         int barHeight = 10;
         int filled = (int) ((double) energy / maxEnergy * barWidth);
 
@@ -182,8 +182,8 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, energyText, barX + (barWidth - textWidth) / 2, barY - 10, 0xFFFFFF, false);
 
         // ======================
-// 予測表示（マウスオーバー）
-// ======================
+        // 予測表示（マウスオーバー）
+        // ======================
         if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
             int predictedIncrease = 200;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
@@ -193,7 +193,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
             int predictedDecrease = 200;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
-            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800); // 薄い緑
+            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800); // 濃い緑
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 15, barY, 0x8844FF44, false);
         }
 
