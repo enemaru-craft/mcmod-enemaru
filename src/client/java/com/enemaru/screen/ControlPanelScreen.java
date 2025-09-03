@@ -27,82 +27,80 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // 背景の中心座標
         int centerX = this.x + (this.backgroundWidth / 2);
-        int centerY = this.y + (this.backgroundHeight / 2);
-
-        // 現在のライト状態を取得
-        // boolean lightOn = screenHandler.isLightEnabled();
+        int centerY = this.y + (this.backgroundHeight / 2) - 20; // 全体を上に20px移動
 
         int buttonWidth = 45;
         int buttonHeight = 20;
 
         // ==========================
-        // 街灯 (Streetlights)
+        // 街灯
         // ==========================
         lightOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", true);
             ClientPlayNetworking.send(payload);
             updateLightButtons(true);
-        }).position(centerX - buttonWidth - 2, centerY - 60).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 2, centerY - 50).size(buttonWidth, buttonHeight).build();
 
         lightOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", false);
             ClientPlayNetworking.send(payload);
             updateLightButtons(false);
-        }).position(centerX + 2, centerY - 60).size(buttonWidth, buttonHeight).build();
+        }).position(centerX + 2, centerY - 50).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(lightOnButton);
         this.addDrawableChild(lightOffButton);
 
         lightLabelX = centerX;
-        lightLabelY = centerY - 70;
+        lightLabelY = centerY - 60;
 
         // ==========================
-        // 電車 (Train)
+        // 電車
         // ==========================
         trainOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
-        }).position(centerX - buttonWidth - 2, centerY - 20).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 2, centerY - 10).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
-        }).position(centerX + 2, centerY - 20).size(buttonWidth, buttonHeight).build();
+        }).position(centerX + 2, centerY - 10).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(trainOnButton);
         this.addDrawableChild(trainOffButton);
 
         trainLabelX = centerX;
-        trainLabelY = centerY - 30;
+        trainLabelY = centerY - 20;
 
         // ==========================
-        // 工場 (Factory)
+        // 工場
         // ==========================
         factoryOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", true);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(true);
-        }).position(centerX - buttonWidth - 2, centerY + 20).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 2, centerY + 30).size(buttonWidth, buttonHeight).build();
 
         factoryOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", false);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(false);
-        }).position(centerX + 2, centerY + 20).size(buttonWidth, buttonHeight).build();
+        }).position(centerX + 2, centerY + 30).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(factoryOnButton);
         this.addDrawableChild(factoryOffButton);
 
         factoryLabelX = centerX;
-        factoryLabelY = centerY + 10;
+        factoryLabelY = centerY + 20;
 
         // 初期状態を反映
         updateLightButtons(screenHandler.isLightEnabled());
         updateTrainButtons(screenHandler.isTrainEnabled());
         updateFactoryButtons(screenHandler.isFactoryEnabled());
     }
+
 
     // =============================
     // ON/OFFボタン制御
@@ -145,17 +143,15 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
-        // ラベルを描画
+        // ラベル描画
         drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
         drawCenteredLabel(context, "電車", trainLabelX, trainLabelY);
         drawCenteredLabel(context, "工場", factoryLabelX, factoryLabelY);
 
-        // サーバーの状態を毎フレーム反映
         updateLightButtons(screenHandler.isLightEnabled());
         updateTrainButtons(screenHandler.isTrainEnabled());
         updateFactoryButtons(screenHandler.isFactoryEnabled());
 
-        // ScreenHandlerに用意したゲッター経由で取得
         int energy = screenHandler.getGeneratedEnergy();
         int surplus = screenHandler.getSurplusEnergy();
         boolean light = screenHandler.isLightEnabled();
@@ -163,38 +159,84 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         boolean factory = screenHandler.isFactoryEnabled();
         boolean blackout = screenHandler.isBlackout();
 
-        // 画面左上からの相対座標（背景の左上は this.x / this.y）
-         int textX = this.x + 8;
-         int textY = this.y + 140;
+        int textX = this.x + 8;
+        int textY = this.y + 140;
 
         // ======================
         // Energy Bar
         // ======================
-        int maxEnergy = 4000;
-        int barWidth = 100; // バーの最大幅
+        int maxEnergy = 4200;
+        int barWidth = 150;
         int barHeight = 10;
         int filled = (int) ((double) energy / maxEnergy * barWidth);
 
         int barX = textX;
         int barY = textY;
 
-        // バー背景（灰色）
-        context.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-        // バー中身（緑）
-        context.fill(barX, barY, barX + filled, barY + barHeight, 0xFF00FF00);
+        context.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555); // 背景
+        context.fill(barX, barY, barX + filled, barY + barHeight, 0xFF00FF00);   // 中身
 
-        // 数字表示（バーの右側に表示）
-        context.drawText(this.textRenderer, energy + " / " + maxEnergy, barX + barWidth + 5, barY, 0xFFFFFF, false);
+        // 現在のエネルギーをバー上に中央表示
+        String energyText = String.format("%03d / %d", energy, maxEnergy);
+        int textWidth = this.textRenderer.getWidth(energyText);
+        context.drawText(this.textRenderer, energyText, barX + (barWidth - textWidth) / 2, barY - 10, 0xFFFFFF, false);
+
+        // ======================
+// 予測表示（マウスオーバー）
+// ======================
+        if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
+            int predictedIncrease = 200;
+            int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
+            context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888); // 薄い赤
+            context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
+        }
+        if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
+            int predictedDecrease = 200;
+            int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
+            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800); // 薄い緑
+            context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 15, barY, 0x8844FF44, false);
+        }
+
+        if (!train && trainOnButton.isMouseOver(mouseX, mouseY)) {
+            int predictedIncrease = 500;
+            int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
+            context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
+            context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
+        }
+        if (train && trainOffButton.isMouseOver(mouseX, mouseY)) {
+            int predictedDecrease = 500;
+            int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
+            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
+            context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 25, barY, 0x8844FF44, false);
+        }
+
+        if (!factory && factoryOnButton.isMouseOver(mouseX, mouseY)) {
+            int predictedIncrease = 800;
+            int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
+            context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
+            context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
+        }
+        if (factory && factoryOffButton.isMouseOver(mouseX, mouseY)) {
+            int predictedDecrease = 800;
+            int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
+            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
+            context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 35, barY, 0x8844FF44, false);
+        }
 
 
-        // context.drawText(this.textRenderer, "Generated Energy: " + energy, textX, textY, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Surplus Energy: " + surplus, textX, textY+15, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX + 200, textY-50, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX + 200, textY-40, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX + 200, textY-30, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY+25, 0xFFFFFF, false);
+
+        // 他情報表示
+        context.drawText(this.textRenderer, "Surplus Energy: " + surplus, textX, textY + 15, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX + 200, textY - 50, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX + 200, textY - 40, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX + 200, textY - 30, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY + 25, 0xFFFFFF, false);
+
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
+
+
+
 
     private void drawCenteredLabel(DrawContext context, String text, int cx, int cy) {
         int w = this.textRenderer.getWidth(text);
