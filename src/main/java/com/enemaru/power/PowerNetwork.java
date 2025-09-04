@@ -5,6 +5,7 @@ import com.enemaru.blockentity.GlowstoneLampBlockEntity;
 import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
+import com.enemaru.commands.TrainCommand;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -13,6 +14,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -183,6 +186,15 @@ public class PowerNetwork extends PersistentState {
         this.generatedEnergy = (int) states.variables.totalPower;
         this.surplusEnergy = (int) states.variables.surplusPower;
 
+        MinecraftServer server = world.getServer();
+        ServerCommandSource source = server.getCommandSource();
+        if(states.state.isTrainEnabled){
+            TrainCommand.runTrain(server, source);
+        }else{
+            TrainCommand.stopTrain(server, source);
+        }
+
+        // 村人にテキストを分配
         if(states.texts.equals(this.lastTexts)) return;
 
         var villagers = world.getEntitiesByType(EntityType.VILLAGER, v -> true);

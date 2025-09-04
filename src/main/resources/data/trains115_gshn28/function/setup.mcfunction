@@ -16,6 +16,8 @@ scoreboard objectives add rptrain_crgload dummy
 scoreboard objectives add rptrain_sndcntr dummy
 scoreboard objectives add rptrain_sndfrq dummy
 scoreboard objectives add gshn28_vehiclehp dummy
+scoreboard objectives add rptrain_use_marker dummy
+scoreboard players set Global rptrain_use_marker 1
 tellraw @a [{"text":"=============================================","color":"gold"}]
 tellraw @a {"text":"         [ Trains V1.15 - By Gshn28 ]         ","bold":True,"underlined":false,"color":"yellow","clickEvent":{"action":"open_url","value":"https://www.youtube.com/user/28Gshn"},"hoverEvent":{"action":"show_text","value":"Click me!"}}
 tellraw @a [{"text":"               Datapack loaded succesfully!\n","color":"white"}]

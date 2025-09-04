@@ -1,18 +1,12 @@
-execute if entity @a[y_rotation=-23..22,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 0
-execute if entity @a[y_rotation=23..67,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 45
-execute if entity @a[y_rotation=68..112,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 90
-execute if entity @a[y_rotation=113..157,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 135
-execute if entity @a[y_rotation=158..202,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 180
-execute if entity @a[y_rotation=203..247,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 225
-execute if entity @a[y_rotation=248..292,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 270
-execute if entity @a[y_rotation=293..337,distance=..5,limit=1,sort=nearest] run scoreboard players set @s rptrain_rotation 315
-execute store result entity @s Rotation[0] float 1 run scoreboard players get @s rptrain_rotation
-execute positioned ^ ^ ^8 if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
-execute positioned ^ ^ ^-8 if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
-execute if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
-execute positioned ^ ^ ^8 if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
-execute positioned ^ ^ ^-8 if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
-execute if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
+#entityの向きをrptrain_rotationに反映（電車とentityの向きが同じだとスポーンブロックされるが、コメントアウト済み）
+execute store result score @s rptrain_rotation run data get entity @s Rotation[0] 1
+
+#execute positioned ^ ^ ^8 if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
+#execute positioned ^ ^ ^-8 if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
+#execute if entity @e[tag=rptrain_train,distance=..5] run tellraw @p {"text":"[Too close of another train!]","color":"red"}
+#execute positioned ^ ^ ^8 if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
+#execute positioned ^ ^ ^-8 if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
+#execute if entity @e[tag=rptrain_train,distance=..5] run tag @s add rptrain_spawnblocked
 execute if entity @s[name=rptrain_spawn_steamloco,tag=!rptrain_spawnblocked] at @s run function trains115_gshn28:spawn_steamloco
 execute if entity @s[name=rptrain_spawn_dieselloco,tag=!rptrain_spawnblocked] at @s run function trains115_gshn28:spawn_dieselloco
 execute if entity @s[name=rptrain_spawn_electricloco,tag=!rptrain_spawnblocked] at @s run function trains115_gshn28:spawn_electricloco

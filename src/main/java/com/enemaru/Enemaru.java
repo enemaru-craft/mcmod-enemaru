@@ -2,6 +2,7 @@ package com.enemaru;
 
 import com.enemaru.block.ModBlocks;
 import com.enemaru.blockentity.*;
+import com.enemaru.commands.TrainCommand;
 import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
@@ -93,6 +94,10 @@ public class Enemaru implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             TalkCloudCommand.register(dispatcher, registryAccess);
+        });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            TrainCommand.register(dispatcher, registryAccess);
         });
 
         // サーバーのワールド毎ティック（20ティック＝1秒ごと）に
