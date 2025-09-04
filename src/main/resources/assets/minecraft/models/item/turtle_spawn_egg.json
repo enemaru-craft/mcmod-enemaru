@@ -1,0 +1,23 @@
+{
+    "parent": "item/template_spawn_egg",
+        "overrides": [
+{ "predicate": { "custom_model_data": 7}, "model": "item/loco_steam1"},
+{ "predicate": { "custom_model_data": 8}, "model": "item/loco_diesel1"},
+{ "predicate": { "custom_model_data": 9}, "model": "item/loco_electric1"},
+{ "predicate": { "custom_model_data": 10}, "model": "item/loco_metro1"},
+{ "predicate": { "custom_model_data": 11}, "model": "item/loco_oldtram1"},
+{ "predicate": { "custom_model_data": 12}, "model": "item/loco_moderntram1"},
+{ "predicate": { "custom_model_data": 13}, "model": "item/passcar_old1"},
+{ "predicate": { "custom_model_data": 14}, "model": "item/passcar_modern1"},
+{ "predicate": { "custom_model_data": 15}, "model": "item/passcar_metro1"},
+{ "predicate": { "custom_model_data": 16}, "model": "item/passcar_oldtram1"},
+{ "predicate": { "custom_model_data": 17}, "model": "item/passcar_moderntram1"},
+{ "predicate": { "custom_model_data": 18}, "model": "item/wagon_container1"},
+{ "predicate": { "custom_model_data": 19}, "model": "item/wagon_boxcar1"},
+{ "predicate": { "custom_model_data": 20}, "model": "item/wagon_tank1"},
+{ "predicate": { "custom_model_data": 21}, "model": "item/wagon_open1"},
+{ "predicate": { "custom_model_data": 22}, "model": "item/wagon_flat1"},
+{ "predicate": { "custom_model_data": 23}, "model": "item/wagon_livestock1"},
+{ "predicate": { "custom_model_data": 24}, "model": "item/wagon_tender1"}
+        ]
+}

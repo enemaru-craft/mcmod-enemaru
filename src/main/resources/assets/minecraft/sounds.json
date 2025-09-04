@@ -1,0 +1,100 @@
+{
+	"custom.rails": {
+	"sounds": [
+		{
+			"name": "custom/rails",
+			"stream": false
+		}]
+	},
+	"custom.steamloco": {
+	"sounds": [
+		{
+			"name": "custom/steamloco",
+			"stream": false
+		}]
+	},
+	"custom.steamwhistle": {
+	"sounds": [
+		{
+			"name": "custom/steamwhistle",
+			"stream": true
+		}]
+	},
+	"custom.dieselloco": {
+	"sounds": [
+		{
+			"name": "custom/dieselloco",
+			"stream": false
+		}]
+	},
+	"custom.dieselhorn": {
+	"sounds": [
+		{
+			"name": "custom/dieselhorn",
+			"stream": true
+		}]
+	},
+	"custom.electricloco": {
+	"sounds": [
+		{
+			"name": "custom/electricloco",
+			"stream": false
+		}]
+	},
+	"custom.steambell": {
+	"sounds": [
+		{
+			"name": "custom/steambell",
+			"stream": false
+		}]
+	},
+	"custom.metrohorn": {
+	"sounds": [
+		{
+			"name": "custom/metrohorn",
+			"stream": false
+		}]
+	},
+	"custom.electricbell": {
+	"sounds": [
+		{
+			"name": "custom/electricbell",
+			"stream": false
+		}]
+	},
+	"custom.trambell": {
+	"sounds": [
+		{
+			"name": "custom/trambell",
+			"stream": false
+		}]
+	},
+	"custom.electrichorn": {
+	"sounds": [
+		{
+			"name": "custom/electrichorn",
+			"stream": false
+		}]
+	},
+	"custom.moderndoor": {
+	"sounds": [
+		{
+			"name": "custom/moderndoor",
+			"stream": false
+		}]
+	},
+	"custom.moderndoorclose": {
+	"sounds": [
+		{
+			"name": "custom/moderndoorclose",
+			"stream": false
+		}]
+	},
+	"custom.steamidle": {
+	"sounds": [
+		{
+			"name": "custom/steamidle",
+			"stream": false
+		}]
+	}
+}

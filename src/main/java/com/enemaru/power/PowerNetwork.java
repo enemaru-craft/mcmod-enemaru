@@ -5,6 +5,7 @@ import com.enemaru.blockentity.GlowstoneLampBlockEntity;
 import com.enemaru.blockentity.SeaLanternLampBlockEntity;
 import com.enemaru.blockentity.StreetLightBlockEntity;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
+import com.enemaru.commands.TrainCommand;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -13,9 +14,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.PersistentState;
 
 import java.net.URI;
@@ -72,6 +76,23 @@ public class PowerNetwork extends PersistentState {
 
     private List<String> lastTexts = new ArrayList<>();
 
+    private int trainTickCounter = 0;
+
+    // 電車スポーン地点　（３両目最後尾車両の中央の座標となる）
+    private List<Vec3d> spawnCoords = new ArrayList<>(List.of(
+            new Vec3d(17, -60, 155)
+//            new Vec3d(20, 64, 20),
+//            new Vec3d(-15, 70, 5)
+    ));
+    // 座標に対応する電車の向き
+    private List<Float> spawnYaws = new ArrayList<>(List.of(
+            90f
+//            45f,
+//            180f
+    ));
+
+    private final int SPAWN_DURATION_TICKS = 20 * 60 * 5;
+
     private PowerNetwork() {
         super();
     }
@@ -101,6 +122,21 @@ public class PowerNetwork extends PersistentState {
     public void tick(ServerWorld world) {
         if (world.isClient) return;
         if (!world.getRegistryKey().equals(ServerWorld.OVERWORLD)) return;
+        // 電車をスポーンさせるか決定
+        if(isTrainEnabled) {
+            trainTickCounter++;
+            if(trainTickCounter >= SPAWN_DURATION_TICKS) {
+                trainTickCounter = 0;
+                MinecraftServer server = world.getServer();
+                ServerCommandSource source = server.getCommandSource();
+                for (int i = 0; i < spawnCoords.size(); i++) {
+                    Vec3d base = spawnCoords.get(i);
+                    float yaw = spawnYaws.get(i);
+                    TrainCommand.summonTrain(base, yaw, server, source);
+                }
+            }
+        }
+
         if (world.getTime() % 60 != 0) return;
 
         JsonObject obj = new JsonObject();
@@ -183,6 +219,15 @@ public class PowerNetwork extends PersistentState {
         this.generatedEnergy = (int) states.variables.totalPower;
         this.surplusEnergy = (int) states.variables.surplusPower;
 
+        MinecraftServer server = world.getServer();
+        ServerCommandSource source = server.getCommandSource();
+        if(states.state.isTrainEnabled){
+            TrainCommand.runTrain(server, source);
+        }else{
+            TrainCommand.stopTrain(server, source);
+        }
+
+        // 村人にテキストを分配
         if(states.texts.equals(this.lastTexts)) return;
 
         var villagers = world.getEntitiesByType(EntityType.VILLAGER, v -> true);
