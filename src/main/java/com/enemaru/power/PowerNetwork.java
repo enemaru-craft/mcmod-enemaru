@@ -320,4 +320,7 @@ public class PowerNetwork extends PersistentState {
 
     public int getGeneratedEnergy() { return generatedEnergy; }
     public int getSurplusEnergy() { return surplusEnergy; }
+
+    public int getSessionId() { return sessionId; }
+    public void setSessionId(int id) { this.sessionId = id; }
 }
