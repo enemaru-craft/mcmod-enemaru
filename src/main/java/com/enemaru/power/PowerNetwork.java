@@ -55,6 +55,7 @@ public class PowerNetwork extends PersistentState {
         }
     }
 
+    private boolean debug = false;
     private int sessionId = 2021;
     private int generatedEnergy = 0;
     private int surplusEnergy = 0;
@@ -150,24 +151,28 @@ public class PowerNetwork extends PersistentState {
                     updateState(states, world);
 
                     // デバッグ用
-                    world.getServer().execute(() -> {
-                        for (ServerPlayerEntity player : world.getPlayers()) {
-                            player.sendMessage(
-                                    Text.literal("fetched:" + json),
-                                    false
-                            );
-                        }
-                    });
+                    if (debug) {
+                        world.getServer().execute(() -> {
+                            for (ServerPlayerEntity player : world.getPlayers()) {
+                                player.sendMessage(
+                                        Text.literal("fetched:" + json),
+                                        false
+                                );
+                            }
+                        });
+                    }
 
                     markDirty();
                 })
                 .exceptionally(ex -> {
-                    world.getServer().execute(() -> {
-                        for (ServerPlayerEntity player : world.getPlayers()) {
-                            player.sendMessage(Text.literal("エネルギーデータの取得に失敗しました"), false);
-                        }
-                    });
-                    ex.printStackTrace();
+                    if (debug) {
+                        world.getServer().execute(() -> {
+                            for (ServerPlayerEntity player : world.getPlayers()) {
+                                player.sendMessage(Text.literal("エネルギーデータの取得に失敗しました"), false);
+                            }
+                        });
+                        ex.printStackTrace();
+                    }
                     return null;
                 });
     }
@@ -184,11 +189,15 @@ public class PowerNetwork extends PersistentState {
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(response, WorldState.class);
                     updateState(states, world);
-                    System.out.println("State updated successfully: " + response);
+                    if(debug) {
+                        System.out.println("State updated successfully: " + response);
+                    }
                 })
                 .exceptionally(ex -> {
-                    System.out.println("State update failed");
-                    ex.printStackTrace();
+                    if(debug) {
+                        System.out.println("State update failed");
+                        ex.printStackTrace();
+                    }
                     return null;
                 });
     }
@@ -199,7 +208,9 @@ public class PowerNetwork extends PersistentState {
                 .header("Content-Type", "application/json; charset=utf-8")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
-        System.out.println("送信JSON: " + json);
+        if (debug) {
+            System.out.println("送信JSON: " + json);
+        }
         return HTTP_CLIENT.sendAsync(req, HttpResponse.BodyHandlers.ofString())
                 .thenApply(res -> {
                     int code = res.statusCode();
@@ -323,4 +334,6 @@ public class PowerNetwork extends PersistentState {
 
     public int getSessionId() { return sessionId; }
     public void setSessionId(int id) { this.sessionId = id; }
+
+    public void setDebug(boolean debug) { this.debug = debug; }
 }

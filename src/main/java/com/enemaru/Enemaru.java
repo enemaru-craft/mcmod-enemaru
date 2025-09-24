@@ -2,6 +2,7 @@ package com.enemaru;
 
 import com.enemaru.block.ModBlocks;
 import com.enemaru.blockentity.*;
+import com.enemaru.commands.EnemaruCommand;
 import com.enemaru.commands.SessionCommand;
 import com.enemaru.commands.TrainCommand;
 import com.enemaru.item.ModItems;
@@ -103,6 +104,10 @@ public class Enemaru implements ModInitializer {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             SessionCommand.register(dispatcher, registryAccess);
+        });
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            EnemaruCommand.register(dispatcher, registryAccess);
         });
 
         // サーバーのワールド毎ティック（20ティック＝1秒ごと）に
