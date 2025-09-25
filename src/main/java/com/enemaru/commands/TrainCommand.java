@@ -61,11 +61,11 @@ public final class TrainCommand {
     }
 
     public static void runTrain(MinecraftServer server, ServerCommandSource source){
-        run(server, source, "scoreboard players set @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] rptrain_tgtspeed 30");
+        run(server, source, "execute if entity @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] run scoreboard players set @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] rptrain_tgtspeed 30");
     }
 
     public static void stopTrain(MinecraftServer server, ServerCommandSource source){
-        run(server, source, "scoreboard players set @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] rptrain_tgtspeed 0");
+        run(server, source, "execute if entity @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] run scoreboard players set @e[type=minecraft:armor_stand,tag=rptrain_loco,tag=rptrain_linker] rptrain_tgtspeed 0");
     }
 
     private static void run(MinecraftServer server, ServerCommandSource src, String cmdNoSlash) {
