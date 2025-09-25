@@ -124,16 +124,16 @@ public class Enemaru implements ModInitializer {
 
             if (be instanceof StreetLightBlockEntity sle) {
                 net.registerStreetLight(sle);
-                sle.updatePowered(net.getStreetlightsEnabled());
+//                sle.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.registerSeaLantern(sleLantern);
-                sleLantern.updatePowered(net.getStreetlightsEnabled());
+//                sleLantern.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof GlowstoneLampBlockEntity glow) {
                 net.registerGlowstone(glow);
-                glow.updatePowered(net.getStreetlightsEnabled());
+//                glow.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof EndRodLampBlockEntity endRod) {
                 net.registerEndRodLamp(endRod);
-                endRod.updatePowered(net.getStreetlightsEnabled());
+//                endRod.updatePowered(net.getStreetlightsEnabled());
             }
         });
 
