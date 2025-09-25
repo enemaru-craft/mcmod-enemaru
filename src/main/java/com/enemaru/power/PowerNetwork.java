@@ -148,7 +148,7 @@ public class PowerNetwork extends PersistentState {
                 .thenAccept(json -> {
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(json, WorldState.class);
-                    updateState(states, world);
+                    world.getServer().execute(() -> updateState(states, world));
 
                     // デバッグ用
                     if (debug) {
