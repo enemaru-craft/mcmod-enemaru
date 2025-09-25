@@ -81,18 +81,18 @@ public class PowerNetwork extends PersistentState {
 
     // 電車スポーン地点　（３両目最後尾車両の中央の座標となる）
     private List<Vec3d> spawnCoords = new ArrayList<>(List.of(
-            new Vec3d(17, -60, 155)
-//            new Vec3d(20, 64, 20),
+            new Vec3d(-560, 73, 408),
+            new Vec3d(-800, 66, 412)
 //            new Vec3d(-15, 70, 5)
     ));
     // 座標に対応する電車の向き
     private List<Float> spawnYaws = new ArrayList<>(List.of(
-            90f
-//            45f,
+            90f,
+            -90f
 //            180f
     ));
 
-    private final int SPAWN_DURATION_TICKS = 20 * 60 * 5;
+    private final int SPAWN_DURATION_TICKS = 20 * 60;
 
     private PowerNetwork() {
         super();
