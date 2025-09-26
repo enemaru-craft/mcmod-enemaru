@@ -100,9 +100,15 @@ public class PowerNetwork extends PersistentState {
     private final int SPAWN_DURATION_TICKS = 20 * 60;
 
     private List<Vec3i> fireCoords = new ArrayList<>(List.of(
-            new Vec3i(-13, -60, 19)
-//            new Vec3i(-800, 66, 412)
-//            new Vec3d(-15, 70, 5)
+            new Vec3i(-635, 85, 345),
+            new Vec3i(-635, 85, 337),
+            new Vec3i(-635, 85, 329),
+            new Vec3i(-635, 85, 318),
+            new Vec3i(-635, 85, 310),
+            new Vec3i(-635, 85, 302),
+            new Vec3i(-576, 85, 363),
+            new Vec3i(-576, 85, 355),
+            new Vec3i(-576, 85, 347)
     ));
 
     private PowerNetwork() {
