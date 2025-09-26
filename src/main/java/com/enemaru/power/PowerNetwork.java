@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -18,8 +20,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.PersistentState;
 
 import java.net.URI;
@@ -93,6 +98,12 @@ public class PowerNetwork extends PersistentState {
     ));
 
     private final int SPAWN_DURATION_TICKS = 20 * 60;
+
+    private List<Vec3i> fireCoords = new ArrayList<>(List.of(
+            new Vec3i(-13, -60, 19)
+//            new Vec3i(-800, 66, 412)
+//            new Vec3d(-15, 70, 5)
+    ));
 
     private PowerNetwork() {
         super();
@@ -224,6 +235,7 @@ public class PowerNetwork extends PersistentState {
     private void updateState(WorldState states, ServerWorld world) {
         setStreetlightsEnabled(states.state.isLightEnabled);
         this.isTrainEnabled = states.state.isTrainEnabled;
+        setFactoryEnabled(states.state.isFactoryEnabled, world);
         this.isFactoryEnabled = states.state.isFactoryEnabled;
         this.isBlackout = states.state.isBlackout;
 
@@ -316,9 +328,6 @@ public class PowerNetwork extends PersistentState {
         for (var light : streetLights) {
             light.updatePowered(isStreetlightsEnabled);
         }
-        for (var lantern : seaLanterns) {
-            lantern.updatePowered(isStreetlightsEnabled);
-        }
         for (var glow : glowstoneLamps) {
             glow.updatePowered(isStreetlightsEnabled);
         }
@@ -326,6 +335,23 @@ public class PowerNetwork extends PersistentState {
             endRod.updatePowered(isStreetlightsEnabled);
         }
     }
+
+    public void setFactoryEnabled(boolean enable, ServerWorld world) {
+        this.isFactoryEnabled = enable;
+        for (var lantern : seaLanterns) {
+            lantern.updatePowered(isFactoryEnabled);
+        }
+        for (var pos : fireCoords) {
+            BlockPos blockPos = new BlockPos(pos);
+            BlockState state = world.getBlockState(blockPos);
+            if (state.contains(Properties.LIT)) {
+                // 点火状態を反転
+                world.setBlockState(blockPos, state.with(Properties.LIT, enable), Block.NOTIFY_ALL);
+            }
+        }
+        markDirty();
+    }
+
 
 
 
