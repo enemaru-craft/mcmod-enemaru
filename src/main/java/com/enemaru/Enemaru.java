@@ -134,6 +134,9 @@ public class Enemaru implements ModInitializer {
             } else if (be instanceof EndRodLampBlockEntity endRod) {
                 net.registerEndRodLamp(endRod);
 //                endRod.updatePowered(net.getStreetlightsEnabled());
+            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
+                net.registerStationEndRod(stationEndRod);
+//                stationEndRod.updatePowered(net.getStreetlightsEnabled());
             }
         });
 
@@ -151,6 +154,8 @@ public class Enemaru implements ModInitializer {
                 net.unregisterGlowstone(glow);
             } else if (be instanceof EndRodLampBlockEntity endRod) {
                 net.unregisterEndRodLamp(endRod);
+            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
+                net.unregisterStationEndRod(stationEndRod);
             }
         });
 

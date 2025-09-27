@@ -7,6 +7,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.stat.Stat;
 import net.minecraft.util.Identifier;
 
 public class ModBlockEntities {
@@ -24,6 +25,9 @@ public class ModBlockEntities {
     // エンドロッドランプのブロックエンティティ
     public static final BlockEntityType<EndRodLampBlockEntity> END_ROD_LAMP_ENTITY =
             register("end_rod_lamp_block", EndRodLampBlockEntity::new, ModBlocks.END_ROD_LAMP_BLOCK);
+
+    public static final BlockEntityType<StationEndRodBlockEntity> STATION_END_ROD_ENTITY =
+            register("station_end_rod", StationEndRodBlockEntity::new, ModBlocks.STATION_END_ROD_BLOCK);
 
     private static <T extends BlockEntity> BlockEntityType<T> register(String name,
                                                                        BlockEntityType.BlockEntityFactory<? extends T> entityFactory,
