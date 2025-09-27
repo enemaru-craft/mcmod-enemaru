@@ -1,9 +1,6 @@
 package com.enemaru.power;
 
-import com.enemaru.blockentity.EndRodLampBlockEntity;
-import com.enemaru.blockentity.GlowstoneLampBlockEntity;
-import com.enemaru.blockentity.SeaLanternLampBlockEntity;
-import com.enemaru.blockentity.StreetLightBlockEntity;
+import com.enemaru.blockentity.*;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import com.enemaru.commands.TrainCommand;
 import com.google.gson.Gson;
@@ -79,6 +76,7 @@ public class PowerNetwork extends PersistentState {
     private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
     private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
     private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
+    private final List<StationEndRodBlockEntity> stationEndRods = new ArrayList<>();
 
     private List<String> lastTexts = new ArrayList<>();
 
@@ -252,8 +250,10 @@ public class PowerNetwork extends PersistentState {
         ServerCommandSource source = server.getCommandSource();
         if(states.state.isTrainEnabled){
             TrainCommand.runTrain(server, source);
+            setTrainEnabled(this.isTrainEnabled);
         }else{
             TrainCommand.stopTrain(server, source);
+            setTrainEnabled(this.isTrainEnabled);
         }
 
         // 村人にテキストを分配
@@ -314,6 +314,13 @@ public class PowerNetwork extends PersistentState {
         endRodLamps.remove(te);
     }
 
+    public void registerStationEndRod(StationEndRodBlockEntity te) {
+        if (!stationEndRods.contains(te)) stationEndRods.add(te);
+    }
+
+    public void unregisterStationEndRod(StationEndRodBlockEntity te) {
+        stationEndRods.remove(te);
+    }
 
 
     /** 許可フラグを取得 */
@@ -354,6 +361,13 @@ public class PowerNetwork extends PersistentState {
                 // 点火状態を反転
                 world.setBlockState(blockPos, state.with(Properties.LIT, enable), Block.NOTIFY_ALL);
             }
+        }
+        markDirty();
+    }
+
+    public void setTrainEnabled(boolean enable) {
+        for(var stationRod : stationEndRods)    {
+            stationRod.updatePowered(enable);
         }
         markDirty();
     }

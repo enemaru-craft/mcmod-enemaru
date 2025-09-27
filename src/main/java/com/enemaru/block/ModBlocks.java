@@ -18,6 +18,7 @@ public class ModBlocks {
     public static Block SEA_LANTERN_LAMP_BLOCK;
     public static Block GLOWSTONE_LAMP_BLOCK;
     public static Block END_ROD_LAMP_BLOCK; // ← 追加
+    public static Block STATION_END_ROD_BLOCK;
 
     public static void initialize() {
         // ブロック登録
@@ -42,6 +43,11 @@ public class ModBlocks {
                         .luminance(EndRodLampBlock::getLuminance)
         );
 
+        STATION_END_ROD_BLOCK = new StationEndRodBlock(
+                AbstractBlock.Settings.copy(Blocks.END_ROD)
+                        .luminance(StationEndRodBlock::getLuminance)
+        );
+
         // ブロックの登録
         Registry.register(Registries.BLOCK, Identifier.of(Enemaru.MOD_ID, "street_light_block"), STREET_LIGHT_BLOCK);
         Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "street_light_block"),
@@ -59,12 +65,17 @@ public class ModBlocks {
         Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "end_rod_lamp_block"),
                 new BlockItem(END_ROD_LAMP_BLOCK, new Item.Settings()));
 
+        Registry.register(Registries.BLOCK, Identifier.of(Enemaru.MOD_ID, "station_end_rod_block"), STATION_END_ROD_BLOCK);
+        Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "station_end_rod_block"),
+                new BlockItem(STATION_END_ROD_BLOCK, new Item.Settings()));
+
         // クリエイティブタブに追加
         ItemGroupEvents.modifyEntriesEvent(ModItems.CUSTOM_ITEM_GROUP_KEY).register(itemGroup -> {
             itemGroup.add(STREET_LIGHT_BLOCK.asItem());
             itemGroup.add(SEA_LANTERN_LAMP_BLOCK.asItem());
             itemGroup.add(GLOWSTONE_LAMP_BLOCK.asItem());
             itemGroup.add(END_ROD_LAMP_BLOCK.asItem());
+            itemGroup.add(STATION_END_ROD_BLOCK.asItem());
         });
     }
 }
