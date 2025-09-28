@@ -7,11 +7,8 @@ import com.enemaru.commands.SessionCommand;
 import com.enemaru.commands.TrainCommand;
 import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
-import com.enemaru.networking.payload.SetStreetLightsC2SPayload;
-import com.enemaru.networking.payload.StateUpdateRequestC2SPayload;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.power.PowerNetwork;
-import com.enemaru.power.WorldStateUpdate;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import net.fabricmc.api.ModInitializer;
@@ -57,33 +54,8 @@ public class Enemaru implements ModInitializer {
         ModBlockEntities.initialize();
 
         // Payloadを登録
-        PayloadTypeRegistry.playC2S().register(SetStreetLightsC2SPayload.ID, SetStreetLightsC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(StateUpdateRequestC2SPayload.ID, StateUpdateRequestC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EquipmentRequestC2SPayload.ID, EquipmentRequestC2SPayload.CODEC);
-
-        ServerPlayNetworking.registerGlobalReceiver(SetStreetLightsC2SPayload.ID, (payload, context) -> {
-            boolean enabled = payload.value();
-            // PowerNetworkのsetStreetlightsEnabledメソッドを呼び出して
-            // サーバー側の街灯の有効/無効を更新
-            ServerWorld world = context.player().getServerWorld();
-            PowerNetwork network = PowerNetwork.get(world);
-            network.setStreetlightsEnabled(enabled);
-        });
-
-        ServerPlayNetworking.registerGlobalReceiver(StateUpdateRequestC2SPayload.ID, (payload, context) -> {
-            ServerWorld world = context.player().getServerWorld();
-            PowerNetwork network = PowerNetwork.get(world);
-
-            // WorldStateUpdateオブジェクトを作成して状態を設定
-            WorldStateUpdate update = new WorldStateUpdate();
-            update.isLightEnabled = payload.isLightEnabled();
-            update.isTrainEnabled = payload.isTrainEnabled();
-            update.isFactoryEnabled = payload.isFactoryEnabled();
-            update.isBlackout = false; // 適切な値を設定
-
-//            network.syncWorldState(update, world);
-        });
 
         ServerPlayNetworking.registerGlobalReceiver(EquipmentRequestC2SPayload.ID, (payload, context) -> {
             ServerWorld world = context.player().getServerWorld();
@@ -124,19 +96,14 @@ public class Enemaru implements ModInitializer {
 
             if (be instanceof StreetLightBlockEntity sle) {
                 net.registerStreetLight(sle);
-//                sle.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
                 net.registerSeaLantern(sleLantern);
-//                sleLantern.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof GlowstoneLampBlockEntity glow) {
                 net.registerGlowstone(glow);
-//                glow.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof EndRodLampBlockEntity endRod) {
                 net.registerEndRodLamp(endRod);
-//                endRod.updatePowered(net.getStreetlightsEnabled());
             } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
                 net.registerStationEndRod(stationEndRod);
-//                stationEndRod.updatePowered(net.getStreetlightsEnabled());
             }
         });
 

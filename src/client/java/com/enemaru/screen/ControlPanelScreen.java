@@ -95,10 +95,33 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         factoryLabelX = centerX;
         factoryLabelY = centerY + 20;
 
+        // ==========================
+        // 家
+        // ==========================
+        houseOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", true);
+            ClientPlayNetworking.send(payload);
+            updateFactoryButtons(true);
+        }).position(centerX - buttonWidth - 2, centerY + 70).size(buttonWidth, buttonHeight).build();
+
+        houseOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", false);
+            ClientPlayNetworking.send(payload);
+            updateFactoryButtons(false);
+        }).position(centerX + 2, centerY + 70).size(buttonWidth, buttonHeight).build();
+
+        this.addDrawableChild(houseOnButton);
+        this.addDrawableChild(houseOffButton);
+
+        houseLabelX = centerX;
+        houseLabelY = centerY + 60;
+
+
         // 初期状態を反映
         updateLightButtons(screenHandler.isLightEnabled());
         updateTrainButtons(screenHandler.isTrainEnabled());
         updateFactoryButtons(screenHandler.isFactoryEnabled());
+        updateHouseButtons(screenHandler.isHouseEnabled());
     }
 
 
@@ -120,14 +143,21 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         factoryOffButton.active = factoryOn;
     }
 
+    private void updateHouseButtons(boolean houseOn) {
+        houseOnButton.active = !houseOn;
+        houseOffButton.active = houseOn;
+    }
+
     // フィールド
     private ButtonWidget lightOnButton, lightOffButton;
     private ButtonWidget trainOnButton, trainOffButton;
     private ButtonWidget factoryOnButton, factoryOffButton;
+    private ButtonWidget houseOnButton, houseOffButton;
 
     private int lightLabelX, lightLabelY;
     private int trainLabelX, trainLabelY;
     private int factoryLabelX, factoryLabelY;
+    private int houseLabelX, houseLabelY;
 
 
     @Override
@@ -147,16 +177,19 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
         drawCenteredLabel(context, "電車", trainLabelX, trainLabelY);
         drawCenteredLabel(context, "工場", factoryLabelX, factoryLabelY);
+        drawCenteredLabel(context, "家", houseLabelX, houseLabelY);
 
         updateLightButtons(screenHandler.isLightEnabled());
         updateTrainButtons(screenHandler.isTrainEnabled());
         updateFactoryButtons(screenHandler.isFactoryEnabled());
+        updateHouseButtons(screenHandler.isHouseEnabled());
 
         int energy = screenHandler.getGeneratedEnergy();
         int surplus = screenHandler.getSurplusEnergy();
         boolean light = screenHandler.isLightEnabled();
         boolean train = screenHandler.isTrainEnabled();
         boolean factory = screenHandler.isFactoryEnabled();
+        boolean house = screenHandler.isHouseEnabled();
         boolean blackout = screenHandler.isBlackout();
 
         int textX = this.x + 8;
@@ -223,6 +256,19 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 35, barY, 0x8844FF44, false);
         }
 
+        if (!house && houseOnButton.isMouseOver(mouseX, mouseY)) {
+            int predictedIncrease = 300;
+            int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
+            context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
+            context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
+        }
+        if (house && houseOffButton.isMouseOver(mouseX, mouseY)) {
+            int predictedDecrease = 300;
+            int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
+            context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
+            context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 15, barY, 0x8844FF44, false);
+        }
+
 
 
         // 他情報表示
@@ -230,6 +276,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX + 200, textY - 50, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX + 200, textY - 40, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX + 200, textY - 30, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "House: " + (house ? "On" : "Off"), textX + 200, textY - 20, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY + 25, 0xFFFFFF, false);
 
         drawMouseoverTooltip(context, mouseX, mouseY);
