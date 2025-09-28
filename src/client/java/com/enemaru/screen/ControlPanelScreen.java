@@ -14,6 +14,12 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
     ControlPanelScreenHandler screenHandler;
 
+    private final int HOUSE_CONSUMPTION = 300;
+    private final int FACILITY_CONSUMPTION = 1015;
+    private final int LIGHT_CONSUMPTION = 5;
+    private final int TRAIN_CONSUMPTION = 410;
+    private final int FACTORY_CONSUMPTION = 300;
+
     public ControlPanelScreen(ScreenHandler handler, PlayerInventory inv, Text title) {
         super(handler, inv, title);
         this.backgroundWidth = 176;
@@ -249,65 +255,65 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 予測表示（マウスオーバー）
         // ======================
         if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
-            int predictedIncrease = 200;
+            int predictedIncrease = LIGHT_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
             context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888); // 薄い赤
             context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
         }
         if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
-            int predictedDecrease = 200;
+            int predictedDecrease = LIGHT_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
             context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800); // 濃い緑
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 15, barY, 0x8844FF44, false);
         }
 
         if (!train && trainOnButton.isMouseOver(mouseX, mouseY)) {
-            int predictedIncrease = 500;
+            int predictedIncrease = TRAIN_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
             context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
             context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
         }
         if (train && trainOffButton.isMouseOver(mouseX, mouseY)) {
-            int predictedDecrease = 500;
+            int predictedDecrease = TRAIN_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
             context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 25, barY, 0x8844FF44, false);
         }
 
         if (!factory && factoryOnButton.isMouseOver(mouseX, mouseY)) {
-            int predictedIncrease = 800;
+            int predictedIncrease = FACTORY_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
             context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
             context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
         }
         if (factory && factoryOffButton.isMouseOver(mouseX, mouseY)) {
-            int predictedDecrease = 800;
+            int predictedDecrease = FACTORY_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
             context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 35, barY, 0x8844FF44, false);
         }
 
         if (!house && houseOnButton.isMouseOver(mouseX, mouseY)) {
-            int predictedIncrease = 300;
+            int predictedIncrease = HOUSE_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
             context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
             context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
         }
         if (house && houseOffButton.isMouseOver(mouseX, mouseY)) {
-            int predictedDecrease = 300;
+            int predictedDecrease = HOUSE_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
             context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 15, barY, 0x8844FF44, false);
         }
 
         if (!facility && facilityOnButton.isMouseOver(mouseX, mouseY)) {
-            int predictedIncrease = 400;
+            int predictedIncrease = FACILITY_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy + predictedIncrease) / maxEnergy * barWidth);
             context.fill(barX + filled, barY, barX + predictedFilled, barY + barHeight, 0xFFFF8888);
             context.drawText(this.textRenderer, "+" + predictedIncrease, barX + predictedFilled + 5, barY, 0xFFFF8888, false);
         }
         if (facility && facilityOffButton.isMouseOver(mouseX, mouseY)) {
-            int predictedDecrease = 400;
+            int predictedDecrease = FACILITY_CONSUMPTION;
             int predictedFilled = (int) ((double)(energy - predictedDecrease) / maxEnergy * barWidth);
             context.fill(barX + predictedFilled, barY, barX + filled, barY + barHeight, 0xFF008800);
             context.drawText(this.textRenderer, "-" + predictedDecrease, barX + predictedFilled + 20, barY, 0x8844FF44, false);
