@@ -9,6 +9,7 @@ public class WorldState {
 
     public static class State {
         public boolean isHouseEnabled;
+        public boolean isFacilityEnabled;
         public boolean isLightEnabled;
         public boolean isTrainEnabled;
         public boolean isFactoryEnabled;

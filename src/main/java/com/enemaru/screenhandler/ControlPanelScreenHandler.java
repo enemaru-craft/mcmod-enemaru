@@ -16,7 +16,8 @@ public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_FACTORY = 4;
     public static final int PROP_BLACKOUT = 5;
     public static final int PROP_HOUSE = 6;
-    public static final int NUM_PROPS = 7;
+    public static final int PROP_FACILITY = 7;
+    public static final int NUM_PROPS = 8;
     private final PropertyDelegate propertyDelegate;
 
     /**
@@ -61,6 +62,10 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     public boolean isHouseEnabled() {
         return propertyDelegate.get(PROP_HOUSE) != 0;
+    }
+
+    public boolean isFacilityEnabled() {
+        return propertyDelegate.get(PROP_FACILITY) != 0;
     }
 
     @Override
