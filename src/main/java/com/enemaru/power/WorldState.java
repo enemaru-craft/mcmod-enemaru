@@ -8,6 +8,7 @@ public class WorldState {
     public Variables variables;
 
     public static class State {
+        public boolean isHouseEnabled;
         public boolean isLightEnabled;
         public boolean isTrainEnabled;
         public boolean isFactoryEnabled;

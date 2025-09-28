@@ -70,6 +70,7 @@ public class PowerNetwork extends PersistentState {
     private boolean isTrainEnabled = false;
     private boolean isFactoryEnabled = false;
     private boolean isBlackout = false;
+    private boolean isHouseEnabled = false;
 
     /** 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
@@ -237,10 +238,10 @@ public class PowerNetwork extends PersistentState {
     }
 
     private void updateState(WorldState states, ServerWorld world) {
+        setHouseEnabled(states.state.isHouseEnabled);
         setStreetlightsEnabled(states.state.isLightEnabled);
         this.isTrainEnabled = states.state.isTrainEnabled;
         setFactoryEnabled(states.state.isFactoryEnabled, world);
-        this.isFactoryEnabled = states.state.isFactoryEnabled;
         this.isBlackout = states.state.isBlackout;
 
         this.generatedEnergy = (int) states.variables.totalPower;
@@ -328,25 +329,27 @@ public class PowerNetwork extends PersistentState {
     public boolean getTrainEnabled() { return isTrainEnabled; }
     public boolean getFactoryEnabled() { return isFactoryEnabled; }
     public boolean getBlackout() { return isBlackout; }
+    public boolean getHouseEnabled() { return isHouseEnabled; }
+
+
+    public void setHouseEnabled(boolean enabled) {
+        this.isHouseEnabled = enabled;
+        for (var light : streetLights) {
+            light.updatePowered(isHouseEnabled);
+        }
+        markDirty();
+    }
 
     /** ユーザー操作で呼ばれるメソッド */
     public void setStreetlightsEnabled(boolean enable) {
         this.isStreetlightsEnabled = enable;
-        applyStreetLightState();
-        markDirty();
-    }
-
-    /** すべての登録ライトに current フラグを反映 */
-    private void applyStreetLightState() {
-        for (var light : streetLights) {
-            light.updatePowered(isStreetlightsEnabled);
-        }
         for (var glow : glowstoneLamps) {
             glow.updatePowered(isStreetlightsEnabled);
         }
         for (var endRod : endRodLamps) {
             endRod.updatePowered(isStreetlightsEnabled);
         }
+        markDirty();
     }
 
     public void setFactoryEnabled(boolean enable, ServerWorld world) {
