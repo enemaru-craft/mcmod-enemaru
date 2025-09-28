@@ -71,6 +71,7 @@ public class PowerNetwork extends PersistentState {
     private boolean isFactoryEnabled = false;
     private boolean isBlackout = false;
     private boolean isHouseEnabled = false;
+    private boolean isFacilityEnabled = false;
 
     /** 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity */
     private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
@@ -242,6 +243,7 @@ public class PowerNetwork extends PersistentState {
         setStreetlightsEnabled(states.state.isLightEnabled);
         this.isTrainEnabled = states.state.isTrainEnabled;
         setFactoryEnabled(states.state.isFactoryEnabled, world);
+        setFacilityEnabled(states.state.isFacilityEnabled);
         this.isBlackout = states.state.isBlackout;
 
         this.generatedEnergy = (int) states.variables.totalPower;
@@ -330,6 +332,7 @@ public class PowerNetwork extends PersistentState {
     public boolean getFactoryEnabled() { return isFactoryEnabled; }
     public boolean getBlackout() { return isBlackout; }
     public boolean getHouseEnabled() { return isHouseEnabled; }
+    public boolean getFacilityEnabled() { return isFacilityEnabled; }
 
 
     public void setHouseEnabled(boolean enabled) {
@@ -340,14 +343,19 @@ public class PowerNetwork extends PersistentState {
         markDirty();
     }
 
+    public void setFacilityEnabled(boolean enabled) {
+        this.isFacilityEnabled = enabled;
+        for (var endRod : endRodLamps) {
+            endRod.updatePowered(isFacilityEnabled);
+        }
+        markDirty();
+    }
+
     /** ユーザー操作で呼ばれるメソッド */
     public void setStreetlightsEnabled(boolean enable) {
         this.isStreetlightsEnabled = enable;
         for (var glow : glowstoneLamps) {
             glow.updatePowered(isStreetlightsEnabled);
-        }
-        for (var endRod : endRodLamps) {
-            endRod.updatePowered(isStreetlightsEnabled);
         }
         markDirty();
     }
