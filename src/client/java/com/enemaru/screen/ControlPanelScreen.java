@@ -1,5 +1,6 @@
 package com.enemaru.screen;
 
+import com.enemaru.gui.ThermalSlider;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -13,6 +14,7 @@ import net.minecraft.text.Text;
 public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
     ControlPanelScreenHandler screenHandler;
+    private ThermalSlider slider;
 
     private final int HOUSE_CONSUMPTION = 300;
     private final int FACILITY_CONSUMPTION = 1015;
@@ -142,6 +144,9 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         facilityLabelX = centerX;
         facilityLabelY = centerY - 100;
+
+        slider = new ThermalSlider(centerX, centerY - 90, 156, 20, 0);
+        this.addDrawableChild(slider);
 
         // 初期状態を反映
         updateLightButtons(screenHandler.isLightEnabled());
@@ -329,6 +334,8 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, "House: " + (house ? "On" : "Off"), textX + 200, textY - 20, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Facility: " + (facility ? "On" : "Off"), textX + 200, textY - 10, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX, textY + 25, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, "Thermal: " + slider.getThermalPower(), textX + 200, textY, 0xFFFFFF, false);
+
 
         drawMouseoverTooltip(context, mouseX, mouseY);
     }

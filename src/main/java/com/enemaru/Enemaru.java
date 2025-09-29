@@ -8,6 +8,7 @@ import com.enemaru.commands.TrainCommand;
 import com.enemaru.item.ModItems;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
+import com.enemaru.networking.payload.ThermalUpdateC2SPayload;
 import com.enemaru.power.PowerNetwork;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
@@ -56,6 +57,7 @@ public class Enemaru implements ModInitializer {
         // Payloadを登録
         PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EquipmentRequestC2SPayload.ID, EquipmentRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ThermalUpdateC2SPayload.ID, ThermalUpdateC2SPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(EquipmentRequestC2SPayload.ID, (payload, context) -> {
             ServerWorld world = context.player().getServerWorld();
@@ -64,6 +66,11 @@ public class Enemaru implements ModInitializer {
             network.sendWorldState(payload.equipment(), payload.enable(), world);
         });
 
+        ServerPlayNetworking.registerGlobalReceiver(ThermalUpdateC2SPayload.ID, (payload, context) -> {
+            ServerWorld world = context.player().getServerWorld();
+            PowerNetwork network = PowerNetwork.get(world);
+            network.setThermalPower(payload.power());
+        });
 
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

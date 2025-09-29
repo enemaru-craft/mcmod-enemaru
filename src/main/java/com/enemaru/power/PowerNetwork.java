@@ -61,6 +61,7 @@ public class PowerNetwork extends PersistentState {
     private int sessionId = 2021;
     private int generatedEnergy = 0;
     private int surplusEnergy = 0;
+    private int thermalPower = 0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .build();
@@ -393,4 +394,6 @@ public class PowerNetwork extends PersistentState {
     public void setSessionId(int id) { this.sessionId = id; }
 
     public void setDebug(boolean debug) { this.debug = debug; }
+    
+    public void setThermalPower(int power) { this.thermalPower = power; }
 }
