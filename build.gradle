@@ -18,6 +18,7 @@ repositories {
 	// for more information about repositories.
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
+	mavenCentral()
 }
 
 loom {
@@ -49,6 +50,8 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
     include(modImplementation('me.lucko:fabric-permissions-api:0.3.1'))
+
+	implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
 }
 
 processResources {
