@@ -369,69 +369,154 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     private void renderPredicted(DrawContext context, int mouseX, int mouseY, int baseX, int barX, int barH, int barYSurplus,
                                  boolean light, boolean train, boolean factory, boolean house, boolean facility) {
 
+        // Light
         if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)LIGHT_CONSUMPTION / 2500 * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-            context.drawText(this.textRenderer, "+" + LIGHT_CONSUMPTION, startX - this.textRenderer.getWidth("+"+LIGHT_CONSUMPTION) - 2, barYSurplus, 0xFFFF0000, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(LIGHT_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    startX - this.textRenderer.getWidth(text) - 2,
+                    textY,
+                    0xFFFF0000,
+                    false);
         }
         if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)LIGHT_CONSUMPTION / 2500 * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-            context.drawText(this.textRenderer, "-" + LIGHT_CONSUMPTION, baseX + w + 2, barYSurplus, 0x8844FF44, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(LIGHT_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    baseX + w + 2,
+                    textY,
+                    0x8844FF44,
+                    false);
         }
 
+        // Train
         if (!train && trainOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)TRAIN_CONSUMPTION / 2500 * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-            context.drawText(this.textRenderer, "+" + TRAIN_CONSUMPTION, startX - this.textRenderer.getWidth("+"+TRAIN_CONSUMPTION) - 2, barYSurplus, 0xFFFF0000, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(TRAIN_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    startX - this.textRenderer.getWidth(text) - 2,
+                    textY,
+                    0xFFFF0000,
+                    false);
         }
         if (train && trainOffButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)TRAIN_CONSUMPTION / 2500 * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-            context.drawText(this.textRenderer, "-" + TRAIN_CONSUMPTION, baseX + w + 2, barYSurplus, 0x8844FF44, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(TRAIN_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    baseX + w + 2,
+                    textY,
+                    0x8844FF44,
+                    false);
         }
 
+        // Factory
         if (!factory && factoryOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)FACTORY_CONSUMPTION / 2500 * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-            context.drawText(this.textRenderer, "+" + FACTORY_CONSUMPTION, startX - this.textRenderer.getWidth("+"+FACTORY_CONSUMPTION) - 2, barYSurplus, 0xFFFF0000, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(FACTORY_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    startX - this.textRenderer.getWidth(text) - 2,
+                    textY,
+                    0xFFFF0000,
+                    false);
         }
         if (factory && factoryOffButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)FACTORY_CONSUMPTION / 2500 * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-            context.drawText(this.textRenderer, "-" + FACTORY_CONSUMPTION, baseX + w + 2, barYSurplus, 0x8844FF44, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(FACTORY_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    baseX + w + 2,
+                    textY,
+                    0x8844FF44,
+                    false);
         }
 
+        // House
         if (!house && houseOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)HOUSE_CONSUMPTION / 2500 * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-            context.drawText(this.textRenderer, "+" + HOUSE_CONSUMPTION, startX - this.textRenderer.getWidth("+"+HOUSE_CONSUMPTION) - 2, barYSurplus, 0xFFFF0000, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(HOUSE_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    startX - this.textRenderer.getWidth(text) - 2,
+                    textY,
+                    0xFFFF0000,
+                    false);
         }
         if (house && houseOffButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)HOUSE_CONSUMPTION / 2500 * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-            context.drawText(this.textRenderer, "-" + HOUSE_CONSUMPTION, baseX + w + 2, barYSurplus, 0x8844FF44, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(HOUSE_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    baseX + w + 2,
+                    textY,
+                    0x8844FF44,
+                    false);
         }
 
+        // Facility
         if (!facility && facilityOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)FACILITY_CONSUMPTION / 2500 * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-            context.drawText(this.textRenderer, "+" + FACILITY_CONSUMPTION, startX - this.textRenderer.getWidth("+"+FACILITY_CONSUMPTION) - 2, barYSurplus, 0xFFFF0000, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(FACILITY_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    startX - this.textRenderer.getWidth(text) - 2,
+                    textY,
+                    0xFFFF0000,
+                    false);
         }
         if (facility && facilityOffButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)FACILITY_CONSUMPTION / 2500 * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-            context.drawText(this.textRenderer, "-" + FACILITY_CONSUMPTION, baseX + w + 2, barYSurplus, 0x8844FF44, false);
+
+            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
+            String text = String.valueOf(FACILITY_CONSUMPTION);
+            context.drawText(this.textRenderer,
+                    text,
+                    baseX + w + 2,
+                    textY,
+                    0x8844FF44,
+                    false);
         }
     }
 
