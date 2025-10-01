@@ -220,6 +220,29 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
+    public void registerThermal(){
+        JsonObject obj = new JsonObject();
+        obj.addProperty("sessionId", Integer.toString(sessionId));
+        int deviceId = 1000;
+        obj.addProperty("deviceId", deviceId);
+        obj.addProperty("deviceType", "thermal");
+        String payload = obj.toString();
+        String endpoint = "/register-new-power-generation-module";
+        postAsync(endpoint, payload)
+                .thenAccept(response -> {
+                    if(debug) {
+                        System.out.println("Thermal registered successfully: " + response);
+                    }
+                })
+                .exceptionally(ex -> {
+                    if(debug) {
+                        System.out.println("Thermal registration failed");
+                        ex.printStackTrace();
+                    }
+                    return null;
+                });
+    }
+
     private CompletableFuture<JsonObject> postAsync(String json, String endpoint) {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL + endpoint))
@@ -394,6 +417,9 @@ public class PowerNetwork extends PersistentState {
     public void setSessionId(int id) { this.sessionId = id; }
 
     public void setDebug(boolean debug) { this.debug = debug; }
-    
-    public void setThermalPower(int power) { this.thermalPower = power; }
+
+    public void setThermalPower(int power) {
+        this.thermalPower = power;
+        //TODO: send to backend
+    }
 }
