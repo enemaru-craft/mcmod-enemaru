@@ -230,7 +230,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
         drawCenteredLabel(context, "電車", trainLabelX, trainLabelY);
         drawCenteredLabel(context, "工場", factoryLabelX, factoryLabelY);
-        drawCenteredLabel(context, "家", houseLabelX, houseLabelY);
+        drawCenteredLabel(context, "住宅", houseLabelX, houseLabelY);
         drawCenteredLabel(context, "公共施設", facilityLabelX, facilityLabelY);
 
         // ボタン状態更新
@@ -349,11 +349,50 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ======================
         // 他情報表示
         // ======================
-        context.drawText(this.textRenderer, "Streetlights: " + (light ? "On" : "Off"), textX, textY + 100, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Train: " + (train ? "On" : "Off"), textX, textY + 110, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX, textY + 120, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "House: " + (house ? "On" : "Off"), textX, textY + 130, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Facility: " + (facility ? "On" : "Off"), textX, textY + 140, 0xFFFFFF, false);
+        // 表の左上座標
+        int tableX = textX + 20;
+        int tableY = textY + 90;
+
+        // 列幅
+        int col1Width = 50; // ラベル列
+        int col2Width = 40; // 状態列
+        int rowHeight = this.textRenderer.fontHeight + 4;  // フォント高さ + 余白
+
+        // ヘッダー
+        context.drawText(this.textRenderer, "設備", tableX + 2, tableY + 2, 0xFFFFAA00, false);
+        context.drawText(this.textRenderer, "状態", tableX + col1Width + 2, tableY + 2, 0xFFFFAA00, false);
+
+        // 線の色
+        int lineColor = 0xFFAAAAAA;
+
+        // ヘッダー下の線
+        context.fill(tableX, tableY + rowHeight, tableX + col1Width + col2Width, tableY + rowHeight + 1, lineColor);
+
+        // データ行
+        String[][] rows = {
+                {"街灯", light ? "On" : "Off"},
+                {"電車", train ? "On" : "Off"},
+                {"工場", factory ? "On" : "Off"},
+                {"住宅", house ? "On" : "Off"},
+                {"公共施設", facility ? "On" : "Off"}
+        };
+
+        for (int i = 0; i < rows.length; i++) {
+            int y = tableY + rowHeight * (i + 1);
+
+            // ラベル列
+            context.drawText(this.textRenderer, rows[i][0], tableX + 2, y + 2, 0xFFFFFF, false);
+
+            // 状態列
+            context.drawText(this.textRenderer, rows[i][1], tableX + col1Width + 2, y + 2, 0xFFFFFF, false);
+
+            // 行下線
+            context.fill(tableX, y + rowHeight -1, tableX + col1Width + col2Width, y + rowHeight, lineColor);
+
+            // 列の区切り線（垂直）
+            context.fill(tableX + col1Width - 3, y - 13, tableX + col1Width - 2, y + rowHeight, lineColor);
+        }
+
 
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
