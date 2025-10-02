@@ -18,11 +18,15 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -130,6 +134,25 @@ public class Enemaru implements ModInitializer {
                 net.unregisterEndRodLamp(endRod);
             } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
                 net.unregisterStationEndRod(stationEndRod);
+            }
+        });
+
+        // プレイヤーがサーバーに参加したときにコントロールパネルを配布する
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            ServerPlayerEntity player = handler.player;
+            Item controlPanel = Registries.ITEM.get(Identifier.of(MOD_ID, "control_panel"));
+
+            boolean alreadyHas = false;
+            for (int i = 0; i < player.getInventory().size(); i++) {
+                ItemStack s = player.getInventory().getStack(i);
+                if (!s.isEmpty() && s.getItem() == controlPanel) {
+                    alreadyHas = true;
+                    break;
+                }
+            }
+            if(!alreadyHas){
+                ItemStack stack = new ItemStack(controlPanel, 1);
+                player.giveItemStack(stack);
             }
         });
 
