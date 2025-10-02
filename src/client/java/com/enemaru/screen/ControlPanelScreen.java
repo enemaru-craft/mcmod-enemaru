@@ -300,22 +300,22 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         if (thermalWidth > filled) thermalWidth = filled;
         int thermalBarStart = filled - thermalWidth;
         if (thermalBarStart < barX) thermalBarStart = barX;
-        context.fill(thermalBarStart, barY, thermalBarStart + thermalWidth, barY + barHeight, 0xFFFF0000);
+        context.fill(thermalBarStart, barY, thermalBarStart + thermalWidth, barY + barHeight, 0xFFFF69B4);
 
         // Energy テキスト
-        String energyText = String.format("受信電力: %04d / %d", (int)displayedEnergy, maxEnergy);
+        String energyText = String.format("受信電力量: %04d kW / %d kW", (int)displayedEnergy, maxEnergy);
         int textWidth = this.textRenderer.getWidth(energyText);
         context.drawText(this.textRenderer, energyText, barX + (barWidth - textWidth) / 2, barY - 10, 0xFFFFFF, false);
 
         // 火力発電量テキスト
-        String thermalRatioText = String.format("火力発電量 (赤色) : %d / %d", thermalEnergy, (int)displayedEnergy);
+        String thermalRatioText = String.format("火力発電量: %d kW/ %d kW", thermalEnergy, (int)displayedEnergy);
         int thermalRatioWidth = this.textRenderer.getWidth(thermalRatioText);
-        context.drawText(this.textRenderer, thermalRatioText, barX + (barWidth - thermalRatioWidth) / 2, barY + barHeight + 2, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, thermalRatioText, barX + (barWidth - thermalRatioWidth) / 2, barY + barHeight + 2, 0xFFFF69B4, false);
 
         // スライダー上の文字
         int sliderX = slider.getX();
         int sliderY = slider.getY();
-        String thermalText = "火力発電: " + thermalEnergy + " / 1000";
+        String thermalText = "火力発電: " + thermalEnergy + " kW / 1000 kW";
         int ThermaltextWidth = this.textRenderer.getWidth(thermalText);
         context.drawText(this.textRenderer, thermalText, sliderX + (slider.getWidth() - ThermaltextWidth) / 2, sliderY - 10, 0xFFFFFF, false);
 
@@ -323,16 +323,17 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 余裕電力バー
         // ======================
         int surplusBarY = barY + barHeight + 50;
-        int surplusFilled = (int)((double)displayedSurplus / maxEnergy * barWidth);
+        int surplusBarMax = (int)displayedEnergy; // 最大値を受信電力量に設定
+        int surplusFilled = (int)((double)displayedSurplus / surplusBarMax * barWidth);
         context.fill(barX, surplusBarY, barX + barWidth, surplusBarY + barHeight, 0xFF555555);
         context.fill(barX, surplusBarY, barX + surplusFilled, surplusBarY + barHeight, 0xFF00FF00);
 
-        String surplusText = String.format("余裕電力: %d", (int)displayedSurplus);
+        String surplusText = String.format("余裕電力量: %d kW / %d kW", (int)displayedSurplus, (int)displayedEnergy);
         int surplusTextWidth = this.textRenderer.getWidth(surplusText);
         context.drawText(this.textRenderer, surplusText, barX + (barWidth - surplusTextWidth) / 2, surplusBarY - 10, 0xFFFFFF, false);
 
         // 現在の使用量バー下に表示
-        String usedText = String.format("使用量: %d", usedEnergy);
+        String usedText = String.format("使用量: %d kW", usedEnergy);
         int usedTextWidth = this.textRenderer.getWidth(usedText);
         context.drawText(this.textRenderer, usedText, barX + (barWidth - usedTextWidth) / 2, surplusBarY + barHeight + 2, 0xFFFFFF, false);
 
@@ -353,7 +354,6 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, "Factory: " + (factory ? "On" : "Off"), textX, textY + 120, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "House: " + (house ? "On" : "Off"), textX, textY + 130, 0xFFFFFF, false);
         context.drawText(this.textRenderer, "Facility: " + (facility ? "On" : "Off"), textX, textY + 140, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Blackout: " + (blackout ? "On" : "Off"), textX + 100, textY + 160, 0xFFFFFF, false);
 
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
