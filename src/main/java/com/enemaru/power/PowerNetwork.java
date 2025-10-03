@@ -1,6 +1,7 @@
 package com.enemaru.power;
 
 import com.enemaru.blockentity.*;
+import com.enemaru.power.mqtt.MqttManager;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
 import com.enemaru.commands.TrainCommand;
 import com.google.gson.Gson;
@@ -61,10 +62,11 @@ public class PowerNetwork extends PersistentState {
     private int sessionId = 2021;
     private int generatedEnergy = 0;
     private int surplusEnergy = 0;
-    private int thermalPower = 0;
+    private float thermalPower = 0;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .build();
+    private boolean isMqttRegisterd = false;
 
     /** ユーザー操作で点灯／消灯を切り替えるフラグ */
     private boolean isStreetlightsEnabled = false;
@@ -157,13 +159,17 @@ public class PowerNetwork extends PersistentState {
         }
 
         if (world.getTime() % 60 != 0) return;
+        if (world.getTime() % 180 == 0){
+            sendThermal(thermalPower);
+        }
 
         JsonObject obj = new JsonObject();
         obj.addProperty("sessionId", Integer.toString(sessionId));
         String session = obj.toString();
 
         postAsync(session, "/get-current-world-state")
-                .thenAccept(json -> {
+                .thenAccept(res -> {
+                    var json = JsonParser.parseString(res.body()).getAsJsonObject();
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(json, WorldState.class);
                     world.getServer().execute(() -> updateState(states, world));
@@ -204,8 +210,9 @@ public class PowerNetwork extends PersistentState {
 
         postAsync(statePayload, endpoint)
                 .thenAccept(response -> {
+                    var json = JsonParser.parseString(response.body()).getAsJsonObject();
                     Gson gson = new Gson();
-                    WorldState states = gson.fromJson(response, WorldState.class);
+                    WorldState states = gson.fromJson(json, WorldState.class);
                     updateState(states, world);
                     if(debug) {
                         System.out.println("State updated successfully: " + response);
@@ -223,16 +230,17 @@ public class PowerNetwork extends PersistentState {
     public void registerThermal(){
         JsonObject obj = new JsonObject();
         obj.addProperty("sessionId", Integer.toString(sessionId));
-        int deviceId = 1000;
+        String deviceId = "M5-"+ sessionId +"-fire-1";
         obj.addProperty("deviceId", deviceId);
-        obj.addProperty("deviceType", "thermal");
+        obj.addProperty("deviceType", "fire");
         String payload = obj.toString();
         String endpoint = "/register-new-power-generation-module";
-        postAsync(endpoint, payload)
+        postAsync(payload, endpoint)
                 .thenAccept(response -> {
                     if(debug) {
                         System.out.println("Thermal registered successfully: " + response);
                     }
+                    isMqttRegisterd = true;
                 })
                 .exceptionally(ex -> {
                     if(debug) {
@@ -243,7 +251,22 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    private CompletableFuture<JsonObject> postAsync(String json, String endpoint) {
+    public void sendThermal(float power){
+        if(!isMqttRegisterd){
+            return;
+        }
+        JsonObject obj = new JsonObject();
+        obj.addProperty("sessionId", Integer.toString(sessionId));
+        String deviceId = "M5-"+ sessionId +"-fire-1";
+        obj.addProperty("deviceId", deviceId);
+        obj.addProperty("deviceType", "fire");
+        obj.addProperty("power", power);
+        obj.addProperty("gpsLat","35.103548");
+        obj.addProperty("gpsLon","137.14859");
+        MqttManager.get().publishJson(obj);
+    }
+
+    private CompletableFuture<HttpResponse<String>> postAsync(String json, String endpoint) {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL + endpoint))
                 .header("Content-Type", "application/json; charset=utf-8")
@@ -258,7 +281,7 @@ public class PowerNetwork extends PersistentState {
                     if (code < 200 || code >= 300) {
                         throw new RuntimeException("HTTP " + code + " : " + res.body());
                     }
-                    return JsonParser.parseString(res.body()).getAsJsonObject();
+                    return res;
                 });
     }
 
@@ -414,7 +437,15 @@ public class PowerNetwork extends PersistentState {
     public int getSurplusEnergy() { return surplusEnergy; }
 
     public int getSessionId() { return sessionId; }
-    public void setSessionId(int id) { this.sessionId = id; }
+
+    public void setSessionId(int id) {
+        this.sessionId = id;
+        this.isMqttRegisterd = false;
+        registerThermal();
+        System.out.println("Registered thermal with sessionId: " + id);
+        // MQTT 接続を再初期化
+        MqttManager.get().initAndConnect(sessionId);
+    }
 
     public void setDebug(boolean debug) { this.debug = debug; }
 

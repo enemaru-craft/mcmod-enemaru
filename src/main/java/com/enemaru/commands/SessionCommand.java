@@ -19,7 +19,12 @@ public final class SessionCommand {
                                     // セッションIDを設定する処理をここに追加
                                     ServerWorld world = context.getSource().getWorld();
                                     PowerNetwork network = PowerNetwork.get(world);
-                                    network.setSessionId(id);
+                                    try {
+                                        network.setSessionId(id);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        return 0;
+                                    }
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
