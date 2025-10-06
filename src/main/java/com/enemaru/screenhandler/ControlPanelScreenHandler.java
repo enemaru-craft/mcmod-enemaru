@@ -17,7 +17,8 @@ public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_BLACKOUT = 5;
     public static final int PROP_HOUSE = 6;
     public static final int PROP_FACILITY = 7;
-    public static final int NUM_PROPS = 8;
+    public static final int PROP_THERMAL = 8;
+    public static final int NUM_PROPS = 9;
     private final PropertyDelegate propertyDelegate;
 
     /**
@@ -42,6 +43,10 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     public int getSurplusEnergy() {
         return propertyDelegate.get(PROP_SURPLUS);
+    }
+
+    public int getThermalEnergy() {
+        return propertyDelegate.get(PROP_THERMAL);
     }
 
     public boolean isLightEnabled() {

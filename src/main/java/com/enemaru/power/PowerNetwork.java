@@ -532,5 +532,10 @@ public class PowerNetwork extends PersistentState {
 
     public void setThermalPower(int power) {
         this.thermalPower = power;
+        markDirty();
+    }
+
+    public int getThermalEnergy(){
+        return (int)this.thermalPower;
     }
 }

@@ -47,6 +47,7 @@ public class ControlPanelItem extends Item {
                                 case ControlPanelScreenHandler.PROP_BLACKOUT -> network.getBlackout() ? 1 : 0;
                                 case ControlPanelScreenHandler.PROP_HOUSE -> network.getHouseEnabled() ? 1 : 0;
                                 case ControlPanelScreenHandler.PROP_FACILITY -> network.getFacilityEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_THERMAL -> network.getThermalEnergy();
                                 default -> -1;
                             };
                         }

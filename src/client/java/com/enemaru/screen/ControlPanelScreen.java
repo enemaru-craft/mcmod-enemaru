@@ -207,6 +207,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     private int houseLabelX, houseLabelY;
     private int facilityLabelX, facilityLabelY;
 
+    private boolean isThermalSynced = false;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
@@ -242,6 +243,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // ネットワーク受信値
         int energy = screenHandler.getGeneratedEnergy();
+        int thermalPower = screenHandler.getThermalEnergy();
         int usedEnergy = 0;
         boolean light = screenHandler.isLightEnabled();
         boolean train = screenHandler.isTrainEnabled();
@@ -258,6 +260,14 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         int surplus = energy - usedEnergy;
         if (surplus < 0) surplus = 0;
+
+        // 火力発電をサーバ側の値に同期
+        if (!isThermalSynced) {
+            if(thermalPower > 0) {
+                slider.setValue(thermalPower);
+                isThermalSynced = true;
+            }
+        }
 
         // ======================
         // 描画用の値をフレームごとに滑らかに更新

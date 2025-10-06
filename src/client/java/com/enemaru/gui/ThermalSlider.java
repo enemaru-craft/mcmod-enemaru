@@ -10,6 +10,7 @@ public class ThermalSlider extends SliderWidget {
     private int thermalPower = 0;
     public ThermalSlider(int x, int y, int width, int height, double initial) {
         super(x, y, width, height, Text.empty(), MathHelper.clamp(initial, 0.0, 1.0));
+        this.thermalPower = (int)Math.round(this.value * 1000);
         updateMessage();
     }
 
@@ -19,6 +20,8 @@ public class ThermalSlider extends SliderWidget {
 
     @Override
     protected void applyValue() {
+        // ドラッグ中に常に現在値を反映 (送信はしない)
+        this.thermalPower = MathHelper.clamp((int)Math.round(this.value * 1000), 0, 1000);
     }
 
     @Override
@@ -31,5 +34,10 @@ public class ThermalSlider extends SliderWidget {
 
     public int getThermalPower() {
         return this.thermalPower;
+    }
+
+    public void setValue(int power) {
+        this.value = MathHelper.clamp(power / 1000.0, 0.0, 1.0);
+        this.thermalPower = power;
     }
 }
