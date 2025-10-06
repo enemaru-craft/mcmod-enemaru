@@ -175,9 +175,7 @@ public class PowerNetwork extends PersistentState {
         if (world.getTime() % 60 != 0) return;
 
         sendThermalPower();
-        if (1 == 1) {
-            return;
-        }
+
         JsonObject obj = new JsonObject();
         obj.addProperty("sessionId", Integer.toString(sessionId));
         String session = obj.toString();
