@@ -314,22 +314,26 @@ public class PowerNetwork extends PersistentState {
             setTrainEnabled(this.isTrainEnabled);
         }
 
-        // 村人にテキストを分配
-        if (states.texts.equals(this.lastTexts)) return;
+        if (states.texts == null || states.texts.isEmpty()) return;
+        var newTexts = new ArrayList<String>();
+        states.texts.forEach((k, v) -> {
+            if (v != null && v.text != null && !v.text.isBlank()) newTexts.add(v.text);
+        });
+        if (newTexts.isEmpty()) return;
+        // 変更が無ければ終了
+        if (newTexts.equals(this.lastTexts)) return;
 
         var villagers = world.getEntitiesByType(EntityType.VILLAGER, v -> true);
-        var numTexts = states.texts.size();
+        int numTexts = newTexts.size();
         int counter = 0;
-
         for (Entity entity : villagers) {
-            TalkCloudCommand.sendBubble(entity, Text.of(""), false, true);
+            TalkCloudCommand.sendBubble(entity, Text.of(""), false, true); // クリア
             if (counter < numTexts) {
-                TalkCloudCommand.sendBubble(entity, Text.of(states.texts.get(counter)), true, false);
+                TalkCloudCommand.sendBubble(entity, Text.of(newTexts.get(counter)), true, false);
             }
             counter++;
         }
-
-        this.lastTexts = states.texts;
+        this.lastTexts = newTexts;
     }
 
     /**
