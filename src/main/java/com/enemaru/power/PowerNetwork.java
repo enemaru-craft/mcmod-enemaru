@@ -11,7 +11,6 @@ import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -85,7 +84,7 @@ public class PowerNetwork extends PersistentState {
     private boolean isBlackout = false;
     private boolean isHouseEnabled = false;
     private boolean isFacilityEnabled = false;
-
+    private boolean forceLightUpdate = false;
     /**
      * 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity
      */
@@ -95,7 +94,9 @@ public class PowerNetwork extends PersistentState {
     private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
     private final List<StationEndRodBlockEntity> stationEndRods = new ArrayList<>();
 
+    // 吹き出し関連
     private List<String> lastTexts = new ArrayList<>();
+    private boolean shouldUpdateTexts = true;
 
     private int trainTickCounter = 0;
 
@@ -319,7 +320,7 @@ public class PowerNetwork extends PersistentState {
         });
         if (newTexts.isEmpty()) return;
         // 変更が無ければ終了
-        if (newTexts.equals(this.lastTexts)) return;
+        if(!shouldUpdateTexts && newTexts.equals(this.lastTexts)) return;
 
         List<? extends VillagerEntity> villagers = world.getEntitiesByType(
                 EntityType.VILLAGER,
@@ -336,6 +337,8 @@ public class PowerNetwork extends PersistentState {
             }
         }
         this.lastTexts = newTexts;
+        this.shouldUpdateTexts = false;
+        this.forceLightUpdate = false;
     }
 
     /**
@@ -434,7 +437,7 @@ public class PowerNetwork extends PersistentState {
     public void setHouseEnabled(boolean enabled) {
         this.isHouseEnabled = enabled;
         for (var light : streetLights) {
-            light.updatePowered(isHouseEnabled);
+            light.updatePowered(isHouseEnabled, forceLightUpdate);
         }
         markDirty();
     }
@@ -442,7 +445,7 @@ public class PowerNetwork extends PersistentState {
     public void setFacilityEnabled(boolean enabled) {
         this.isFacilityEnabled = enabled;
         for (var endRod : endRodLamps) {
-            endRod.updatePowered(isFacilityEnabled);
+            endRod.updatePowered(isFacilityEnabled, forceLightUpdate);
         }
         markDirty();
     }
@@ -453,7 +456,7 @@ public class PowerNetwork extends PersistentState {
     public void setStreetlightsEnabled(boolean enable) {
         this.isStreetlightsEnabled = enable;
         for (var glow : glowstoneLamps) {
-            glow.updatePowered(isStreetlightsEnabled);
+            glow.updatePowered(isStreetlightsEnabled, forceLightUpdate);
         }
         markDirty();
     }
@@ -461,7 +464,7 @@ public class PowerNetwork extends PersistentState {
     public void setFactoryEnabled(boolean enable, ServerWorld world) {
         this.isFactoryEnabled = enable;
         for (var lantern : seaLanterns) {
-            lantern.updatePowered(isFactoryEnabled);
+            lantern.updatePowered(isFactoryEnabled, forceLightUpdate);
         }
         for (var pos : fireCoords) {
             BlockPos blockPos = new BlockPos(pos);
@@ -476,7 +479,7 @@ public class PowerNetwork extends PersistentState {
 
     public void setTrainEnabled(boolean enable) {
         for (var stationRod : stationEndRods) {
-            stationRod.updatePowered(enable);
+            stationRod.updatePowered(enable, forceLightUpdate);
         }
         markDirty();
     }
@@ -504,6 +507,8 @@ public class PowerNetwork extends PersistentState {
         if (mqttPublisher != null) {
             mqttPublisher.reconnectWithNewClientId(this.cliendId);
         }
+        enableShouldUpdateTexts();
+        this.forceLightUpdate = true;
     }
 
     private void initializeMqtt() {
@@ -541,5 +546,13 @@ public class PowerNetwork extends PersistentState {
 
     public int getThermalEnergy(){
         return (int)this.thermalPower;
+    }
+
+    public void enableShouldUpdateTexts() {
+        this.shouldUpdateTexts = true;
+    }
+
+    public void enableForceLightUpdate() {
+        this.forceLightUpdate = true;
     }
 }

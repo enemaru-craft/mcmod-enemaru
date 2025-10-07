@@ -19,8 +19,8 @@ public class EndRodLampBlockEntity extends BlockEntity {
     }
 
     /** サーバからの点灯／消灯を反映 */
-    public void updatePowered(boolean shouldBeLit) {
-        if (this.powered == shouldBeLit) return;
+    public void updatePowered(boolean shouldBeLit, boolean forceUpdate) {
+        if (!forceUpdate && this.powered == shouldBeLit) return;
         this.powered = shouldBeLit;
 
         BlockState oldState = world.getBlockState(pos);
