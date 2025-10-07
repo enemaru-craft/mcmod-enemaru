@@ -13,6 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
@@ -33,10 +34,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class PowerNetwork extends PersistentState {
@@ -323,15 +321,19 @@ public class PowerNetwork extends PersistentState {
         // 変更が無ければ終了
         if (newTexts.equals(this.lastTexts)) return;
 
-        var villagers = world.getEntitiesByType(EntityType.VILLAGER, v -> true);
-        int numTexts = newTexts.size();
-        int counter = 0;
-        for (Entity entity : villagers) {
-            TalkCloudCommand.sendBubble(entity, Text.of(""), false, true); // クリア
-            if (counter < numTexts) {
-                TalkCloudCommand.sendBubble(entity, Text.of(newTexts.get(counter)), true, false);
+        List<? extends VillagerEntity> villagers = world.getEntitiesByType(
+                EntityType.VILLAGER,
+                villager -> true
+        );
+
+        for (VillagerEntity villager : villagers) {
+            Set<String> tags = villager.getCommandTags();
+            for(String tag : tags){
+                WorldState.TalkEntry entry = states.texts.get(tag);
+                if (entry == null) continue;
+                TalkCloudCommand.sendBubble(villager, Text.of(""), false, true); // クリア
+                TalkCloudCommand.sendBubble(villager, Text.of(entry.text), true, false);
             }
-            counter++;
         }
         this.lastTexts = newTexts;
     }
