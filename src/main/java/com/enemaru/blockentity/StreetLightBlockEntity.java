@@ -22,9 +22,9 @@ public class StreetLightBlockEntity extends BlockEntity {
         super(ModBlockEntities.STREET_LIGHT_ENTITY, pos, state);
     }
 
-    public void updatePowered(boolean shouldBeLit) {
+    public void updatePowered(boolean shouldBeLit, boolean forceUpdate) {
         // 変化がないならスキップ
-        if (this.powered == shouldBeLit) return;
+        if (!forceUpdate && this.powered == shouldBeLit) return;
         this.powered = shouldBeLit;
 
         // 現在の BlockState を取得

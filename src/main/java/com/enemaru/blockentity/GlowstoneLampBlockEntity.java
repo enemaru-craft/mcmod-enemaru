@@ -20,9 +20,9 @@ public class GlowstoneLampBlockEntity extends BlockEntity {
     }
 
     /** サーバからの点灯／消灯を反映 */
-    public void updatePowered(boolean shouldBeLit) {
+    public void updatePowered(boolean shouldBeLit, boolean forceUpdate) {
         // 変化がないならスキップ
-        if (this.powered == shouldBeLit) return;
+        if (!forceUpdate && this.powered == shouldBeLit) return;
         this.powered = shouldBeLit;
 
         // 現在の BlockState を取得

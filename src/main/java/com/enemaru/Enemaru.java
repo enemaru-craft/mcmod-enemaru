@@ -154,6 +154,9 @@ public class Enemaru implements ModInitializer {
                 ItemStack stack = new ItemStack(controlPanel, 1);
                 player.giveItemStack(stack);
             }
+            var network = PowerNetwork.get(player.getServerWorld());
+            network.enableShouldUpdateTexts();
+            network.enableForceLightUpdate();
         });
 
         LOGGER.info("Hello Fabric world!");
