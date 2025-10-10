@@ -36,7 +36,7 @@ public final class EnemaruCommand {
                                 .executes(context -> {
                                     ServerWorld world = context.getSource().getWorld();
                                     PowerNetwork network = PowerNetwork.get(world);
-                                    network.setMqttLocal(true);
+                                    network.setLocal(true);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -44,7 +44,7 @@ public final class EnemaruCommand {
                                 .executes(context -> {
                                     ServerWorld world = context.getSource().getWorld();
                                     PowerNetwork network = PowerNetwork.get(world);
-                                    network.setMqttLocal(false);
+                                    network.setLocal(false);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
