@@ -225,7 +225,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int centerX = this.x + (this.backgroundWidth / 2);
         int centerY = this.y + (this.backgroundHeight / 2) - 20;
 
-        int maxEnergy = 2500;
+        int maxEnergy = 3500;
 
         // ラベル描画
         drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
@@ -281,8 +281,21 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             int effectiveEnergy = Math.min(energy, maxEnergy);
             int effectiveSurplus = Math.min(surplus, maxEnergy);
 
-            displayedEnergy += (effectiveEnergy - displayedEnergy) / 4;
-            displayedSurplus += (effectiveSurplus - displayedSurplus) / 4;
+            // 収束しきい値を設定（差が2以下なら即座に同期）
+            int energyDiff = effectiveEnergy - displayedEnergy;
+            int surplusDiff = effectiveSurplus - displayedSurplus;
+
+            if (Math.abs(energyDiff) <= 4) {
+                displayedEnergy = effectiveEnergy;
+            } else {
+                displayedEnergy += energyDiff / 4;
+            }
+
+            if (Math.abs(surplusDiff) <= 4) {
+                displayedSurplus = effectiveSurplus;
+            } else {
+                displayedSurplus += surplusDiff / 4;
+            }
         }
 
 
@@ -354,7 +367,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int baseX = barX + surplusFilled;
         int barH = barHeight;
 
-        renderPredicted(context, mouseX, mouseY, baseX, barX, barH, surplusBarY, light, train, factory, house, facility);
+        renderPredicted(context, mouseX, mouseY, baseX, barX, barH, surplusBarY, displayedEnergy,light, train, factory, house, facility);
 
         // ======================
         // 他情報表示
@@ -415,12 +428,12 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     // ======================
     // 予測バー描画用メソッド
     // ======================
-    private void renderPredicted(DrawContext context, int mouseX, int mouseY, int baseX, int barX, int barH, int barYSurplus,
+    private void renderPredicted(DrawContext context, int mouseX, int mouseY, int baseX, int barX, int barH, int barYSurplus, int currentEnergy,
                                  boolean light, boolean train, boolean factory, boolean house, boolean facility) {
 
         // Light
         if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)LIGHT_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)LIGHT_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
@@ -435,7 +448,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     false);
         }
         if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)LIGHT_CONSUMPTION / 2500 * 150);
+                int w = (int)((double)LIGHT_CONSUMPTION / currentEnergy * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
 
             int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
@@ -450,7 +463,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // Train
         if (!train && trainOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)TRAIN_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)TRAIN_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
@@ -465,7 +478,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     false);
         }
         if (train && trainOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)TRAIN_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)TRAIN_CONSUMPTION / currentEnergy * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
 
             int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
@@ -480,7 +493,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // Factory
         if (!factory && factoryOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACTORY_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)FACTORY_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
@@ -495,7 +508,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     false);
         }
         if (factory && factoryOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACTORY_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)FACTORY_CONSUMPTION / currentEnergy * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
 
             int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
@@ -510,7 +523,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // House
         if (!house && houseOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)HOUSE_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)HOUSE_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
@@ -525,7 +538,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     false);
         }
         if (house && houseOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)HOUSE_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)HOUSE_CONSUMPTION / currentEnergy * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
 
             int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
@@ -540,7 +553,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // Facility
         if (!facility && facilityOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACILITY_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)FACILITY_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
             if (startX < barX) startX = barX;
             context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
@@ -555,7 +568,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     false);
         }
         if (facility && facilityOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACILITY_CONSUMPTION / 2500 * 150);
+            int w = (int)((double)FACILITY_CONSUMPTION / currentEnergy * 150);
             context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
 
             int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
