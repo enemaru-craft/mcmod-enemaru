@@ -10,6 +10,8 @@ import net.minecraft.server.world.ServerWorld;
 
 public final class EnemaruCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+
+
         dispatcher.register(CommandManager.literal("enemaru")
                 .then(CommandManager.literal("debug")
                         .then(CommandManager.literal("enable")
@@ -25,6 +27,24 @@ public final class EnemaruCommand {
                                     ServerWorld world = context.getSource().getWorld();
                                     PowerNetwork network = PowerNetwork.get(world);
                                     network.setDebug(false);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(CommandManager.literal("local")
+                        .then(CommandManager.literal("enable")
+                                .executes(context -> {
+                                    ServerWorld world = context.getSource().getWorld();
+                                    PowerNetwork network = PowerNetwork.get(world);
+                                    network.setMqttLocal(true);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                        .then(CommandManager.literal("disable")
+                                .executes(context -> {
+                                    ServerWorld world = context.getSource().getWorld();
+                                    PowerNetwork network = PowerNetwork.get(world);
+                                    network.setMqttLocal(false);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )

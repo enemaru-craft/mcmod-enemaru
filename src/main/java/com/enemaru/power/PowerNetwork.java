@@ -40,6 +40,7 @@ public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private static String API_URL = "http://localhost:3000";
     private static String MQTT_ENDPOINT = "";
+    private static String MQTT_LOCAL = "";
 
     static {
         try {
@@ -48,11 +49,13 @@ public class PowerNetwork extends PersistentState {
             if (Files.exists(cfg)) {
                 String json = Files.readString(cfg);
                 JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-                if (obj.has("backendBaseUrl") && obj.has("mqttEndpoint")) {
+                if (obj.has("backendBaseUrl") && obj.has("mqttEndpoint") && obj.has("mqttLocal")) {
                     API_URL = obj.get("backendBaseUrl").getAsString();
                     System.out.println("[enemaru] API_URL loaded from config: " + API_URL);
                     MQTT_ENDPOINT = obj.get("mqttEndpoint").getAsString();
                     System.out.println("[enemaru] MQTT_ENDPOINT loaded from config: " + MQTT_ENDPOINT);
+                    MQTT_LOCAL = obj.get("mqttLocal").getAsString();
+                    System.out.println("[enemaru] MQTT_LOCAL loaded from config: " + MQTT_LOCAL);
                 }
             } else {
                 System.out.println("[enemaru] No config file found, using default API_URL=" + API_URL);
@@ -516,6 +519,12 @@ public class PowerNetwork extends PersistentState {
         this.forceLightUpdate = true;
     }
 
+    public void setMqttLocal(boolean local) {
+        if (isMqttInitialized) {
+            this.mqttPublisher.setLocalMode(local);
+        }
+    }
+
     private void initializeMqtt() {
         try {
             Path cfgDir = FabricLoader.getInstance().getConfigDir();
@@ -533,7 +542,7 @@ public class PowerNetwork extends PersistentState {
 
         try {
             this.cliendId = "M5-" + sessionId + "-fire-1";
-            mqttPublisher = new AsyncMQTTPublisher(MQTT_ENDPOINT, sslContext, cliendId);
+            mqttPublisher = new AsyncMQTTPublisher(MQTT_ENDPOINT, MQTT_LOCAL, sslContext, cliendId);
         } catch (Exception e) {
             System.err.println("[enemaru] Failed to initialize MQTT publisher: " + e.getMessage());
         }

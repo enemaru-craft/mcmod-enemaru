@@ -20,19 +20,11 @@ public class AsyncMQTTPublisher {
     private final ExecutorService executor;
     private MqttClient mqttClient;
     private final String mqttEndpoint;
+    private String mqttLocalEndpoint;
     private final SSLContext sslContext;
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private boolean localMode = false;
 
-    /**
-     * Creates an AsyncMQTTPublisher with auto-generated client ID.
-     *
-     * @param mqttEndpoint MQTT broker endpoint
-     * @param sslContext   SSL context for secure connection
-     * @throws Exception if MQTT client creation fails
-     */
-    public AsyncMQTTPublisher(String mqttEndpoint, SSLContext sslContext) throws Exception {
-        this(mqttEndpoint, sslContext, MqttClient.generateClientId());
-    }
 
     /**
      * Creates an AsyncMQTTPublisher with specified client ID.
@@ -42,9 +34,10 @@ public class AsyncMQTTPublisher {
      * @param clientId     Custom client ID to use
      * @throws Exception if MQTT client creation fails
      */
-    public AsyncMQTTPublisher(String mqttEndpoint, SSLContext sslContext, String clientId) throws Exception {
+    public AsyncMQTTPublisher(String mqttEndpoint, String mqttLocalEndpoint, SSLContext sslContext, String clientId) throws Exception {
         this.executor = Executors.newFixedThreadPool(3);
         this.mqttEndpoint = mqttEndpoint;
+        this.mqttLocalEndpoint = mqttLocalEndpoint;
         this.sslContext = sslContext;
 
         // Create initial MQTT client with specified client ID
@@ -60,7 +53,9 @@ public class AsyncMQTTPublisher {
     private void connectAsync() {
         // Configure MQTT connection
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setSocketFactory(sslContext.getSocketFactory());
+        if(!localMode) {
+            options.setSocketFactory(sslContext.getSocketFactory());
+        }
         options.setAutomaticReconnect(true);
         options.setCleanSession(true);
 
@@ -98,7 +93,11 @@ public class AsyncMQTTPublisher {
                 isConnected.set(false);
 
                 // Create new client with specified ID
-                mqttClient = new MqttClient(mqttEndpoint, newClientId, new MemoryPersistence());
+                if(localMode) {
+                    mqttClient = new MqttClient(mqttLocalEndpoint, newClientId, new MemoryPersistence());
+                } else {
+                    mqttClient = new MqttClient(mqttEndpoint, newClientId, new MemoryPersistence());
+                }
 
                 // Connect with new client
                 connectAsync();
@@ -203,5 +202,9 @@ public class AsyncMQTTPublisher {
         } catch (Exception e) {
             System.err.println("[MQTT] Shutdown error: " + e.getMessage());
         }
+    }
+
+    public void setLocalMode(boolean localMode) {
+        this.localMode = localMode;
     }
 }
