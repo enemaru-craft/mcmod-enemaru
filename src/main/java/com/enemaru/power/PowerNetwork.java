@@ -293,11 +293,11 @@ public class PowerNetwork extends PersistentState {
     }
 
     private void updateState(WorldState states, ServerWorld world) {
-        setHouseEnabled(states.state.isHouseEnabled);
-        setStreetlightsEnabled(states.state.isLightEnabled);
+        world.getServer().execute(() -> setHouseEnabled(states.state.isHouseEnabled));
+        world.getServer().execute(() -> setStreetlightsEnabled(states.state.isLightEnabled));
         this.isTrainEnabled = states.state.isTrainEnabled;
-        setFactoryEnabled(states.state.isFactoryEnabled, world);
-        setFacilityEnabled(states.state.isFacilityEnabled);
+        world.getServer().execute(() -> setFactoryEnabled(states.state.isFactoryEnabled, world));
+        world.getServer().execute(() -> setFacilityEnabled(states.state.isFacilityEnabled));
         this.isBlackout = states.state.isBlackout;
 
         this.generatedEnergy = (int) states.variables.totalPower;
@@ -307,10 +307,10 @@ public class PowerNetwork extends PersistentState {
         ServerCommandSource source = server.getCommandSource();
         if (states.state.isTrainEnabled) {
             TrainCommand.runTrain(server, source);
-            setTrainEnabled(this.isTrainEnabled);
+            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
         } else {
             TrainCommand.stopTrain(server, source);
-            setTrainEnabled(this.isTrainEnabled);
+            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
         }
 
         if (states.texts == null || states.texts.isEmpty()) return;
@@ -437,6 +437,7 @@ public class PowerNetwork extends PersistentState {
     public void setHouseEnabled(boolean enabled) {
         this.isHouseEnabled = enabled;
         for (var light : streetLights) {
+            if(light != null)
             light.updatePowered(isHouseEnabled, forceLightUpdate);
         }
         markDirty();
@@ -445,6 +446,7 @@ public class PowerNetwork extends PersistentState {
     public void setFacilityEnabled(boolean enabled) {
         this.isFacilityEnabled = enabled;
         for (var endRod : endRodLamps) {
+            if(endRod != null)
             endRod.updatePowered(isFacilityEnabled, forceLightUpdate);
         }
         markDirty();
@@ -456,6 +458,7 @@ public class PowerNetwork extends PersistentState {
     public void setStreetlightsEnabled(boolean enable) {
         this.isStreetlightsEnabled = enable;
         for (var glow : glowstoneLamps) {
+            if(glow != null)
             glow.updatePowered(isStreetlightsEnabled, forceLightUpdate);
         }
         markDirty();
@@ -464,6 +467,7 @@ public class PowerNetwork extends PersistentState {
     public void setFactoryEnabled(boolean enable, ServerWorld world) {
         this.isFactoryEnabled = enable;
         for (var lantern : seaLanterns) {
+            if (lantern != null)
             lantern.updatePowered(isFactoryEnabled, forceLightUpdate);
         }
         for (var pos : fireCoords) {
@@ -479,6 +483,7 @@ public class PowerNetwork extends PersistentState {
 
     public void setTrainEnabled(boolean enable) {
         for (var stationRod : stationEndRods) {
+            if (stationRod != null)
             stationRod.updatePowered(enable, forceLightUpdate);
         }
         markDirty();
