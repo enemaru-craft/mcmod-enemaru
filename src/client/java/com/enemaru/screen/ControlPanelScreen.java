@@ -225,7 +225,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int centerX = this.x + (this.backgroundWidth / 2);
         int centerY = this.y + (this.backgroundHeight / 2) - 20;
 
-        int maxEnergy = 2500;
+        int maxEnergy = 3500;
 
         // ラベル描画
         drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
@@ -281,8 +281,21 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             int effectiveEnergy = Math.min(energy, maxEnergy);
             int effectiveSurplus = Math.min(surplus, maxEnergy);
 
-            displayedEnergy += (effectiveEnergy - displayedEnergy) / 4;
-            displayedSurplus += (effectiveSurplus - displayedSurplus) / 4;
+            // 収束しきい値を設定（差が2以下なら即座に同期）
+            int energyDiff = effectiveEnergy - displayedEnergy;
+            int surplusDiff = effectiveSurplus - displayedSurplus;
+
+            if (Math.abs(energyDiff) <= 4) {
+                displayedEnergy = effectiveEnergy;
+            } else {
+                displayedEnergy += energyDiff / 4;
+            }
+
+            if (Math.abs(surplusDiff) <= 4) {
+                displayedSurplus = effectiveSurplus;
+            } else {
+                displayedSurplus += surplusDiff / 4;
+            }
         }
 
 
