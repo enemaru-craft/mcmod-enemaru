@@ -20,10 +20,8 @@ public class AsyncMQTTPublisher {
     private final ExecutorService executor;
     private MqttClient mqttClient;
     private final String mqttEndpoint;
-    private String mqttLocalEndpoint;
     private final SSLContext sslContext;
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
-    private boolean localMode = false;
 
 
     /**
@@ -34,26 +32,25 @@ public class AsyncMQTTPublisher {
      * @param clientId     Custom client ID to use
      * @throws Exception if MQTT client creation fails
      */
-    public AsyncMQTTPublisher(String mqttEndpoint, String mqttLocalEndpoint, SSLContext sslContext, String clientId) throws Exception {
+    public AsyncMQTTPublisher(String mqttEndpoint, SSLContext sslContext, String clientId, boolean useTls) throws Exception {
         this.executor = Executors.newFixedThreadPool(3);
         this.mqttEndpoint = mqttEndpoint;
-        this.mqttLocalEndpoint = mqttLocalEndpoint;
         this.sslContext = sslContext;
 
         // Create initial MQTT client with specified client ID
         this.mqttClient = new MqttClient(mqttEndpoint, clientId, new MemoryPersistence());
 
         // Connect asynchronously
-        connectAsync();
+        connectAsync(useTls);
     }
 
     /**
      * Connects to MQTT broker asynchronously.
      */
-    private void connectAsync() {
+    private void connectAsync(boolean useTls) {
         // Configure MQTT connection
         MqttConnectOptions options = new MqttConnectOptions();
-        if(!localMode) {
+        if(useTls) {
             options.setSocketFactory(sslContext.getSocketFactory());
         }
         options.setAutomaticReconnect(true);
@@ -68,7 +65,8 @@ public class AsyncMQTTPublisher {
                 isConnected.set(true);
                 System.out.println("[MQTT] Connected with client ID: " + mqttClient.getClientId());
             } catch (Exception e) {
-                System.err.println("[MQTT] Connection failed: " + e.getMessage());
+                System.err.println("[MQTT] Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                e.printStackTrace();
                 isConnected.set(false);
             }
         }, executor);
@@ -80,27 +78,25 @@ public class AsyncMQTTPublisher {
      * @param newClientId New client ID to use for reconnection
      * @return CompletableFuture that completes when reconnection is done
      */
-    public CompletableFuture<Void> reconnectWithNewClientId(String newClientId) {
+    public CompletableFuture<Void> reconnectWithNewClientId(String newClientId, boolean useTls) {
         return CompletableFuture.runAsync(() -> {
             try {
                 System.out.println("[MQTT] Reconnecting with new client ID: " + newClientId);
 
                 // Disconnect current client
-                if (mqttClient.isConnected()) {
+                if (mqttClient!=null&& mqttClient.isConnected()) {
                     mqttClient.disconnect();
                 }
-                mqttClient.close();
+                if(mqttClient!=null) {
+                    mqttClient.close();
+                }
                 isConnected.set(false);
 
                 // Create new client with specified ID
-                if(localMode) {
-                    mqttClient = new MqttClient(mqttLocalEndpoint, newClientId, new MemoryPersistence());
-                } else {
-                    mqttClient = new MqttClient(mqttEndpoint, newClientId, new MemoryPersistence());
-                }
+                mqttClient = new MqttClient(mqttEndpoint, newClientId, new MemoryPersistence());
 
                 // Connect with new client
-                connectAsync();
+                connectAsync(useTls);
 
                 // Wait for connection to establish
                 int retries = 50; // Wait up to 5 seconds
@@ -202,9 +198,5 @@ public class AsyncMQTTPublisher {
         } catch (Exception e) {
             System.err.println("[MQTT] Shutdown error: " + e.getMessage());
         }
-    }
-
-    public void setLocalMode(boolean localMode) {
-        this.localMode = localMode;
     }
 }

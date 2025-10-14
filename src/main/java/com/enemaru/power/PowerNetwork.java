@@ -518,17 +518,16 @@ public class PowerNetwork extends PersistentState {
         this.cliendId = "M5-" + sessionId + "-fire-1";
         registerThermal();
         if (mqttPublisher != null) {
-            mqttPublisher.reconnectWithNewClientId(this.cliendId);
+            mqttPublisher.reconnectWithNewClientId(this.cliendId, !localMode);
         }
         enableShouldUpdateTexts();
         this.forceLightUpdate = true;
     }
 
     public void setLocal(boolean local) {
-        if (isMqttInitialized) {
-            this.mqttPublisher.setLocalMode(local);
-        }
+        isMqttInitialized = false;
         this.localMode = local;
+        initializeMqtt();
     }
 
     private void initializeMqtt() {
@@ -548,7 +547,9 @@ public class PowerNetwork extends PersistentState {
 
         try {
             this.cliendId = "M5-" + sessionId + "-fire-1";
-            mqttPublisher = new AsyncMQTTPublisher(MQTT_ENDPOINT, MQTT_LOCAL, sslContext, cliendId);
+            String url = localMode?MQTT_LOCAL:MQTT_ENDPOINT;
+            System.out.println("Trying to connect to MQTT broker at: " + url);
+            mqttPublisher = new AsyncMQTTPublisher(url, sslContext, cliendId, !localMode);
         } catch (Exception e) {
             System.err.println("[enemaru] Failed to initialize MQTT publisher: " + e.getMessage());
         }
