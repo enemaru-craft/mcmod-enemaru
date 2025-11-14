@@ -22,6 +22,23 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     private final int TRAIN_CONSUMPTION = 410;
     private final int FACTORY_CONSUMPTION = 300;
 
+    // 翻訳済みテキスト定数
+    private static final Text ON_TEXT = Text.translatable("gui.control_panel.on");
+    private static final Text OFF_TEXT = Text.translatable("gui.control_panel.off");
+    private static final Text HEADER_DEVICE = Text.translatable("gui.control_panel.header.device");
+    private static final Text HEADER_STATE = Text.translatable("gui.control_panel.header.state");
+    private static final Text LABEL_LIGHT = Text.translatable("gui.control_panel.label.light");
+    private static final Text LABEL_TRAIN = Text.translatable("gui.control_panel.label.train");
+    private static final Text LABEL_FACTORY = Text.translatable("gui.control_panel.label.factory");
+    private static final Text LABEL_HOUSE = Text.translatable("gui.control_panel.label.house");
+    private static final Text LABEL_FACILITY = Text.translatable("gui.control_panel.label.facility");
+    private static final Text LABEL_ENERGY_AMOUNT = Text.translatable("gui.control_panel.label.energy_amount");
+    private static final Text LABEL_THERMAL_AMOUNT = Text.translatable("gui.control_panel.label.thermal_amount");
+    private static final Text LABEL_THERMAL = Text.translatable("gui.control_panel.label.thermal");
+    private static final Text LABEL_SURPLUS = Text.translatable("gui.control_panel.label.surplus");
+    private static final Text LABEL_USED = Text.translatable("gui.control_panel.label.used");
+
+
     @Override
     protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
         // 何も描かない → デフォルトのインベントリタイトルを消す
@@ -48,13 +65,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ==========================
         // 街灯
         // ==========================
-        lightOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+        lightOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", true);
             ClientPlayNetworking.send(payload);
             updateLightButtons(true);
         }).position(centerX - buttonWidth - 90, centerY - 60).size(buttonWidth, buttonHeight).build();
 
-        lightOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+        lightOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", false);
             ClientPlayNetworking.send(payload);
             updateLightButtons(false);
@@ -69,13 +86,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ==========================
         // 電車
         // ==========================
-        trainOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+        trainOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
         }).position(centerX - buttonWidth - 90, centerY - 30).size(buttonWidth, buttonHeight).build();
 
-        trainOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+        trainOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
@@ -90,13 +107,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ==========================
         // 工場
         // ==========================
-        factoryOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+        factoryOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", true);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(true);
         }).position(centerX - buttonWidth - 90, centerY).size(buttonWidth, buttonHeight).build();
 
-        factoryOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+        factoryOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", false);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(false);
@@ -111,13 +128,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ==========================
         // 家
         // ==========================
-        houseOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+        houseOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", true);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(true);
         }).position(centerX - buttonWidth - 90, centerY + 30).size(buttonWidth, buttonHeight).build();
 
-        houseOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+        houseOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", false);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(false);
@@ -132,13 +149,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ==========================
         // 公共施設
         // ==========================
-        facilityOnButton = ButtonWidget.builder(Text.literal("ON"), button -> {
+        facilityOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("facility", true);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(true);
         }).position(centerX - buttonWidth - 90, centerY + 60).size(buttonWidth, buttonHeight).build();
 
-        facilityOffButton = ButtonWidget.builder(Text.literal("OFF"), button -> {
+        facilityOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("facility", false);
             ClientPlayNetworking.send(payload);
             updateFactoryButtons(false);
@@ -228,11 +245,11 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int maxEnergy = 3500;
 
         // ラベル描画
-        drawCenteredLabel(context, "街灯", lightLabelX, lightLabelY);
-        drawCenteredLabel(context, "電車", trainLabelX, trainLabelY);
-        drawCenteredLabel(context, "工場", factoryLabelX, factoryLabelY);
-        drawCenteredLabel(context, "住宅", houseLabelX, houseLabelY);
-        drawCenteredLabel(context, "公共施設", facilityLabelX, facilityLabelY);
+        drawCenteredLabel(context, LABEL_LIGHT.getString(), lightLabelX, lightLabelY);
+        drawCenteredLabel(context, LABEL_TRAIN.getString(), trainLabelX, trainLabelY);
+        drawCenteredLabel(context, LABEL_FACTORY.getString(), factoryLabelX, factoryLabelY);
+        drawCenteredLabel(context, LABEL_HOUSE.getString(), houseLabelX, houseLabelY);
+        drawCenteredLabel(context, LABEL_FACILITY.getString(), facilityLabelX, facilityLabelY);
 
         // ボタン状態更新
         updateLightButtons(screenHandler.isLightEnabled());
@@ -326,19 +343,19 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.fill(thermalBarStart, barY, thermalBarStart + thermalWidth, barY + barHeight, 0xFFFF69B4);
 
         // Energy テキスト
-        String energyText = String.format("受信電力量: %04d kW / %d kW", (int)displayedEnergy, maxEnergy);
+        String energyText = LABEL_ENERGY_AMOUNT.getString() + String.format(": %04d kW / %d kW", (int)displayedEnergy, maxEnergy);
         int textWidth = this.textRenderer.getWidth(energyText);
         context.drawText(this.textRenderer, energyText, barX + (barWidth - textWidth) / 2, barY - 10, 0xFFFFFF, false);
 
         // 火力発電量テキスト
-        String thermalRatioText = String.format("火力発電量: %d kW/ %d kW", thermalEnergy, (int)displayedEnergy);
+        String thermalRatioText = LABEL_THERMAL_AMOUNT.getString() + String.format(": %d kW/ %d kW", thermalEnergy, (int)displayedEnergy);
         int thermalRatioWidth = this.textRenderer.getWidth(thermalRatioText);
         context.drawText(this.textRenderer, thermalRatioText, barX + (barWidth - thermalRatioWidth) / 2, barY + barHeight + 2, 0xFFFF69B4, false);
 
         // スライダー上の文字
         int sliderX = slider.getX();
         int sliderY = slider.getY();
-        String thermalText = "火力発電: " + thermalEnergy + " kW / 1000 kW";
+        String thermalText = LABEL_THERMAL.getString()+ ": " + thermalEnergy + " kW / 1000 kW";
         int ThermaltextWidth = this.textRenderer.getWidth(thermalText);
         context.drawText(this.textRenderer, thermalText, sliderX + (slider.getWidth() - ThermaltextWidth) / 2, sliderY - 10, 0xFFFFFF, false);
 
@@ -351,12 +368,12 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.fill(barX, surplusBarY, barX + barWidth, surplusBarY + barHeight, 0xFF555555);
         context.fill(barX, surplusBarY, barX + surplusFilled, surplusBarY + barHeight, 0xFF00FF00);
 
-        String surplusText = String.format("余裕電力量: %d kW / %d kW", (int)displayedSurplus, (int)displayedEnergy);
+        String surplusText = LABEL_SURPLUS.getString() + String.format(": %d kW / %d kW", (int)displayedSurplus, (int)displayedEnergy);
         int surplusTextWidth = this.textRenderer.getWidth(surplusText);
         context.drawText(this.textRenderer, surplusText, barX + (barWidth - surplusTextWidth) / 2, surplusBarY - 10, 0xFFFFFF, false);
 
         // 現在の使用量バー下に表示
-        String usedText = String.format("使用量: %d kW", usedEnergy);
+        String usedText = LABEL_USED.getString() + String.format(": %d kW", usedEnergy);
         int usedTextWidth = this.textRenderer.getWidth(usedText);
         context.drawText(this.textRenderer, usedText, barX + (barWidth - usedTextWidth) / 2, surplusBarY + barHeight + 2, 0xFFFFFF, false);
 
@@ -382,8 +399,8 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int rowHeight = this.textRenderer.fontHeight + 4;  // フォント高さ + 余白
 
         // ヘッダー
-        context.drawText(this.textRenderer, "設備", tableX + 2, tableY + 2, 0xFFFFAA00, false);
-        context.drawText(this.textRenderer, "状態", tableX + col1Width + 2, tableY + 2, 0xFFFFAA00, false);
+        context.drawText(this.textRenderer, HEADER_DEVICE, tableX + 2, tableY + 2, 0xFFFFAA00, false);
+        context.drawText(this.textRenderer, HEADER_STATE, tableX + col1Width + 2, tableY + 2, 0xFFFFAA00, false);
 
         // 線の色
         int lineColor = 0xFFAAAAAA;
@@ -393,11 +410,11 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // データ行
         String[][] rows = {
-                {"街灯", light ? "On" : "Off"},
-                {"電車", train ? "On" : "Off"},
-                {"工場", factory ? "On" : "Off"},
-                {"住宅", house ? "On" : "Off"},
-                {"公共施設", facility ? "On" : "Off"}
+                {LABEL_LIGHT.getString(), light ? "On" : "Off"},
+                {LABEL_TRAIN.getString(), train ? "On" : "Off"},
+                {LABEL_FACTORY.getString(), factory ? "On" : "Off"},
+                {LABEL_HOUSE.getString(), house ? "On" : "Off"},
+                {LABEL_FACILITY.getString(), facility ? "On" : "Off"}
         };
 
         for (int i = 0; i < rows.length; i++) {

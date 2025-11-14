@@ -1,0 +1,19 @@
+{
+  "itemGroup.enemaru": "エネまる",
+  "item.enemaru.control_panel": "コントロールパッド",
+  "screen.enemaru.control_panel": "エネまるコントロールパネル",
+  "gui.control_panel.on": "オン",
+  "gui.control_panel.off": "オフ",
+  "gui.control_panel.header.device": "設備",
+  "gui.control_panel.header.state": "狀態",
+  "gui.control_panel.label.light": "街灯",
+  "gui.control_panel.label.train": "電車",
+  "gui.control_panel.label.factory": "工場",
+  "gui.control_panel.label.house": "住宅",
+  "gui.control_panel.label.facility": "公共施設",
+  "gui.control_panel.label.energy_amount": "受信電力量",
+  "gui.control_panel.label.thermal_amount": "火力発電量",
+  "gui.control_panel.label.thermal": "火力発電",
+  "gui.control_panel.label.surplus": "余裕電力量",
+  "gui.control_panel.label.used": "使用量"
+}
