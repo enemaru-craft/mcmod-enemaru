@@ -1,3 +1,19 @@
 {
-  "itemGroup.enemaru": "Enemaru"
+  "itemGroup.enemaru": "Enemaru",
+  "item.enemaru.control_panel": "Control Pad",
+  "screen.enemaru.control_panel": "Enemaru Control Panel",
+  "gui.control_panel.on": "ON",
+  "gui.control_panel.off": "OFF",
+  "gui.control_panel.header.device": "Facility",
+  "gui.control_panel.header.state": "Status",
+  "gui.control_panel.label.light": "Streetlight",
+  "gui.control_panel.label.train": "Train",
+  "gui.control_panel.label.factory": "Factory",
+  "gui.control_panel.label.house": "Residential",
+  "gui.control_panel.label.facility": "Public Facility",
+  "gui.control_panel.label.energy_amount": "Received Energy",
+  "gui.control_panel.label.thermal_amount": "Thermal Energy",
+  "gui.control_panel.label.thermal": "Thermal",
+  "gui.control_panel.label.surplus": "Surplus Energy",
+  "gui.control_panel.label.used": "Energy Used"
 }
