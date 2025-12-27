@@ -6,6 +6,8 @@ import com.enemaru.commands.EnemaruCommand;
 import com.enemaru.commands.SessionCommand;
 import com.enemaru.commands.TrainCommand;
 import com.enemaru.item.ModItems;
+import com.enemaru.lighting.LightingManager;
+import com.enemaru.lighting.commands.LightingCommand;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.networking.payload.ThermalUpdateC2SPayload;
@@ -16,6 +18,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -93,13 +96,27 @@ public class Enemaru implements ModInitializer {
             EnemaruCommand.register(dispatcher, registryAccess);
         });
 
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            LightingCommand.register(dispatcher, registryAccess);
+        });
+
         // サーバーのワールド毎ティック（20ティック＝1秒ごと）に
         // PowerNetwork.tick(...) を呼び出す
         ServerTickEvents.END_WORLD_TICK.register(world -> {
             if (world instanceof ServerWorld sw) {
                 PowerNetwork.get(sw).tick(sw);
+                // LightingManagerのtick処理
+                LightingManager.get(sw).tick();
             }
         });
+
+        // チャンクロード時にライティング再計算
+        ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
+            if (world instanceof ServerWorld sw) {
+                LightingManager.get(sw).onChunkLoad(chunk.getPos());
+            }
+        });
+
         // サーバー側でブロックエンティティが「ロード」されるたびに呼ばれる
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, world) -> {
             if (!(world instanceof ServerWorld sw)) return;

@@ -1,12 +1,12 @@
 package com.enemaru.item;
 
 import com.enemaru.Enemaru;
+import com.enemaru.lighting.ChannelConfiguratorItem;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SwordItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -21,6 +21,7 @@ public class ModItems {
         // Register items to the custom item group.
         ItemGroupEvents.modifyEntriesEvent(CUSTOM_ITEM_GROUP_KEY).register(itemGroup -> {
             itemGroup.add(ModItems.CONTROL_PANEL_ITEM);
+            itemGroup.add(ModItems.CHANNEL_CONFIGURATOR);
             // ...
         });
     }
@@ -47,6 +48,11 @@ public class ModItems {
     public static final Item CONTROL_PANEL_ITEM = register(
             new ControlPanelItem(new Item.Settings()),
             "control_panel"
+    );
+
+    public static final Item CHANNEL_CONFIGURATOR = register(
+            new ChannelConfiguratorItem(new Item.Settings()),
+            "channel_configurator"
     );
 
 }

@@ -1,0 +1,22 @@
+{
+  "parent": "block/end_rod",
+  "multipart": [
+    { "when": { "facing": "up", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block" } },
+    { "when": { "facing": "up", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block" } },
+
+    { "when": { "facing": "down", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block", "x": 180 } },
+    { "when": { "facing": "down", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block", "x": 180 } },
+
+    { "when": { "facing": "north", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block", "x": 90 } },
+    { "when": { "facing": "north", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block", "x": 90 } },
+
+    { "when": { "facing": "south", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 180 } },
+    { "when": { "facing": "south", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block", "x": 90, "y": 180 } },
+
+    { "when": { "facing": "west", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 270 } },
+    { "when": { "facing": "west", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block", "x": 90, "y": 270 } },
+
+    { "when": { "facing": "east", "level": 0 }, "apply": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 90 } },
+    { "when": { "facing": "east", "level": "5|10|15" }, "apply": { "model": "enemaru:block/lit_end_rod_lamp_block", "x": 90, "y": 90 } }
+  ]
+}
