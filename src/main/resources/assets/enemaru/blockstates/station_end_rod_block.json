@@ -1,16 +1,10 @@
 {
   "variants": {
-    "facing=up,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block" },
-    "facing=up,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block" },
-    "facing=down,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block", "x": 180 },
-    "facing=down,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block", "x": 180 },
-    "facing=north,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block", "x": 90 },
-    "facing=north,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block", "x": 90 },
-    "facing=south,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block", "x": 90, "y": 180 },
-    "facing=south,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block", "x": 90, "y": 180 },
-    "facing=west,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block", "x": 90, "y": 270 },
-    "facing=west,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block", "x": 90, "y": 270 },
-    "facing=east,lit=false": { "model": "enemaru:block/station_end_rod_lamp_block", "x": 90, "y": 90 },
-    "facing=east,lit=true": { "model": "enemaru:block/lit_station_end_rod_lamp_block", "x": 90, "y": 90 }
+    "facing=up": { "model": "enemaru:block/end_rod_lamp_block" },
+    "facing=down": { "model": "enemaru:block/end_rod_lamp_block", "x": 180 },
+    "facing=north": { "model": "enemaru:block/end_rod_lamp_block", "x": 90 },
+    "facing=south": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 180 },
+    "facing=west": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 270 },
+    "facing=east": { "model": "enemaru:block/end_rod_lamp_block", "x": 90, "y": 90 }
   }
 }
