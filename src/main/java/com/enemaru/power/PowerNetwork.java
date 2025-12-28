@@ -1,6 +1,9 @@
 package com.enemaru.power;
 
 import com.enemaru.blockentity.*;
+import com.enemaru.lighting.LightChannels;
+import com.enemaru.lighting.LightingManager;
+import com.enemaru.lighting.WorldLightPolicy;
 import com.enemaru.mqtt.AsyncMQTTPublisher;
 import com.enemaru.mqtt.SSLContextBuilder;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
@@ -85,6 +88,11 @@ public class PowerNetwork extends PersistentState {
     private boolean isHouseEnabled = false;
     private boolean isFacilityEnabled = false;
     private boolean forceLightUpdate = false;
+    /**
+     * WorldLightPolicyのキャッシュ
+     */
+    private WorldLightPolicy worldLightPolicy;
+
     /**
      * 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity
      */
@@ -431,6 +439,46 @@ public class PowerNetwork extends PersistentState {
 
     public boolean getFacilityEnabled() {
         return isFacilityEnabled;
+    }
+
+    /**
+     * チャンネルの点灯割合をパーセント値で設定（0-10000）
+     * WorldLightPolicyを更新し、LightingManagerで再計算
+     */
+    public void setChannelPercent(int channel, int percent, ServerWorld world) {
+        // WorldLightPolicyの初期化
+        if (worldLightPolicy == null && world != null) {
+            worldLightPolicy = WorldLightPolicy.get(world);
+        }
+
+        if (worldLightPolicy == null) {
+            return;
+        }
+
+        // パーセント値を0-10000の範囲に制限
+        if (percent < 0) percent = 0;
+        if (percent > 10000) percent = 10000;
+
+        // WorldLightPolicyを更新
+        worldLightPolicy.setPercent(channel, percent);
+
+        // LightingManagerで再計算（world付きの場合のみ）
+        if (world != null) {
+            LightingManager manager = LightingManager.get(world);
+            manager.recalculateChannel(channel);
+        }
+
+        markDirty();
+    }
+
+    /**
+     * チャンネルの現在の点灯割合を取得（0-10000）
+     */
+    public int getChannelPercent(int channel) {
+        if (worldLightPolicy == null) {
+            return 10000; // デフォルト: 100%
+        }
+        return worldLightPolicy.getPercent(channel);
     }
 
 
