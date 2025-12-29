@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * チャンネル管理式街灯ブロック。
  */
-public class ManagedStreetLightBlock extends AbstractManagedLightBlock {
+public class ManagedLanternBlock extends AbstractManagedLightBlock {
     public static final BooleanProperty HANGING = Properties.HANGING;
 
     // ランタンの当たり判定（バニラLanternと同じ）
@@ -29,7 +29,7 @@ public class ManagedStreetLightBlock extends AbstractManagedLightBlock {
             Block.createCuboidShape(6.0, 8.0, 6.0, 10.0, 10.0, 10.0)
     );
 
-    public ManagedStreetLightBlock(Settings settings) {
+    public ManagedLanternBlock(Settings settings) {
         super(settings);
         this.setDefaultState(getDefaultState().with(HANGING, false));
     }
