@@ -23,7 +23,7 @@ public class ModBlocks {
     public static Block STATION_END_ROD_BLOCK;
 
     // 新システム（チャンネル管理式）
-    public static Block MANAGED_STREET_LIGHT_BLOCK;
+    public static Block MANAGED_LANTERN_BLOCK;
     public static Block MANAGED_SEA_LANTERN_LAMP_BLOCK;
     public static Block MANAGED_END_ROD_LAMP_BLOCK;
     public static Block MANAGED_GLOWSTONE_LAMP_BLOCK;
@@ -59,9 +59,9 @@ public class ModBlocks {
 
         // ===== 新システム（チャンネル管理式）=====
         // 管理式街灯
-        MANAGED_STREET_LIGHT_BLOCK = new ManagedStreetLightBlock(
+        MANAGED_LANTERN_BLOCK = new ManagedLanternBlock(
                 AbstractBlock.Settings.copy(Blocks.LANTERN)
-                        .luminance(ManagedStreetLightBlock::getLuminance)
+                        .luminance(ManagedLanternBlock::getLuminance)
         );
         // 管理式シーランタンランプ
         MANAGED_SEA_LANTERN_LAMP_BLOCK = new ManagedSeaLanternLampBlock(
@@ -106,9 +106,9 @@ public class ModBlocks {
                 new BlockItem(STATION_END_ROD_BLOCK, new Item.Settings()));
 
         // ===== 新システムの登録 =====
-        Registry.register(Registries.BLOCK, Identifier.of(Enemaru.MOD_ID, "managed_street_light_block"), MANAGED_STREET_LIGHT_BLOCK);
-        Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "managed_street_light_block"),
-                new BlockItem(MANAGED_STREET_LIGHT_BLOCK, new Item.Settings()));
+        Registry.register(Registries.BLOCK, Identifier.of(Enemaru.MOD_ID, "managed_lantern_block"), MANAGED_LANTERN_BLOCK);
+        Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "managed_lantern_block"),
+                new BlockItem(MANAGED_LANTERN_BLOCK, new Item.Settings()));
 
         Registry.register(Registries.BLOCK, Identifier.of(Enemaru.MOD_ID, "managed_sea_lantern_lamp_block"), MANAGED_SEA_LANTERN_LAMP_BLOCK);
         Registry.register(Registries.ITEM, Identifier.of(Enemaru.MOD_ID, "managed_sea_lantern_lamp_block"),
@@ -134,7 +134,7 @@ public class ModBlocks {
             itemGroup.add(END_ROD_LAMP_BLOCK.asItem());
             itemGroup.add(STATION_END_ROD_BLOCK.asItem());
 
-            itemGroup.add(MANAGED_STREET_LIGHT_BLOCK.asItem());
+            itemGroup.add(MANAGED_LANTERN_BLOCK.asItem());
             itemGroup.add(MANAGED_SEA_LANTERN_LAMP_BLOCK.asItem());
             itemGroup.add(MANAGED_END_ROD_LAMP_BLOCK.asItem());
             itemGroup.add(MANAGED_GLOWSTONE_LAMP_BLOCK.asItem());
