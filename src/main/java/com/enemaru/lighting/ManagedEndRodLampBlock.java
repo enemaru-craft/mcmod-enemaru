@@ -68,7 +68,7 @@ public class ManagedEndRodLampBlock extends AbstractManagedLightBlock {
 
     @Override
     protected int getDefaultChannel() {
-        return 2; // 異なるデフォルトチャンネルを設定
+        return LightChannels.END_ROD; // 異なるデフォルトチャンネルを設定
     }
 }
 

@@ -1,6 +1,9 @@
 package com.enemaru.power;
 
 import com.enemaru.blockentity.*;
+import com.enemaru.lighting.LightChannels;
+import com.enemaru.lighting.LightingManager;
+import com.enemaru.lighting.WorldLightPolicy;
 import com.enemaru.mqtt.AsyncMQTTPublisher;
 import com.enemaru.mqtt.SSLContextBuilder;
 import com.enemaru.talkingclouds.commands.TalkCloudCommand;
@@ -86,13 +89,18 @@ public class PowerNetwork extends PersistentState {
     private boolean isFacilityEnabled = false;
     private boolean forceLightUpdate = false;
     /**
+     * WorldLightPolicyのキャッシュ
+     */
+    private WorldLightPolicy worldLightPolicy;
+
+    /**
      * 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity
      */
-    private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
-    private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
-    private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
-    private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
-    private final List<StationEndRodBlockEntity> stationEndRods = new ArrayList<>();
+//    private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
+//    private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
+//    private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
+//    private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
+//    private final List<StationEndRodBlockEntity> stationEndRods = new ArrayList<>();
 
     // 吹き出し関連
     private List<String> lastTexts = new ArrayList<>();
@@ -212,14 +220,39 @@ public class PowerNetwork extends PersistentState {
                 });
     }
 
-    public void sendWorldState(String equipment, boolean enable, ServerWorld world) {
+//    public void sendWorldState(String equipment, boolean enable, ServerWorld world) {
+//        JsonObject obj = new JsonObject();
+//        obj.addProperty("sessionId", Integer.toString(sessionId));
+//        obj.addProperty("equipment", equipment);
+//        String statePayload = obj.toString();
+//        String endpoint = enable ? "/turn-on-equipment" : "/turn-off-equipment";
+//
+//        postAsync(statePayload, endpoint)
+//                .thenAccept(response -> {
+//                    Gson gson = new Gson();
+//                    WorldState states = gson.fromJson(response, WorldState.class);
+//                    updateState(states, world);
+//                    if (debug) {
+//                        System.out.println("State updated successfully: " + response);
+//                    }
+//                })
+//                .exceptionally(ex -> {
+//                    if (debug) {
+//                        System.out.println("State update failed");
+//                        ex.printStackTrace();
+//                    }
+//                    return null;
+//                });
+//    }
+
+    public void sendWorldState(String equipment, int percent, ServerWorld world) {
         JsonObject obj = new JsonObject();
         obj.addProperty("sessionId", Integer.toString(sessionId));
         obj.addProperty("equipment", equipment);
+        obj.addProperty("percent", percent);
         String statePayload = obj.toString();
-        String endpoint = enable ? "/turn-on-equipment" : "/turn-off-equipment";
 
-        postAsync(statePayload, endpoint)
+        postAsync(statePayload, "/set-equipment-percent")
                 .thenAccept(response -> {
                     Gson gson = new Gson();
                     WorldState states = gson.fromJson(response, WorldState.class);
@@ -293,11 +326,15 @@ public class PowerNetwork extends PersistentState {
     }
 
     private void updateState(WorldState states, ServerWorld world) {
-        world.getServer().execute(() -> setHouseEnabled(states.state.isHouseEnabled));
-        world.getServer().execute(() -> setStreetlightsEnabled(states.state.isLightEnabled));
+//        world.getServer().execute(() -> setHouseEnabled(states.state.isHouseEnabled));
+//        world.getServer().execute(() -> setStreetlightsEnabled(states.state.isLightEnabled));
+//        world.getServer().execute(() -> setFactoryEnabled(states.state.isFactoryEnabled, world));
+//        world.getServer().execute(() -> setFacilityEnabled(states.state.isFacilityEnabled));
+        setChannelPercent(LightChannels.LANTERN, states.state.houseLitPercent*100, world);
+        setChannelPercent(LightChannels.GLOWSTONE, states.state.lightLitPercent*100, world);
+        setChannelPercent(LightChannels.SEA_LANTERN, states.state.factoryLitPercent*100, world);
+        setChannelPercent(LightChannels.END_ROD, states.state.facilityLitPercent*100, world);
         this.isTrainEnabled = states.state.isTrainEnabled;
-        world.getServer().execute(() -> setFactoryEnabled(states.state.isFactoryEnabled, world));
-        world.getServer().execute(() -> setFacilityEnabled(states.state.isFacilityEnabled));
         this.isBlackout = states.state.isBlackout;
 
         this.generatedEnergy = (int) states.variables.totalPower;
@@ -307,10 +344,12 @@ public class PowerNetwork extends PersistentState {
         ServerCommandSource source = server.getCommandSource();
         if (states.state.isTrainEnabled) {
             TrainCommand.runTrain(server, source);
-            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
+//            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
+            setChannelPercent(LightChannels.STATION_END_ROD, 10000, world); // 駅エンドロッド点灯
         } else {
             TrainCommand.stopTrain(server, source);
-            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
+//            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
+            setChannelPercent(LightChannels.STATION_END_ROD, 0, world); // 駅エンドロッド消灯
         }
 
         if (states.texts == null || states.texts.isEmpty()) return;
@@ -341,70 +380,6 @@ public class PowerNetwork extends PersistentState {
         this.forceLightUpdate = false;
     }
 
-    /**
-     * 街灯 BlockEntity を登録
-     */
-    public void registerStreetLight(StreetLightBlockEntity te) {
-        if (!streetLights.contains(te)) streetLights.add(te);
-    }
-
-    /**
-     * 街灯 BlockEntity を登録解除
-     */
-    public void unregisterStreetLight(StreetLightBlockEntity te) {
-        streetLights.remove(te);
-    }
-
-    /**
-     * シーランタン BlockEntity を登録
-     */
-    public void registerSeaLantern(SeaLanternLampBlockEntity te) {
-        if (!seaLanterns.contains(te)) seaLanterns.add(te);
-    }
-
-    /**
-     * シーランタン BlockEntity を登録解除
-     */
-    public void unregisterSeaLantern(SeaLanternLampBlockEntity te) {
-        seaLanterns.remove(te);
-    }
-
-    /**
-     * Glowstone BlockEntity を登録
-     */
-    public void registerGlowstone(GlowstoneLampBlockEntity te) {
-        if (!glowstoneLamps.contains(te)) glowstoneLamps.add(te);
-    }
-
-    /**
-     * Glowstone BlockEntity を登録解除
-     */
-    public void unregisterGlowstone(GlowstoneLampBlockEntity te) {
-        glowstoneLamps.remove(te);
-    }
-
-    /**
-     * エンドロッドランプ BlockEntity を登録
-     */
-    public void registerEndRodLamp(EndRodLampBlockEntity te) {
-        if (!endRodLamps.contains(te)) endRodLamps.add(te);
-    }
-
-    /**
-     * エンドロッドランプ BlockEntity を登録解除
-     */
-    public void unregisterEndRodLamp(EndRodLampBlockEntity te) {
-        endRodLamps.remove(te);
-    }
-
-    public void registerStationEndRod(StationEndRodBlockEntity te) {
-        if (!stationEndRods.contains(te)) stationEndRods.add(te);
-    }
-
-    public void unregisterStationEndRod(StationEndRodBlockEntity te) {
-        stationEndRods.remove(te);
-    }
-
 
     /**
      * 許可フラグを取得
@@ -433,43 +408,61 @@ public class PowerNetwork extends PersistentState {
         return isFacilityEnabled;
     }
 
-
-    public void setHouseEnabled(boolean enabled) {
-        this.isHouseEnabled = enabled;
-        for (var light : streetLights) {
-            if(light != null)
-            light.updatePowered(isHouseEnabled, forceLightUpdate);
-        }
-        markDirty();
+    public int getHousePercent() {
+        return getChannelPercent(LightChannels.LANTERN);
+    }
+    public int getFacilityPercent() {
+        return getChannelPercent(LightChannels.END_ROD);
+    }
+    public int getStreetLightPercent() {
+        return getChannelPercent(LightChannels.GLOWSTONE);
+    }
+    public int getFactoryPercent() {
+        return getChannelPercent(LightChannels.SEA_LANTERN);
     }
 
-    public void setFacilityEnabled(boolean enabled) {
-        this.isFacilityEnabled = enabled;
-        for (var endRod : endRodLamps) {
-            if(endRod != null)
-            endRod.updatePowered(isFacilityEnabled, forceLightUpdate);
+    /**
+     * チャンネルの点灯割合をパーセント値で設定（0-10000）
+     * WorldLightPolicyを更新し、LightingManagerで再計算
+     */
+    public void setChannelPercent(int channel, int percent, ServerWorld world) {
+        // WorldLightPolicyの初期化
+        if (worldLightPolicy == null && world != null) {
+            worldLightPolicy = WorldLightPolicy.get(world);
         }
+
+        if (worldLightPolicy == null) {
+            return;
+        }
+
+        // パーセント値を0-10000の範囲に制限
+        if (percent < 0) percent = 0;
+        if (percent > 10000) percent = 10000;
+
+        // WorldLightPolicyを更新
+        worldLightPolicy.setPercent(channel, percent);
+
+        // LightingManagerで再計算（world付きの場合のみ）
+        if (world != null) {
+            LightingManager manager = LightingManager.get(world);
+            manager.recalculateChannel(channel);
+        }
+
         markDirty();
     }
 
     /**
-     * ユーザー操作で呼ばれるメソッド
+     * チャンネルの現在の点灯割合を取得（0-10000）
      */
-    public void setStreetlightsEnabled(boolean enable) {
-        this.isStreetlightsEnabled = enable;
-        for (var glow : glowstoneLamps) {
-            if(glow != null)
-            glow.updatePowered(isStreetlightsEnabled, forceLightUpdate);
+    public int getChannelPercent(int channel) {
+        if (worldLightPolicy == null) {
+            return 10000; // デフォルト: 100%
         }
-        markDirty();
+        return worldLightPolicy.getPercent(channel);
     }
 
+
     public void setFactoryEnabled(boolean enable, ServerWorld world) {
-        this.isFactoryEnabled = enable;
-        for (var lantern : seaLanterns) {
-            if (lantern != null)
-            lantern.updatePowered(isFactoryEnabled, forceLightUpdate);
-        }
         for (var pos : fireCoords) {
             BlockPos blockPos = new BlockPos(pos);
             BlockState state = world.getBlockState(blockPos);
@@ -477,14 +470,6 @@ public class PowerNetwork extends PersistentState {
                 // 点火状態を反転
                 world.setBlockState(blockPos, state.with(Properties.LIT, enable), Block.NOTIFY_ALL);
             }
-        }
-        markDirty();
-    }
-
-    public void setTrainEnabled(boolean enable) {
-        for (var stationRod : stationEndRods) {
-            if (stationRod != null)
-            stationRod.updatePowered(enable, forceLightUpdate);
         }
         markDirty();
     }

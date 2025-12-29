@@ -54,5 +54,10 @@ public class ManagedStreetLightBlock extends AbstractManagedLightBlock {
     protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, net.minecraft.block.ShapeContext context) {
         return state.get(HANGING) ? HANGING_SHAPE : STANDING_SHAPE;
     }
+
+    @Override
+    protected int getDefaultChannel() {
+        return LightChannels.LANTERN; // 異なるデフォルトチャンネルを設定
+    }
 }
 

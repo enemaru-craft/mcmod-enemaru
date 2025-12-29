@@ -10,6 +10,7 @@ import com.enemaru.lighting.LightingManager;
 import com.enemaru.lighting.commands.LightingCommand;
 import com.enemaru.networking.payload.SendBubbleS2CPayload;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
+import com.enemaru.networking.payload.EquipmentPercentC2SPayload;
 import com.enemaru.networking.payload.ThermalUpdateC2SPayload;
 import com.enemaru.power.PowerNetwork;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
@@ -64,13 +65,21 @@ public class Enemaru implements ModInitializer {
         // Payloadを登録
         PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EquipmentRequestC2SPayload.ID, EquipmentRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(EquipmentPercentC2SPayload.ID, EquipmentPercentC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ThermalUpdateC2SPayload.ID, ThermalUpdateC2SPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(EquipmentRequestC2SPayload.ID, (payload, context) -> {
             ServerWorld world = context.player().getServerWorld();
             PowerNetwork network = PowerNetwork.get(world);
 
-            network.sendWorldState(payload.equipment(), payload.enable(), world);
+            network.sendWorldState(payload.equipment(), payload.enable()?100:0, world);
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(EquipmentPercentC2SPayload.ID, (payload, context) -> {
+            ServerWorld world = context.player().getServerWorld();
+            PowerNetwork network = PowerNetwork.get(world);
+
+            network.sendWorldState(payload.equipment(), payload.percent(), world);
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ThermalUpdateC2SPayload.ID, (payload, context) -> {
@@ -118,46 +127,46 @@ public class Enemaru implements ModInitializer {
         });
 
         // サーバー側でブロックエンティティが「ロード」されるたびに呼ばれる
-        ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, world) -> {
-            if (!(world instanceof ServerWorld sw)) return;
-            PowerNetwork net = PowerNetwork.get(sw);
-
-            if (be instanceof StreetLightBlockEntity sle) {
-                net.registerStreetLight(sle);
-                net.enableForceLightUpdate();
-            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
-                net.registerSeaLantern(sleLantern);
-                net.enableForceLightUpdate();
-            } else if (be instanceof GlowstoneLampBlockEntity glow) {
-                net.registerGlowstone(glow);
-                net.enableForceLightUpdate();
-            } else if (be instanceof EndRodLampBlockEntity endRod) {
-                net.registerEndRodLamp(endRod);
-                net.enableForceLightUpdate();
-            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
-                net.registerStationEndRod(stationEndRod);
-                net.enableForceLightUpdate();
-            }
-        });
+//        ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, world) -> {
+//            if (!(world instanceof ServerWorld sw)) return;
+//            PowerNetwork net = PowerNetwork.get(sw);
+//
+//            if (be instanceof StreetLightBlockEntity sle) {
+//                net.registerStreetLight(sle);
+//                net.enableForceLightUpdate();
+//            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
+//                net.registerSeaLantern(sleLantern);
+//                net.enableForceLightUpdate();
+//            } else if (be instanceof GlowstoneLampBlockEntity glow) {
+//                net.registerGlowstone(glow);
+//                net.enableForceLightUpdate();
+//            } else if (be instanceof EndRodLampBlockEntity endRod) {
+//                net.registerEndRodLamp(endRod);
+//                net.enableForceLightUpdate();
+//            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
+//                net.registerStationEndRod(stationEndRod);
+//                net.enableForceLightUpdate();
+//            }
+//        });
 
 
         // ブロックエンティティが「アンロード」されるとき
-        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, world) -> {
-            if (!(world instanceof ServerWorld sw)) return;
-            PowerNetwork net = PowerNetwork.get(sw);
-
-            if (be instanceof StreetLightBlockEntity sle) {
-                net.unregisterStreetLight(sle);
-            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
-                net.unregisterSeaLantern(sleLantern);
-            } else if (be instanceof GlowstoneLampBlockEntity glow) {
-                net.unregisterGlowstone(glow);
-            } else if (be instanceof EndRodLampBlockEntity endRod) {
-                net.unregisterEndRodLamp(endRod);
-            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
-                net.unregisterStationEndRod(stationEndRod);
-            }
-        });
+//        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, world) -> {
+//            if (!(world instanceof ServerWorld sw)) return;
+//            PowerNetwork net = PowerNetwork.get(sw);
+//
+//            if (be instanceof StreetLightBlockEntity sle) {
+//                net.unregisterStreetLight(sle);
+//            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
+//                net.unregisterSeaLantern(sleLantern);
+//            } else if (be instanceof GlowstoneLampBlockEntity glow) {
+//                net.unregisterGlowstone(glow);
+//            } else if (be instanceof EndRodLampBlockEntity endRod) {
+//                net.unregisterEndRodLamp(endRod);
+//            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
+//                net.unregisterStationEndRod(stationEndRod);
+//            }
+//        });
 
         // プレイヤーがサーバーに参加したときにコントロールパネルを配布する
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

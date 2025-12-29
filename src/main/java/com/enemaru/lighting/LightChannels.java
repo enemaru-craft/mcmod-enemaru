@@ -6,15 +6,14 @@ package com.enemaru.lighting;
  */
 public class LightChannels {
     // ライト種類ごとのデフォルトチャンネル
-    public static final int STREET_LIGHT = 0;      // 街灯
-    public static final int LANTERN = 1;            // ランタン
-    public static final int SEA_LANTERN = 2;        // シーランタンランプ
-    public static final int END_ROD = 3;            // エンドロッドランプ
-    public static final int GLOWSTONE = 4;          // グロウストーンランプ
-    public static final int STATION_END_ROD = 5;    // 駅エンドロッド
+    public static final int LANTERN = 0;      // 街灯
+    public static final int SEA_LANTERN = 1;        // シーランタンランプ
+    public static final int END_ROD = 2;            // エンドロッドランプ
+    public static final int GLOWSTONE = 3;          // グロウストーンランプ
+    public static final int STATION_END_ROD = 4;    // 駅エンドロッド
 
     // ユーザー自由設定用（6-15）
-    public static final int USER_DEFINED_START = 6;
+    public static final int USER_DEFINED_START = 5;
     public static final int USER_DEFINED_END = 15;
 
     /**
@@ -22,7 +21,6 @@ public class LightChannels {
      */
     public static String getChannelName(int channel) {
         return switch (channel) {
-            case STREET_LIGHT -> "街灯";
             case LANTERN -> "ランタン";
             case SEA_LANTERN -> "シーランタン";
             case END_ROD -> "エンドロッド";

@@ -41,12 +41,12 @@ public class ControlPanelItem extends Item {
                             return switch (index) {
                                 case ControlPanelScreenHandler.PROP_ENERGY -> network.getGeneratedEnergy();
                                 case ControlPanelScreenHandler.PROP_SURPLUS -> network.getSurplusEnergy();
-                                case ControlPanelScreenHandler.PROP_LIGHT -> network.getStreetlightsEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_STREETLIGHT -> network.getStreetLightPercent();
                                 case ControlPanelScreenHandler.PROP_TRAIN -> network.getTrainEnabled() ? 1 : 0;
-                                case ControlPanelScreenHandler.PROP_FACTORY -> network.getFactoryEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_FACTORY -> network.getFactoryPercent();
                                 case ControlPanelScreenHandler.PROP_BLACKOUT -> network.getBlackout() ? 1 : 0;
-                                case ControlPanelScreenHandler.PROP_HOUSE -> network.getHouseEnabled() ? 1 : 0;
-                                case ControlPanelScreenHandler.PROP_FACILITY -> network.getFacilityEnabled() ? 1 : 0;
+                                case ControlPanelScreenHandler.PROP_HOUSE -> network.getHousePercent();
+                                case ControlPanelScreenHandler.PROP_FACILITY -> network.getFacilityPercent();
                                 case ControlPanelScreenHandler.PROP_THERMAL -> network.getThermalEnergy();
                                 default -> -1;
                             };

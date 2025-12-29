@@ -94,18 +94,18 @@ public class EndRodLampBlock extends BlockWithEntity {
         return getOutlineShape(state, world, pos, ctx);
     }
 
-    @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (world.isClient) return ActionResult.SUCCESS;
-        if (!player.getAbilities().allowModifyWorld) return ActionResult.PASS;
-
-        ServerWorld sw = (ServerWorld) world;
-        PowerNetwork net = PowerNetwork.get(sw);
-        boolean newState = !net.getStreetlightsEnabled();
-        net.setStreetlightsEnabled(newState);
-
-        return ActionResult.CONSUME;
-    }
+//    @Override
+//    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+//        if (world.isClient) return ActionResult.SUCCESS;
+//        if (!player.getAbilities().allowModifyWorld) return ActionResult.PASS;
+//
+//        ServerWorld sw = (ServerWorld) world;
+//        PowerNetwork net = PowerNetwork.get(sw);
+//        boolean newState = !net.getStreetlightsEnabled();
+//        net.setStreetlightsEnabled(newState);
+//
+//        return ActionResult.CONSUME;
+//    }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {

@@ -1,6 +1,7 @@
 package com.enemaru.screen;
 
 import com.enemaru.gui.ThermalSlider;
+import com.enemaru.gui.PercentageSlider;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -57,35 +58,26 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // 背景の中心座標
         int centerX = this.x + (this.backgroundWidth / 2);
-        int centerY = this.y + (this.backgroundHeight / 2) - 20; // 全体を上に20px移動
+        int centerY = this.y + (this.backgroundHeight / 2) - 20;
 
-        int buttonWidth = 40;
-        int buttonHeight = 15;
+        int sliderWidth = 120;
+        int sliderHeight = 20;
 
         // ==========================
-        // 街灯
+        // 街灯 (STREETLIGHT)
         // ==========================
-        lightOnButton = ButtonWidget.builder(ON_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", true);
-            ClientPlayNetworking.send(payload);
-            updateLightButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY - 60).size(buttonWidth, buttonHeight).build();
-
-        lightOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("light", false);
-            ClientPlayNetworking.send(payload);
-            updateLightButtons(false);
-        }).position(centerX - 86, centerY - 60).size(buttonWidth, buttonHeight).build();
-
-        this.addDrawableChild(lightOnButton);
-        this.addDrawableChild(lightOffButton);
-
+        int lightPercent = screenHandler.getLightPercent() / 100; // 0-10000 → 0-100
+        lightSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 60, sliderWidth, sliderHeight, "light", lightPercent);
+        this.addDrawableChild(lightSlider);
         lightLabelX = centerX - 88;
         lightLabelY = centerY - 70;
 
         // ==========================
-        // 電車
+        // 電車 (TRAIN - ON/OFFボタンのまま)
         // ==========================
+        int buttonWidth = 40;
+        int buttonHeight = 15;
+
         trainOnButton = ButtonWidget.builder(ON_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
@@ -105,118 +97,53 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         trainLabelY = centerY - 40;
 
         // ==========================
-        // 工場
+        // 工場 (FACTORY)
         // ==========================
-        factoryOnButton = ButtonWidget.builder(ON_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", true);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY).size(buttonWidth, buttonHeight).build();
-
-        factoryOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("factory", false);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(false);
-        }).position(centerX - 86, centerY).size(buttonWidth, buttonHeight).build();
-
-        this.addDrawableChild(factoryOnButton);
-        this.addDrawableChild(factoryOffButton);
-
+        int factoryPercent = screenHandler.getFactoryPercent() / 100; // 0-10000 → 0-100
+        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY, sliderWidth, sliderHeight, "factory", factoryPercent);
+        this.addDrawableChild(factorySlider);
         factoryLabelX = centerX - 88;
         factoryLabelY = centerY - 10;
 
         // ==========================
-        // 家
+        // 家 (HOUSE)
         // ==========================
-        houseOnButton = ButtonWidget.builder(ON_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", true);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY + 30).size(buttonWidth, buttonHeight).build();
-
-        houseOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("house", false);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(false);
-        }).position(centerX - 86, centerY + 30).size(buttonWidth, buttonHeight).build();
-
-        this.addDrawableChild(houseOnButton);
-        this.addDrawableChild(houseOffButton);
-
+        int housePercent = screenHandler.getHousePercent() / 100; // 0-10000 → 0-100
+        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 30, sliderWidth, sliderHeight, "house", housePercent);
+        this.addDrawableChild(houseSlider);
         houseLabelX = centerX - 88;
         houseLabelY = centerY + 20;
 
         // ==========================
-        // 公共施設
+        // 公共施設 (FACILITY)
         // ==========================
-        facilityOnButton = ButtonWidget.builder(ON_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("facility", true);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY + 60).size(buttonWidth, buttonHeight).build();
-
-        facilityOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("facility", false);
-            ClientPlayNetworking.send(payload);
-            updateFactoryButtons(false);
-        }).position(centerX - 86, centerY + 60).size(buttonWidth, buttonHeight).build();
-
-        this.addDrawableChild(facilityOnButton);
-        this.addDrawableChild(facilityOffButton);
-
+        int facilityPercent = screenHandler.getFacilityPercent() / 100; // 0-10000 → 0-100
+        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 60, sliderWidth, sliderHeight, "facility", facilityPercent);
+        this.addDrawableChild(facilitySlider);
         facilityLabelX = centerX - 88;
         facilityLabelY = centerY + 50;
 
-        // 火力発電用スライダー
-        int sliderX = facilityOnButton.getX() - 35;
-        int sliderY = facilityOnButton.getY() + 40;
-
-        slider = new ThermalSlider(sliderX, sliderY, 156, 20, 0);
-        this.addDrawableChild(slider);
+        // ==========================
+        // 火力発電用スライダー (THERMAL)
+        // ==========================
+        int thermalSliderX = centerX - sliderWidth / 2 - 90;
+        int thermalSliderY = centerY + 100;
+        thermalSlider = new ThermalSlider(thermalSliderX, thermalSliderY, sliderWidth, sliderHeight, 0);
+        this.addDrawableChild(thermalSlider);
 
         // 初期状態を反映
-        updateLightButtons(screenHandler.isLightEnabled());
         updateTrainButtons(screenHandler.isTrainEnabled());
-        updateFactoryButtons(screenHandler.isFactoryEnabled());
-        updateHouseButtons(screenHandler.isHouseEnabled());
-        updateFacilityButtons(screenHandler.isFacilityEnabled());
     }
 
 
-    // =============================
-    // ON/OFFボタン制御
-    // =============================
-    private void updateLightButtons(boolean lightOn) {
-        lightOnButton.active = !lightOn;
-        lightOffButton.active = lightOn;
-    }
-
-    private void updateTrainButtons(boolean trainOn) {
-        trainOnButton.active = !trainOn;
-        trainOffButton.active = trainOn;
-    }
-
-    private void updateFactoryButtons(boolean factoryOn) {
-        factoryOnButton.active = !factoryOn;
-        factoryOffButton.active = factoryOn;
-    }
-
-    private void updateHouseButtons(boolean houseOn) {
-        houseOnButton.active = !houseOn;
-        houseOffButton.active = houseOn;
-    }
-
-    private void updateFacilityButtons(boolean facilityOn) {
-        facilityOnButton.active = !facilityOn;
-        facilityOffButton.active = facilityOn;
-    }
 
     // フィールド
-    private ButtonWidget lightOnButton, lightOffButton;
+    private PercentageSlider lightSlider;
+    private PercentageSlider factorySlider;
+    private PercentageSlider houseSlider;
+    private PercentageSlider facilitySlider;
+    private ThermalSlider thermalSlider;
     private ButtonWidget trainOnButton, trainOffButton;
-    private ButtonWidget factoryOnButton, factoryOffButton;
-    private ButtonWidget houseOnButton, houseOffButton;
-    private ButtonWidget facilityOnButton, facilityOffButton;
 
     private int lightLabelX, lightLabelY;
     private int trainLabelX, trainLabelY;
@@ -246,34 +173,67 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // ラベル描画
         drawCenteredLabel(context, LABEL_LIGHT.getString(), lightLabelX, lightLabelY);
+        // Light スライダー下の値表示
+        String lightValueText = lightSlider.getPercent() + "%";
+        int lightValueX = lightSlider.getX() + lightSlider.getWidth() / 2;
+        int lightValueY = lightSlider.getY() + lightSlider.getHeight() + 2;
+        context.drawText(this.textRenderer, lightValueText, lightValueX - this.textRenderer.getWidth(lightValueText) / 2, lightValueY, 0xFFFFFF, false);
+
         drawCenteredLabel(context, LABEL_TRAIN.getString(), trainLabelX, trainLabelY);
         drawCenteredLabel(context, LABEL_FACTORY.getString(), factoryLabelX, factoryLabelY);
-        drawCenteredLabel(context, LABEL_HOUSE.getString(), houseLabelX, houseLabelY);
-        drawCenteredLabel(context, LABEL_FACILITY.getString(), facilityLabelX, facilityLabelY);
+        // Factory スライダー下の値表示
+        String factoryValueText = factorySlider.getPercent() + "%";
+        int factoryValueX = factorySlider.getX() + factorySlider.getWidth() / 2;
+        int factoryValueY = factorySlider.getY() + factorySlider.getHeight() + 2;
+        context.drawText(this.textRenderer, factoryValueText, factoryValueX - this.textRenderer.getWidth(factoryValueText) / 2, factoryValueY, 0xFFFFFF, false);
 
-        // ボタン状態更新
-        updateLightButtons(screenHandler.isLightEnabled());
-        updateTrainButtons(screenHandler.isTrainEnabled());
-        updateFactoryButtons(screenHandler.isFactoryEnabled());
-        updateHouseButtons(screenHandler.isHouseEnabled());
-        updateFacilityButtons(screenHandler.isFacilityEnabled());
+        drawCenteredLabel(context, LABEL_HOUSE.getString(), houseLabelX, houseLabelY);
+        // House スライダー下の値表示
+        String houseValueText = houseSlider.getPercent() + "%";
+        int houseValueX = houseSlider.getX() + houseSlider.getWidth() / 2;
+        int houseValueY = houseSlider.getY() + houseSlider.getHeight() + 2;
+        context.drawText(this.textRenderer, houseValueText, houseValueX - this.textRenderer.getWidth(houseValueText) / 2, houseValueY, 0xFFFFFF, false);
+
+        drawCenteredLabel(context, LABEL_FACILITY.getString(), facilityLabelX, facilityLabelY);
+        // Facility スライダー下の値表示
+        String facilityValueText = facilitySlider.getPercent() + "%";
+        int facilityValueX = facilitySlider.getX() + facilitySlider.getWidth() / 2;
+        int facilityValueY = facilitySlider.getY() + facilitySlider.getHeight() + 2;
+        context.drawText(this.textRenderer, facilityValueText, facilityValueX - this.textRenderer.getWidth(facilityValueText) / 2, facilityValueY, 0xFFFFFF, false);
 
         // ネットワーク受信値
         int energy = screenHandler.getGeneratedEnergy();
         int thermalPower = screenHandler.getThermalEnergy();
         int usedEnergy = 0;
-        boolean light = screenHandler.isLightEnabled();
         boolean train = screenHandler.isTrainEnabled();
-        boolean factory = screenHandler.isFactoryEnabled();
-        boolean house = screenHandler.isHouseEnabled();
-        boolean facility = screenHandler.isFacilityEnabled();
         boolean blackout = screenHandler.isBlackout();
 
-        if (light) usedEnergy += LIGHT_CONSUMPTION;
+        // スライダーの値を同期（サーバー値とクライアント値の差が大きい場合のみ同期）
+        int lightPercent = screenHandler.getLightPercent() / 100; // 0-10000 → 0-100
+        int factoryPercent = screenHandler.getFactoryPercent() / 100;
+        int housePercent = screenHandler.getHousePercent() / 100;
+        int facilityPercent = screenHandler.getFacilityPercent() / 100;
+
+        // ドラッグ中はサーバー値で上書きしない。ブロックが無ければ常に同期
+        if (!lightSlider.isBlockingServerSync() && lightSlider.getPercent() != lightPercent) {
+            lightSlider.setPercent(lightPercent);
+        }
+        if (!factorySlider.isBlockingServerSync() && factorySlider.getPercent() != factoryPercent) {
+            factorySlider.setPercent(factoryPercent);
+        }
+        if (!houseSlider.isBlockingServerSync() && houseSlider.getPercent() != housePercent) {
+            houseSlider.setPercent(housePercent);
+        }
+        if (!facilitySlider.isBlockingServerSync() && facilitySlider.getPercent() != facilityPercent) {
+            facilitySlider.setPercent(facilityPercent);
+        }
+
+        // 消費電力の計算（パーセント値に応じて調整）
+        usedEnergy += (int)(LIGHT_CONSUMPTION * lightPercent / 100.0);
+        usedEnergy += (int)(FACTORY_CONSUMPTION * factoryPercent / 100.0);
+        usedEnergy += (int)(HOUSE_CONSUMPTION * housePercent / 100.0);
+        usedEnergy += (int)(FACILITY_CONSUMPTION * facilityPercent / 100.0);
         if (train) usedEnergy += TRAIN_CONSUMPTION;
-        if (factory) usedEnergy += FACTORY_CONSUMPTION;
-        if (house) usedEnergy += HOUSE_CONSUMPTION;
-        if (facility) usedEnergy += FACILITY_CONSUMPTION;
 
         int surplus = energy - usedEnergy;
         if (surplus < 0) surplus = 0;
@@ -281,7 +241,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 火力発電をサーバ側の値に同期
         if (!isThermalSynced) {
             if(thermalPower > 0) {
-                slider.setValue(thermalPower);
+                thermalSlider.setValue(thermalPower);
                 isThermalSynced = true;
             }
         }
@@ -335,7 +295,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.fill(barX, barY, barX + filled, barY + barHeight, 0xFF00FF00);
 
         // 火力発電分
-        int thermalEnergy = slider.getThermalPower();
+        int thermalEnergy = thermalSlider.getThermalPower();
         int thermalWidth = (int)((double)thermalEnergy / maxEnergy * barWidth);
         if (thermalWidth > filled) thermalWidth = filled;
         int thermalBarStart = filled - thermalWidth;
@@ -353,11 +313,11 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, thermalRatioText, barX + (barWidth - thermalRatioWidth) / 2, barY + barHeight + 2, 0xFFFF69B4, false);
 
         // スライダー上の文字
-        int sliderX = slider.getX();
-        int sliderY = slider.getY();
+        int sliderX = thermalSlider.getX();
+        int sliderY = thermalSlider.getY();
         String thermalText = LABEL_THERMAL.getString()+ ": " + thermalEnergy + " kW / 1000 kW";
         int ThermaltextWidth = this.textRenderer.getWidth(thermalText);
-        context.drawText(this.textRenderer, thermalText, sliderX + (slider.getWidth() - ThermaltextWidth) / 2, sliderY - 10, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, thermalText, sliderX + (thermalSlider.getWidth() - ThermaltextWidth) / 2, sliderY - 10, 0xFFFFFF, false);
 
         // ======================
         // 余裕電力バー
@@ -384,7 +344,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int baseX = barX + surplusFilled;
         int barH = barHeight;
 
-        renderPredicted(context, mouseX, mouseY, baseX, barX, barH, surplusBarY, displayedEnergy,light, train, factory, house, facility);
+        renderPredicted(context, mouseX, mouseY, baseX, barX, barH, surplusBarY, displayedEnergy, train);
 
         // ======================
         // 他情報表示
@@ -408,13 +368,9 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ヘッダー下の線
         context.fill(tableX, tableY + rowHeight, tableX + col1Width + col2Width, tableY + rowHeight + 1, lineColor);
 
-        // データ行
+        // データ行（Trainのみ）
         String[][] rows = {
-                {LABEL_LIGHT.getString(), light ? "On" : "Off"},
-                {LABEL_TRAIN.getString(), train ? "On" : "Off"},
-                {LABEL_FACTORY.getString(), factory ? "On" : "Off"},
-                {LABEL_HOUSE.getString(), house ? "On" : "Off"},
-                {LABEL_FACILITY.getString(), facility ? "On" : "Off"}
+                {LABEL_TRAIN.getString(), train ? "On" : "Off"}
         };
 
         for (int i = 0; i < rows.length; i++) {
@@ -446,39 +402,9 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     // 予測バー描画用メソッド
     // ======================
     private void renderPredicted(DrawContext context, int mouseX, int mouseY, int baseX, int barX, int barH, int barYSurplus, int currentEnergy,
-                                 boolean light, boolean train, boolean factory, boolean house, boolean facility) {
-
-        // Light
-        if (!light && lightOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)LIGHT_CONSUMPTION / currentEnergy * 150);
-            int startX = baseX - w;
-            if (startX < barX) startX = barX;
-            context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(LIGHT_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    startX - this.textRenderer.getWidth(text) - 2,
-                    textY,
-                    0xFFFF0000,
-                    false);
-        }
-        if (light && lightOffButton.isMouseOver(mouseX, mouseY)) {
-                int w = (int)((double)LIGHT_CONSUMPTION / currentEnergy * 150);
-            context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(LIGHT_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    baseX + w + 2,
-                    textY,
-                    0x8844FF44,
-                    false);
-        }
-
-        // Train
+                                 boolean train) {
+        // スライダー方式では予測バー機能を簡潔に
+        // Train のみ予測表示（ON/OFFボタンのため）
         if (!train && trainOnButton.isMouseOver(mouseX, mouseY)) {
             int w = (int)((double)TRAIN_CONSUMPTION / currentEnergy * 150);
             int startX = baseX - w;
@@ -507,101 +433,16 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     0x8844FF44,
                     false);
         }
-
-        // Factory
-        if (!factory && factoryOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACTORY_CONSUMPTION / currentEnergy * 150);
-            int startX = baseX - w;
-            if (startX < barX) startX = barX;
-            context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(FACTORY_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    startX - this.textRenderer.getWidth(text) - 2,
-                    textY,
-                    0xFFFF0000,
-                    false);
-        }
-        if (factory && factoryOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACTORY_CONSUMPTION / currentEnergy * 150);
-            context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(FACTORY_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    baseX + w + 2,
-                    textY,
-                    0x8844FF44,
-                    false);
-        }
-
-        // House
-        if (!house && houseOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)HOUSE_CONSUMPTION / currentEnergy * 150);
-            int startX = baseX - w;
-            if (startX < barX) startX = barX;
-            context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(HOUSE_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    startX - this.textRenderer.getWidth(text) - 2,
-                    textY,
-                    0xFFFF0000,
-                    false);
-        }
-        if (house && houseOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)HOUSE_CONSUMPTION / currentEnergy * 150);
-            context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(HOUSE_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    baseX + w + 2,
-                    textY,
-                    0x8844FF44,
-                    false);
-        }
-
-        // Facility
-        if (!facility && facilityOnButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACILITY_CONSUMPTION / currentEnergy * 150);
-            int startX = baseX - w;
-            if (startX < barX) startX = barX;
-            context.fill(startX, barYSurplus, baseX, barYSurplus + barH, 0xFFFF0000);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(FACILITY_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    startX - this.textRenderer.getWidth(text) - 2,
-                    textY,
-                    0xFFFF0000,
-                    false);
-        }
-        if (facility && facilityOffButton.isMouseOver(mouseX, mouseY)) {
-            int w = (int)((double)FACILITY_CONSUMPTION / currentEnergy * 150);
-            context.fill(baseX, barYSurplus, baseX + w, barYSurplus + barH, 0xFF008800);
-
-            int textY = barYSurplus + (barH - this.textRenderer.fontHeight) / 2;
-            String text = String.valueOf(FACILITY_CONSUMPTION);
-            context.drawText(this.textRenderer,
-                    text,
-                    baseX + w + 2,
-                    textY,
-                    0x8844FF44,
-                    false);
-        }
     }
 
 
     private void drawCenteredLabel(DrawContext context, String text, int cx, int cy) {
         int w = this.textRenderer.getWidth(text);
         context.drawText(this.textRenderer, text, cx - w / 2, cy, 0xFFFFFF, false);
+    }
+
+    private void updateTrainButtons(boolean trainOn) {
+        trainOnButton.active = !trainOn;
+        trainOffButton.active = trainOn;
     }
 }
