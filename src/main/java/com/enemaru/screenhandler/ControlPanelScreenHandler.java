@@ -11,7 +11,7 @@ import net.minecraft.screen.ScreenHandler;
 public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_ENERGY = 0;
     public static final int PROP_SURPLUS = 1;
-    public static final int PROP_LIGHT = 2;
+    public static final int PROP_STREETLIGHT = 2;
     public static final int PROP_TRAIN = 3;
     public static final int PROP_FACTORY = 4;
     public static final int PROP_BLACKOUT = 5;
@@ -50,7 +50,7 @@ public class ControlPanelScreenHandler extends ScreenHandler {
     }
 
     public boolean isLightEnabled() {
-        return propertyDelegate.get(PROP_LIGHT) != 0;
+        return propertyDelegate.get(PROP_STREETLIGHT) != 0;
     }
 
     public boolean isTrainEnabled() {
@@ -71,6 +71,19 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     public boolean isFacilityEnabled() {
         return propertyDelegate.get(PROP_FACILITY) != 0;
+    }
+
+    public int getLightPercent() {
+        return propertyDelegate.get(PROP_STREETLIGHT);
+    }
+    public int getFactoryPercent() {
+        return propertyDelegate.get(PROP_FACTORY);
+    }
+    public int getHousePercent() {
+        return propertyDelegate.get(PROP_HOUSE);
+    }
+    public int getFacilityPercent() {
+        return propertyDelegate.get(PROP_FACILITY);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class ManagedGlowstoneLampBlock extends AbstractManagedLightBlock {
 
     @Override
     protected int getDefaultChannel() {
-        return 3; // 異なるデフォルトチャンネルを設定
+        return LightChannels.GLOWSTONE; // 異なるデフォルトチャンネルを設定
     }
 }
 

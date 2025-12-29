@@ -68,27 +68,27 @@ public class SeaLanternLampBlock extends BlockWithEntity {
         return this.getDefaultState().with(LIT, false);
     }
 
-    @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        // クライアント側では SUCCESS を返しておくだけ
-        if (world.isClient) {
-            return ActionResult.SUCCESS;
-        }
-        if (!player.getAbilities().allowModifyWorld) {
-            // Skip if the player isn't allowed to modify the world.
-            return ActionResult.PASS;
-        } else {
-            // サーバー側で PowerNetwork のフラグをトグル
-            ServerWorld sw = (ServerWorld) world;
-            PowerNetwork net = PowerNetwork.get(sw);
-            boolean newState = !net.getStreetlightsEnabled();
-
-            // テスト用なので世界とフラグを渡して一斉更新
-            net.setStreetlightsEnabled(newState);
-
-            return ActionResult.CONSUME;
-        }
-    }
+//    @Override
+//    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+//        // クライアント側では SUCCESS を返しておくだけ
+//        if (world.isClient) {
+//            return ActionResult.SUCCESS;
+//        }
+//        if (!player.getAbilities().allowModifyWorld) {
+//            // Skip if the player isn't allowed to modify the world.
+//            return ActionResult.PASS;
+//        } else {
+//            // サーバー側で PowerNetwork のフラグをトグル
+//            ServerWorld sw = (ServerWorld) world;
+//            PowerNetwork net = PowerNetwork.get(sw);
+//            boolean newState = !net.getStreetlightsEnabled();
+//
+//            // テスト用なので世界とフラグを渡して一斉更新
+//            net.setStreetlightsEnabled(newState);
+//
+//            return ActionResult.CONSUME;
+//        }
+//    }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {

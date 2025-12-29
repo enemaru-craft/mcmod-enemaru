@@ -12,7 +12,7 @@ public class ManagedSeaLanternLampBlock extends AbstractManagedLightBlock {
 
     @Override
     protected int getDefaultChannel() {
-        return 1; // 異なるデフォルトチャンネルを設定
+        return LightChannels.SEA_LANTERN; // 異なるデフォルトチャンネルを設定
     }
 }
 

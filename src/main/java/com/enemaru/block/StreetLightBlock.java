@@ -92,27 +92,27 @@ public class StreetLightBlock extends BlockWithEntity {
 //            return ActionResult.SUCCESS;
 //        }
 //    }
-    @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        // クライアント側では SUCCESS を返しておくだけ
-        if (world.isClient) {
-            return ActionResult.SUCCESS;
-        }
-        if (!player.getAbilities().allowModifyWorld) {
-            // Skip if the player isn't allowed to modify the world.
-            return ActionResult.PASS;
-        } else {
-            // サーバー側で PowerNetwork のフラグをトグル
-            ServerWorld sw = (ServerWorld) world;
-            PowerNetwork net = PowerNetwork.get(sw);
-            boolean newState = !net.getStreetlightsEnabled();
-
-            // テスト用なので世界とフラグを渡して一斉更新
-            net.setStreetlightsEnabled(newState);
-
-            return ActionResult.CONSUME;
-        }
-    }
+//    @Override
+    ////    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    ////        // クライアント側では SUCCESS を返しておくだけ
+    ////        if (world.isClient) {
+    ////            return ActionResult.SUCCESS;
+    ////        }
+    ////        if (!player.getAbilities().allowModifyWorld) {
+    ////            // Skip if the player isn't allowed to modify the world.
+    ////            return ActionResult.PASS;
+    ////        } else {
+    ////            // サーバー側で PowerNetwork のフラグをトグル
+    ////            ServerWorld sw = (ServerWorld) world;
+    ////            PowerNetwork net = PowerNetwork.get(sw);
+    ////            boolean newState = !net.getStreetlightsEnabled();
+    ////
+    ////            // テスト用なので世界とフラグを渡して一斉更新
+    ////            net.setStreetlightsEnabled(newState);
+    ////
+    ////            return ActionResult.CONSUME;
+    ////        }
+    ////    }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
@@ -120,10 +120,10 @@ public class StreetLightBlock extends BlockWithEntity {
     }
 
     private static final VoxelShape BODY_SHAPE =
-            VoxelShapes.cuboid(5/16.0, 0.0,    5/16.0,   11/16.0, 7/16.0,  11/16.0);
+            VoxelShapes.cuboid(5 / 16.0, 0.0, 5 / 16.0, 11 / 16.0, 7 / 16.0, 11 / 16.0);
 
     private static final VoxelShape HANDLE_SHAPE =
-            VoxelShapes.cuboid(6/16.0, 7/16.0, 6/16.0,   10/16.0, 9/16.0, 10/16.0);
+            VoxelShapes.cuboid(6 / 16.0, 7 / 16.0, 6 / 16.0, 10 / 16.0, 9 / 16.0, 10 / 16.0);
 
     private static final VoxelShape SHAPE =
             VoxelShapes.union(BODY_SHAPE, HANDLE_SHAPE);
