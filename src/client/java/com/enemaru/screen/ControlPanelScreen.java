@@ -1,9 +1,10 @@
 package com.enemaru.screen;
 
-import com.enemaru.gui.ThermalSlider;
 import com.enemaru.gui.PercentageSlider;
+import com.enemaru.gui.ThermalSlider;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
+
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -173,33 +174,33 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // ラベル描画
         drawCenteredLabel(context, LABEL_LIGHT.getString(), lightLabelX, lightLabelY);
-        // Light スライダー下の値表示
+        // Light スライダー右の値表示
         String lightValueText = lightSlider.getPercent() + "%";
-        int lightValueX = lightSlider.getX() + lightSlider.getWidth() / 2;
-        int lightValueY = lightSlider.getY() + lightSlider.getHeight() + 2;
-        context.drawText(this.textRenderer, lightValueText, lightValueX - this.textRenderer.getWidth(lightValueText) / 2, lightValueY, 0xFFFFFF, false);
+        int lightValueX = lightSlider.getX() + lightSlider.getWidth() + 5;
+        int lightValueY = lightSlider.getY() + (lightSlider.getHeight() - this.textRenderer.fontHeight) / 2;
+        context.drawText(this.textRenderer, lightValueText, lightValueX, lightValueY, 0xFFFFFF, false);
 
         drawCenteredLabel(context, LABEL_TRAIN.getString(), trainLabelX, trainLabelY);
         drawCenteredLabel(context, LABEL_FACTORY.getString(), factoryLabelX, factoryLabelY);
-        // Factory スライダー下の値表示
+        // Factory スライダー右の値表示
         String factoryValueText = factorySlider.getPercent() + "%";
-        int factoryValueX = factorySlider.getX() + factorySlider.getWidth() / 2;
-        int factoryValueY = factorySlider.getY() + factorySlider.getHeight() + 2;
-        context.drawText(this.textRenderer, factoryValueText, factoryValueX - this.textRenderer.getWidth(factoryValueText) / 2, factoryValueY, 0xFFFFFF, false);
+        int factoryValueX = factorySlider.getX() + factorySlider.getWidth() + 5;
+        int factoryValueY = factorySlider.getY() + (factorySlider.getHeight() - this.textRenderer.fontHeight) / 2;
+        context.drawText(this.textRenderer, factoryValueText, factoryValueX, factoryValueY, 0xFFFFFF, false);
 
         drawCenteredLabel(context, LABEL_HOUSE.getString(), houseLabelX, houseLabelY);
-        // House スライダー下の値表示
+        // House スライダー右の値表示
         String houseValueText = houseSlider.getPercent() + "%";
-        int houseValueX = houseSlider.getX() + houseSlider.getWidth() / 2;
-        int houseValueY = houseSlider.getY() + houseSlider.getHeight() + 2;
-        context.drawText(this.textRenderer, houseValueText, houseValueX - this.textRenderer.getWidth(houseValueText) / 2, houseValueY, 0xFFFFFF, false);
+        int houseValueX = houseSlider.getX() + houseSlider.getWidth() + 5;
+        int houseValueY = houseSlider.getY() + (houseSlider.getHeight() - this.textRenderer.fontHeight) / 2;
+        context.drawText(this.textRenderer, houseValueText, houseValueX, houseValueY, 0xFFFFFF, false);
 
         drawCenteredLabel(context, LABEL_FACILITY.getString(), facilityLabelX, facilityLabelY);
-        // Facility スライダー下の値表示
+        // Facility スライダー右の値表示
         String facilityValueText = facilitySlider.getPercent() + "%";
-        int facilityValueX = facilitySlider.getX() + facilitySlider.getWidth() / 2;
-        int facilityValueY = facilitySlider.getY() + facilitySlider.getHeight() + 2;
-        context.drawText(this.textRenderer, facilityValueText, facilityValueX - this.textRenderer.getWidth(facilityValueText) / 2, facilityValueY, 0xFFFFFF, false);
+        int facilityValueX = facilitySlider.getX() + facilitySlider.getWidth() + 5;
+        int facilityValueY = facilitySlider.getY() + (facilitySlider.getHeight() - this.textRenderer.fontHeight) / 2;
+        context.drawText(this.textRenderer, facilityValueText, facilityValueX, facilityValueY, 0xFFFFFF, false);
 
         // ネットワーク受信値
         int energy = screenHandler.getGeneratedEnergy();
