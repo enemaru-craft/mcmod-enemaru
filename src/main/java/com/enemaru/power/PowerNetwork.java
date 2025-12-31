@@ -42,7 +42,9 @@ import java.util.concurrent.CompletableFuture;
 public class PowerNetwork extends PersistentState {
     private static final String KEY = "enemaru_power_network";
     private static String API_URL = "http://localhost:3000";
+    private static String API_LOCAL = "";
     private static String MQTT_ENDPOINT = "";
+    private static String MQTT_LOCAL = "";
 
     static {
         try {
@@ -51,11 +53,15 @@ public class PowerNetwork extends PersistentState {
             if (Files.exists(cfg)) {
                 String json = Files.readString(cfg);
                 JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-                if (obj.has("backendBaseUrl") && obj.has("mqttEndpoint")) {
+                if (obj.has("backendBaseUrl") && obj.has("backendBaseUrlLocal") && obj.has("mqttEndpoint") && obj.has("mqttLocal")) {
                     API_URL = obj.get("backendBaseUrl").getAsString();
                     System.out.println("[enemaru] API_URL loaded from config: " + API_URL);
+                    API_LOCAL = obj.get("backendBaseUrlLocal").getAsString();
+                    System.out.println("[enemaru] API_LOCAL loaded from config: " + API_LOCAL);
                     MQTT_ENDPOINT = obj.get("mqttEndpoint").getAsString();
                     System.out.println("[enemaru] MQTT_ENDPOINT loaded from config: " + MQTT_ENDPOINT);
+                    MQTT_LOCAL = obj.get("mqttLocal").getAsString();
+                    System.out.println("[enemaru] MQTT_LOCAL loaded from config: " + MQTT_LOCAL);
                 }
             } else {
                 System.out.println("[enemaru] No config file found, using default API_URL=" + API_URL);
@@ -77,6 +83,7 @@ public class PowerNetwork extends PersistentState {
     private boolean isMqttInitialized = false;
     private SSLContext sslContext;
     private String cliendId;
+    private boolean localMode = false;
 
     /**
      * ユーザー操作で点灯／消灯を切り替えるフラグ
@@ -307,8 +314,9 @@ public class PowerNetwork extends PersistentState {
     }
 
     private CompletableFuture<JsonObject> postAsync(String json, String endpoint) {
+        String url = localMode? API_LOCAL : API_URL;
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + endpoint))
+                .uri(URI.create(url + endpoint))
                 .header("Content-Type", "application/json; charset=utf-8")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -495,10 +503,16 @@ public class PowerNetwork extends PersistentState {
         this.cliendId = "M5-" + sessionId + "-fire-1";
         registerThermal();
         if (mqttPublisher != null) {
-            mqttPublisher.reconnectWithNewClientId(this.cliendId);
+            mqttPublisher.reconnectWithNewClientId(this.cliendId, !localMode);
         }
         enableShouldUpdateTexts();
         this.forceLightUpdate = true;
+    }
+
+    public void setLocal(boolean local) {
+        isMqttInitialized = false;
+        this.localMode = local;
+        initializeMqtt();
     }
 
     private void initializeMqtt() {
@@ -518,7 +532,9 @@ public class PowerNetwork extends PersistentState {
 
         try {
             this.cliendId = "M5-" + sessionId + "-fire-1";
-            mqttPublisher = new AsyncMQTTPublisher(MQTT_ENDPOINT, sslContext, cliendId);
+            String url = localMode?MQTT_LOCAL:MQTT_ENDPOINT;
+            System.out.println("Trying to connect to MQTT broker at: " + url);
+            mqttPublisher = new AsyncMQTTPublisher(url, sslContext, cliendId, !localMode);
         } catch (Exception e) {
             System.err.println("[enemaru] Failed to initialize MQTT publisher: " + e.getMessage());
         }
