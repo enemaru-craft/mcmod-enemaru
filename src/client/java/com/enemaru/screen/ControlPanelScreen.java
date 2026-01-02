@@ -440,7 +440,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         // グリッド線を描画（薄灰色）
         int gridColor = 0xFF555555;
-        int gridSpacing = 30;
+        int gridSpacing = (int)((double)graphWidth / (ControlPanelScreenHandler.MAX_HISTORY / 300.0));
 
         // 縦のグリッド線
         for (int x = graphX; x <= graphX + graphWidth; x += gridSpacing) {
@@ -475,9 +475,8 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                 y1 = Math.max(graphY, Math.min(graphY + graphHeight, y1));
                 y2 = Math.max(graphY, Math.min(graphY + graphHeight, y2));
 
-                // 線を描画（太さ2ピクセル）
-                context.fill(x1, y1, x2 + 1, y1 + 2, lineColor);
-                context.fill(x1, y2 - 1, x2 + 1, y2 + 1, lineColor);
+                // 線を描画（太さ1ピクセル）
+                context.fill(x1, y1, x2 + 1, y1 + 1, lineColor);
             }
         }
 

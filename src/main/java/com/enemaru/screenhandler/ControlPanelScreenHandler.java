@@ -24,7 +24,7 @@ public class ControlPanelScreenHandler extends ScreenHandler {
 
     // グラフ用の静的リスト
     public static final List<Integer> energyHistory = new ArrayList<>();
-    public static final int MAX_HISTORY = 600;
+    public static final int MAX_HISTORY = 2400;
 
     private final PropertyDelegate propertyDelegate;
 
