@@ -278,7 +278,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
 
         int textX = centerX + 30;
-        int textY = centerY - 50;
+        int textY = centerY - 20;
 
         // ======================
         // Energy Bar
@@ -364,50 +364,6 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int barH = barHeight;
 
         renderPredicted(context, mouseX, mouseY, baseX, barX, barH, surplusBarY, displayedEnergy, train);
-
-        // ======================
-        // 他情報表示
-        // ======================
-        // 表の左上座標
-        int tableX = textX + 20;
-        int tableY = textY + 90;
-
-        // 列幅
-        int col1Width = 50; // ラベル列
-        int col2Width = 40; // 状態列
-        int rowHeight = this.textRenderer.fontHeight + 4;  // フォント高さ + 余白
-
-        // ヘッダー
-        context.drawText(this.textRenderer, HEADER_DEVICE, tableX + 2, tableY + 2, 0xFFFFAA00, false);
-        context.drawText(this.textRenderer, HEADER_STATE, tableX + col1Width + 2, tableY + 2, 0xFFFFAA00, false);
-
-        // 線の色
-        int lineColor = 0xFFAAAAAA;
-
-        // ヘッダー下の線
-        context.fill(tableX, tableY + rowHeight, tableX + col1Width + col2Width, tableY + rowHeight + 1, lineColor);
-
-        // データ行（Trainのみ）
-        String[][] rows = {
-                {LABEL_TRAIN.getString(), train ? "On" : "Off"}
-        };
-
-        for (int i = 0; i < rows.length; i++) {
-            int y = tableY + rowHeight * (i + 1);
-
-            // ラベル列
-            context.drawText(this.textRenderer, rows[i][0], tableX + 2, y + 2, 0xFFFFFF, false);
-
-            // 状態列
-            context.drawText(this.textRenderer, rows[i][1], tableX + col1Width + 2, y + 2, 0xFFFFFF, false);
-
-            // 行下線
-            context.fill(tableX, y + rowHeight -1, tableX + col1Width + col2Width, y + rowHeight, lineColor);
-
-            // 列の区切り線（垂直）
-            context.fill(tableX + col1Width - 3, y - 13, tableX + col1Width - 2, y + rowHeight, lineColor);
-        }
-
 
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
