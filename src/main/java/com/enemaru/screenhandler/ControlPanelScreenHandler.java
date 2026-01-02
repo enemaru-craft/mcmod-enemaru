@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_ENERGY = 0;
@@ -19,6 +21,11 @@ public class ControlPanelScreenHandler extends ScreenHandler {
     public static final int PROP_FACILITY = 7;
     public static final int PROP_THERMAL = 8;
     public static final int NUM_PROPS = 9;
+
+    // グラフ用の静的リスト
+    public static final List<Integer> energyHistory = new ArrayList<>();
+    public static final int MAX_HISTORY = 600;
+
     private final PropertyDelegate propertyDelegate;
 
     /**
@@ -84,6 +91,23 @@ public class ControlPanelScreenHandler extends ScreenHandler {
     }
     public int getFacilityPercent() {
         return propertyDelegate.get(PROP_FACILITY);
+    }
+    
+    /**
+     * エネルギー履歴を追加
+     */
+    public static void addEnergyHistory(int energy) {
+        if (energyHistory.size() >= MAX_HISTORY) {
+            energyHistory.remove(0);
+        }
+        energyHistory.add(energy);
+    }
+    
+    /**
+     * エネルギー履歴を取得
+     */
+    public static List<Integer> getEnergyHistory() {
+        return energyHistory;
     }
 
     @Override

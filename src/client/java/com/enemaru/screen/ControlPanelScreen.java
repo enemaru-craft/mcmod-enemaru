@@ -154,9 +154,10 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
     private boolean isThermalSynced = false;
 
-    // グラフ用フィールド
-    private java.util.List<Integer> energyHistory = new java.util.ArrayList<>();
-    private static final int MAX_HISTORY = 300;
+    // 描画用フィールド
+    private int displayedEnergy = 0;
+    private int displayedSurplus = 0;
+    private boolean hasSetInitialDisplayed = false;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
@@ -363,13 +364,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ======================
         // 電力量の履歴記録
         // ======================
-        if (energyHistory == null) {
-            energyHistory = new java.util.ArrayList<>();
-        }
-        if (energyHistory.size() >= MAX_HISTORY) {
-            energyHistory.remove(0);
-        }
-        energyHistory.add((int)displayedEnergy);
+        ControlPanelScreenHandler.addEnergyHistory((int)displayedEnergy);
 
         // ======================
         // 電力量グラフ描画
@@ -386,11 +381,6 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
-
-    // 描画用フィールド
-    private int displayedEnergy = 0;
-    private int displayedSurplus = 0;
-    private boolean hasSetInitialDisplayed = false;
 
     // ======================
     // 予測バー描画用メソッド
@@ -463,12 +453,17 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         }
 
         // 折れ線グラフを描画
+        java.util.List<Integer> energyHistory = ControlPanelScreenHandler.getEnergyHistory();
         if (energyHistory.size() > 1) {
             int lineColor = 0xFF00FF00; // 緑色
 
             for (int i = 0; i < energyHistory.size() - 1; i++) {
-                int x1 = graphX + (int)((double)i / MAX_HISTORY * graphWidth);
-                int x2 = graphX + (int)((double)(i + 1) / MAX_HISTORY * graphWidth);
+                int x1 = graphX + (int)((double)i / ControlPanelScreenHandler.MAX_HISTORY * graphWidth);
+                int x2 = graphX + (int)((double)(i + 1) / ControlPanelScreenHandler.MAX_HISTORY * graphWidth);
+
+                // X座標をグラフ範囲内にクリップ
+                x1 = Math.max(graphX, Math.min(graphX + graphWidth, x1));
+                x2 = Math.max(graphX, Math.min(graphX + graphWidth, x2));
 
                 int energy1 = energyHistory.get(i);
                 int energy2 = energyHistory.get(i + 1);
@@ -491,8 +486,6 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         context.drawText(this.textRenderer, "1750kW", graphX - 38, graphY + graphHeight / 2 - 5, 0xAAAAAA, false);
         context.drawText(this.textRenderer, "0kW", graphX - 18, graphY + graphHeight, 0xAAAAAA, false);
     }
-
-
     private void drawCenteredLabel(DrawContext context, String text, int cx, int cy) {
         int w = this.textRenderer.getWidth(text);
         context.drawText(this.textRenderer, text, cx - w / 2, cy, 0xFFFFFF, false);
