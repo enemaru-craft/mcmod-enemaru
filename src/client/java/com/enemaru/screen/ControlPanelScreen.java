@@ -77,28 +77,28 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 工場 (FACTORY)
         // ==========================
         int factoryPercent = screenHandler.getFactoryPercent() / 100; // 0-10000 → 0-100
-        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 30, sliderWidth, sliderHeight, "factory", factoryPercent);
+        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 20, sliderWidth, sliderHeight, "factory", factoryPercent);
         this.addDrawableChild(factorySlider);
         factoryLabelX = centerX - 88;
-        factoryLabelY = centerY - 40;
+        factoryLabelY = centerY - 30;
 
         // ==========================
         // 家 (HOUSE)
         // ==========================
         int housePercent = screenHandler.getHousePercent() / 100; // 0-10000 → 0-100
-        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY, sliderWidth, sliderHeight, "house", housePercent);
+        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 20, sliderWidth, sliderHeight, "house", housePercent);
         this.addDrawableChild(houseSlider);
         houseLabelX = centerX - 88;
-        houseLabelY = centerY - 10;
+        houseLabelY = centerY + 10;
 
         // ==========================
         // 公共施設 (FACILITY)
         // ==========================
         int facilityPercent = screenHandler.getFacilityPercent() / 100; // 0-10000 → 0-100
-        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 30, sliderWidth, sliderHeight, "facility", facilityPercent);
+        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 60, sliderWidth, sliderHeight, "facility", facilityPercent);
         this.addDrawableChild(facilitySlider);
         facilityLabelX = centerX - 88;
-        facilityLabelY = centerY + 20;
+        facilityLabelY = centerY + 50;
 
         // ==========================
         // 電車 (TRAIN - ON/OFFボタンのまま)
@@ -110,26 +110,26 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY + 60).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 90, centerY + 100).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
-        }).position(centerX - 86, centerY + 60).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - 86, centerY + 100).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(trainOnButton);
         this.addDrawableChild(trainOffButton);
 
         trainLabelX = centerX - 88;
-        trainLabelY = centerY + 50;
+        trainLabelY = centerY + 90;
 
         // ==========================
         // 火力発電用スライダー (THERMAL)
         // ==========================
-        int thermalSliderX = centerX - sliderWidth / 2 - 90;
-        int thermalSliderY = centerY + 100;
-        thermalSlider = new ThermalSlider(thermalSliderX, thermalSliderY, sliderWidth, sliderHeight, 0);
+        int thermalSliderX = centerX + 30;
+        int thermalSliderY = centerY - 60;
+        thermalSlider = new ThermalSlider(thermalSliderX, thermalSliderY, 150, sliderHeight, 0);
         this.addDrawableChild(thermalSlider);
 
         // 初期状態を反映
@@ -153,6 +153,10 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     private int facilityLabelX, facilityLabelY;
 
     private boolean isThermalSynced = false;
+
+    // グラフ用フィールド
+    private java.util.List<Integer> energyHistory = new java.util.ArrayList<>();
+    private static final int MAX_HISTORY = 150;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
@@ -323,7 +327,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // ======================
         // 余裕電力バー
         // ======================
-        int surplusBarY = barY + barHeight + 50;
+        int surplusBarY = barY + barHeight + 35;
         int surplusBarMax = (int)displayedEnergy; // 最大値を受信電力量に設定
         int surplusFilled = (int)((double)displayedSurplus / surplusBarMax * barWidth);
         context.fill(barX, surplusBarY, barX + barWidth, surplusBarY + barHeight, 0xFF555555);
@@ -356,6 +360,21 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int usedTextWidth = this.textRenderer.getWidth(usedText);
         context.drawText(this.textRenderer, usedText, barX + (barWidth - usedTextWidth) / 2, surplusBarY + barHeight + 2, 0xFFFFFF, false);
 
+        // ======================
+        // 電力量の履歴記録
+        // ======================
+        if (energyHistory == null) {
+            energyHistory = new java.util.ArrayList<>();
+        }
+        if (energyHistory.size() >= MAX_HISTORY) {
+            energyHistory.remove(0);
+        }
+        energyHistory.add((int)displayedEnergy);
+
+        // ======================
+        // 電力量グラフ描画
+        // ======================
+        renderEnergyGraph(context, centerX, centerY, barX);
 
         // ======================
         // 予測バー表示
@@ -407,6 +426,59 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                     textY,
                     0x8844FF44,
                     false);
+        }
+    }
+
+    // ======================
+    // 電力量グラフ描画
+    // ======================
+    private void renderEnergyGraph(DrawContext context, int centerX, int centerY, int barX) {
+        // グラフの領域設定
+        int graphX = barX;
+        int graphY = centerY + 50;
+        int graphWidth = 150;
+        int graphHeight = 40;
+        int maxEnergy = 3500;
+
+        // グラフの背景（薄灰色）
+        context.fill(graphX, graphY, graphX + graphWidth, graphY + graphHeight, 0xFF404040);
+
+        // グリッド線を描画（薄灰色）
+        int gridColor = 0xFF555555;
+        int gridSpacing = 30;
+
+        // 縦のグリッド線
+        for (int x = graphX; x <= graphX + graphWidth; x += gridSpacing) {
+            context.fill(x, graphY, x + 1, graphY + graphHeight, gridColor);
+        }
+
+        // 横のグリッド線
+        for (int y = graphY; y <= graphY + graphHeight; y += 10) {
+            context.fill(graphX, y, graphX + graphWidth, y + 1, gridColor);
+        }
+
+        // 折れ線グラフを描画
+        if (energyHistory.size() > 1) {
+            int lineColor = 0xFF00FF00; // 緑色
+
+            for (int i = 0; i < energyHistory.size() - 1; i++) {
+                int x1 = graphX + (int)((double)i / MAX_HISTORY * graphWidth);
+                int x2 = graphX + (int)((double)(i + 1) / MAX_HISTORY * graphWidth);
+
+                int energy1 = energyHistory.get(i);
+                int energy2 = energyHistory.get(i + 1);
+
+                int y1 = graphY + graphHeight - (int)((double)energy1 / maxEnergy * graphHeight);
+                int y2 = graphY + graphHeight - (int)((double)energy2 / maxEnergy * graphHeight);
+
+                // Y座標のクランプ
+                y1 = Math.max(graphY, Math.min(graphY + graphHeight, y1));
+                y2 = Math.max(graphY, Math.min(graphY + graphHeight, y2));
+
+                // 線を描画（太さ2ピクセル）
+                context.fill(x1, y1, x2 + 1, y1 + 2, lineColor);
+                context.fill(x1, y2 - 1, x2 + 1, y2 + 1, lineColor);
+            }
         }
     }
 
