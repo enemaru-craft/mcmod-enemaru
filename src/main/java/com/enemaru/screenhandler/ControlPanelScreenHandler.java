@@ -110,6 +110,13 @@ public class ControlPanelScreenHandler extends ScreenHandler {
         return energyHistory;
     }
 
+    /**
+     * エネルギー履歴をクリア
+     */
+    public static void clearEnergyHistory() {
+        energyHistory.clear();
+    }
+
     @Override
     public boolean canUse(PlayerEntity player) {
         return true;
