@@ -68,36 +68,36 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         // 街灯 (STREETLIGHT)
         // ==========================
         int lightPercent = screenHandler.getLightPercent() / 100; // 0-10000 → 0-100
-        lightSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 60, sliderWidth, sliderHeight, "light", lightPercent);
+        lightSlider = new PercentageSlider(centerX - sliderWidth / 2 - 100, centerY - 60, sliderWidth, sliderHeight, "light", lightPercent);
         this.addDrawableChild(lightSlider);
-        lightLabelX = centerX - 88;
+        lightLabelX = centerX - 98;
         lightLabelY = centerY - 70;
 
         // ==========================
         // 工場 (FACTORY)
         // ==========================
         int factoryPercent = screenHandler.getFactoryPercent() / 100; // 0-10000 → 0-100
-        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 20, sliderWidth, sliderHeight, "factory", factoryPercent);
+        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 100, centerY - 20, sliderWidth, sliderHeight, "factory", factoryPercent);
         this.addDrawableChild(factorySlider);
-        factoryLabelX = centerX - 88;
+        factoryLabelX = centerX - 98;
         factoryLabelY = centerY - 30;
 
         // ==========================
         // 家 (HOUSE)
         // ==========================
         int housePercent = screenHandler.getHousePercent() / 100; // 0-10000 → 0-100
-        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 20, sliderWidth, sliderHeight, "house", housePercent);
+        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 100, centerY + 20, sliderWidth, sliderHeight, "house", housePercent);
         this.addDrawableChild(houseSlider);
-        houseLabelX = centerX - 88;
+        houseLabelX = centerX - 98;
         houseLabelY = centerY + 10;
 
         // ==========================
         // 公共施設 (FACILITY)
         // ==========================
         int facilityPercent = screenHandler.getFacilityPercent() / 100; // 0-10000 → 0-100
-        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 60, sliderWidth, sliderHeight, "facility", facilityPercent);
+        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 100, centerY + 60, sliderWidth, sliderHeight, "facility", facilityPercent);
         this.addDrawableChild(facilitySlider);
-        facilityLabelX = centerX - 88;
+        facilityLabelX = centerX - 98;
         facilityLabelY = centerY + 50;
 
         // ==========================
@@ -110,18 +110,18 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY + 100).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 100, centerY + 100).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
-        }).position(centerX - 86, centerY + 100).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - 96, centerY + 100).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(trainOnButton);
         this.addDrawableChild(trainOffButton);
 
-        trainLabelX = centerX - 88;
+        trainLabelX = centerX - 98;
         trainLabelY = centerY + 90;
 
         // ==========================
@@ -156,7 +156,7 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
 
     // グラフ用フィールド
     private java.util.List<Integer> energyHistory = new java.util.ArrayList<>();
-    private static final int MAX_HISTORY = 150;
+    private static final int MAX_HISTORY = 300;
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
@@ -435,10 +435,15 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
     private void renderEnergyGraph(DrawContext context, int centerX, int centerY, int barX) {
         // グラフの領域設定
         int graphX = barX;
-        int graphY = centerY + 50;
+        int graphY = centerY + 70;
         int graphWidth = 150;
         int graphHeight = 40;
         int maxEnergy = 3500;
+
+        // グラフタイトル描画
+        String graphTitle = LABEL_ENERGY_AMOUNT.getString();
+        int titleWidth = this.textRenderer.getWidth(graphTitle);
+        context.drawText(this.textRenderer, graphTitle, graphX + (graphWidth - titleWidth) / 2, graphY - 10, 0xFFFFFF, false);
 
         // グラフの背景（薄灰色）
         context.fill(graphX, graphY, graphX + graphWidth, graphY + graphHeight, 0xFF404040);
@@ -480,6 +485,11 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
                 context.fill(x1, y2 - 1, x2 + 1, y2 + 1, lineColor);
             }
         }
+
+        // 縦軸ラベル描画
+        context.drawText(this.textRenderer, "3500kW", graphX - 40, graphY - 5, 0xAAAAAA, false);
+        context.drawText(this.textRenderer, "1750kW", graphX - 38, graphY + graphHeight / 2 - 5, 0xAAAAAA, false);
+        context.drawText(this.textRenderer, "0kW", graphX - 18, graphY + graphHeight, 0xAAAAAA, false);
     }
 
 
