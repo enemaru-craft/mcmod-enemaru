@@ -74,6 +74,33 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         lightLabelY = centerY - 70;
 
         // ==========================
+        // 工場 (FACTORY)
+        // ==========================
+        int factoryPercent = screenHandler.getFactoryPercent() / 100; // 0-10000 → 0-100
+        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY - 30, sliderWidth, sliderHeight, "factory", factoryPercent);
+        this.addDrawableChild(factorySlider);
+        factoryLabelX = centerX - 88;
+        factoryLabelY = centerY - 40;
+
+        // ==========================
+        // 家 (HOUSE)
+        // ==========================
+        int housePercent = screenHandler.getHousePercent() / 100; // 0-10000 → 0-100
+        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY, sliderWidth, sliderHeight, "house", housePercent);
+        this.addDrawableChild(houseSlider);
+        houseLabelX = centerX - 88;
+        houseLabelY = centerY - 10;
+
+        // ==========================
+        // 公共施設 (FACILITY)
+        // ==========================
+        int facilityPercent = screenHandler.getFacilityPercent() / 100; // 0-10000 → 0-100
+        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 30, sliderWidth, sliderHeight, "facility", facilityPercent);
+        this.addDrawableChild(facilitySlider);
+        facilityLabelX = centerX - 88;
+        facilityLabelY = centerY + 20;
+
+        // ==========================
         // 電車 (TRAIN - ON/OFFボタンのまま)
         // ==========================
         int buttonWidth = 40;
@@ -83,46 +110,19 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
-        }).position(centerX - buttonWidth - 90, centerY - 30).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - buttonWidth - 90, centerY + 60).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
             EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
-        }).position(centerX - 86, centerY - 30).size(buttonWidth, buttonHeight).build();
+        }).position(centerX - 86, centerY + 60).size(buttonWidth, buttonHeight).build();
 
         this.addDrawableChild(trainOnButton);
         this.addDrawableChild(trainOffButton);
 
         trainLabelX = centerX - 88;
-        trainLabelY = centerY - 40;
-
-        // ==========================
-        // 工場 (FACTORY)
-        // ==========================
-        int factoryPercent = screenHandler.getFactoryPercent() / 100; // 0-10000 → 0-100
-        factorySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY, sliderWidth, sliderHeight, "factory", factoryPercent);
-        this.addDrawableChild(factorySlider);
-        factoryLabelX = centerX - 88;
-        factoryLabelY = centerY - 10;
-
-        // ==========================
-        // 家 (HOUSE)
-        // ==========================
-        int housePercent = screenHandler.getHousePercent() / 100; // 0-10000 → 0-100
-        houseSlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 30, sliderWidth, sliderHeight, "house", housePercent);
-        this.addDrawableChild(houseSlider);
-        houseLabelX = centerX - 88;
-        houseLabelY = centerY + 20;
-
-        // ==========================
-        // 公共施設 (FACILITY)
-        // ==========================
-        int facilityPercent = screenHandler.getFacilityPercent() / 100; // 0-10000 → 0-100
-        facilitySlider = new PercentageSlider(centerX - sliderWidth / 2 - 90, centerY + 60, sliderWidth, sliderHeight, "facility", facilityPercent);
-        this.addDrawableChild(facilitySlider);
-        facilityLabelX = centerX - 88;
-        facilityLabelY = centerY + 50;
+        trainLabelY = centerY + 50;
 
         // ==========================
         // 火力発電用スライダー (THERMAL)
@@ -327,7 +327,25 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int surplusBarMax = (int)displayedEnergy; // 最大値を受信電力量に設定
         int surplusFilled = (int)((double)displayedSurplus / surplusBarMax * barWidth);
         context.fill(barX, surplusBarY, barX + barWidth, surplusBarY + barHeight, 0xFF555555);
-        context.fill(barX, surplusBarY, barX + surplusFilled, surplusBarY + barHeight, 0xFF00FF00);
+
+        // 余裕電力の割合に応じて色を変化（100%=緑、50%=黄色、10%=赤、0%=赤）
+        double surplusRatio = surplusBarMax > 0 ? (double)displayedSurplus / surplusBarMax : 0;
+        int red, green;
+        if (surplusRatio > 0.5) {
+            // 緑から黄色へ (100%～50%)
+            red = (int)(255 * 2 * (1 - surplusRatio));
+            green = 255;
+        } else if (surplusRatio > 0.1) {
+            // 黄色から赤へ (50%～10%)
+            red = 255;
+            green = (int)(255 * ((surplusRatio - 0.1) / 0.4));
+        } else {
+            // 赤を維持 (10%～0%)
+            red = 255;
+            green = 0;
+        }
+        int surplusColor = 0xFF000000 | (red << 16) | (green << 8);
+        context.fill(barX, surplusBarY, barX + surplusFilled, surplusBarY + barHeight, surplusColor);
 
         String surplusText = LABEL_SURPLUS.getString() + String.format(": %d kW / %d kW", (int)displayedSurplus, (int)displayedEnergy);
         int surplusTextWidth = this.textRenderer.getWidth(surplusText);
