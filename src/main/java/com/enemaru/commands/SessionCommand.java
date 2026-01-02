@@ -7,6 +7,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import com.enemaru.power.PowerNetwork;
+import com.enemaru.screenhandler.ControlPanelScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 
 public final class SessionCommand {
@@ -20,6 +21,8 @@ public final class SessionCommand {
                                     ServerWorld world = context.getSource().getWorld();
                                     PowerNetwork network = PowerNetwork.get(world);
                                     network.setSessionId(id);
+                                    // グラフの履歴をクリア
+                                    ControlPanelScreenHandler.clearEnergyHistory();
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
