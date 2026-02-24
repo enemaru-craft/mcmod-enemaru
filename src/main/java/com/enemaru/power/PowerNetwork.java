@@ -131,15 +131,15 @@ public class PowerNetwork extends PersistentState {
     private final int SPAWN_DURATION_TICKS = 20 * 60;
 
     private List<Vec3i> fireCoords = new ArrayList<>(List.of(
+            new Vec3i(-635, 85, 329),
+            new Vec3i(-576, 85, 363),
             new Vec3i(-635, 85, 345),
             new Vec3i(-635, 85, 337),
-            new Vec3i(-635, 85, 329),
-            new Vec3i(-635, 85, 318),
-            new Vec3i(-635, 85, 310),
-            new Vec3i(-635, 85, 302),
-            new Vec3i(-576, 85, 363),
             new Vec3i(-576, 85, 355),
-            new Vec3i(-576, 85, 347)
+            new Vec3i(-635, 85, 318),
+            new Vec3i(-635, 85, 302),
+            new Vec3i(-576, 85, 347),
+            new Vec3i(-635, 85, 310)
     ));
 
     private PowerNetwork() {
@@ -350,6 +350,8 @@ public class PowerNetwork extends PersistentState {
 
         MinecraftServer server = world.getServer();
         ServerCommandSource source = server.getCommandSource();
+        
+        // 電車の処理
         if (states.state.isTrainEnabled) {
             TrainCommand.runTrain(server, source);
 //            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
@@ -359,6 +361,9 @@ public class PowerNetwork extends PersistentState {
 //            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
             setChannelPercent(LightChannels.STATION_END_ROD, 0, world); // 駅エンドロッド消灯
         }
+        
+        // 工場の煙の処理
+        setFactoryEnabled(states.state.factoryLitPercent, world);
 
         if (states.texts == null || states.texts.isEmpty()) return;
         var newTexts = new ArrayList<String>();
@@ -470,13 +475,17 @@ public class PowerNetwork extends PersistentState {
     }
 
 
-    public void setFactoryEnabled(boolean enable, ServerWorld world) {
-        for (var pos : fireCoords) {
-            BlockPos blockPos = new BlockPos(pos);
+    public void setFactoryEnabled(int percent, ServerWorld world) {
+        // percentは0-100の値。fireCoords全体のpercent%を点火する
+        // 例：percent=50なら、fireCoords全体の50%を点火
+        int numToLight = (int) Math.ceil(fireCoords.size() * percent / 100.0);
+        
+        for (int i = 0; i < fireCoords.size(); i++) {
+            BlockPos blockPos = new BlockPos(fireCoords.get(i));
             BlockState state = world.getBlockState(blockPos);
             if (state.contains(Properties.LIT)) {
-                // 点火状態を反転
-                world.setBlockState(blockPos, state.with(Properties.LIT, enable), Block.NOTIFY_ALL);
+                boolean shouldLight = i < numToLight;
+                world.setBlockState(blockPos, state.with(Properties.LIT, shouldLight), Block.NOTIFY_ALL);
             }
         }
         markDirty();
