@@ -2,6 +2,7 @@ package com.enemaru.screen;
 
 import com.enemaru.gui.PercentageSlider;
 import com.enemaru.gui.ThermalSlider;
+import com.enemaru.networking.payload.EquipmentPercentC2SPayload;
 import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 
@@ -107,13 +108,13 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int buttonHeight = 15;
 
         trainOnButton = ButtonWidget.builder(ON_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", true);
+            EquipmentPercentC2SPayload payload = new EquipmentPercentC2SPayload("train", 100);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(true);
         }).position(centerX - buttonWidth - 100, centerY + 100).size(buttonWidth, buttonHeight).build();
 
         trainOffButton = ButtonWidget.builder(OFF_TEXT, button -> {
-            EquipmentRequestC2SPayload payload = new EquipmentRequestC2SPayload("train", false);
+            EquipmentPercentC2SPayload payload = new EquipmentPercentC2SPayload("train", 0);
             ClientPlayNetworking.send(payload);
             updateTrainButtons(false);
         }).position(centerX - 96, centerY + 100).size(buttonWidth, buttonHeight).build();
@@ -213,6 +214,9 @@ public class ControlPanelScreen extends HandledScreen<ScreenHandler> {
         int usedEnergy = 0;
         boolean train = screenHandler.isTrainEnabled();
         boolean blackout = screenHandler.isBlackout();
+
+        // Trainボタンの状態をサーバー側と同期
+        updateTrainButtons(train);
 
         // スライダーの値を同期（サーバー値とクライアント値の差が大きい場合のみ同期）
         int lightPercent = screenHandler.getLightPercent() / 100; // 0-10000 → 0-100
