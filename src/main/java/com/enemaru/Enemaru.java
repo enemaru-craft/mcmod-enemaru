@@ -116,6 +116,11 @@ public class Enemaru implements ModInitializer {
                 PowerNetwork.get(sw).tick(sw);
                 // LightingManagerのtick処理
                 LightingManager.get(sw).tick();
+
+                // 時間を深夜に固定
+                sw.setTimeOfDay(18000);
+                // 天気を晴れに固定
+                sw.setWeather(6000, 0, false, false);
             }
         });
 
