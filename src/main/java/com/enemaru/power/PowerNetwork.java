@@ -187,6 +187,10 @@ public class PowerNetwork extends PersistentState {
         }
 
         if (world.getTime() % 60 != 0) return;
+        // 時間を深夜に固定
+        world.setTimeOfDay(18000);
+        // 天気を晴れに固定
+        world.setWeather(6000, 0, false, false);
 
         sendThermalPower();
 
