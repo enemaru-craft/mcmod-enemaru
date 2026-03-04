@@ -190,6 +190,7 @@ public class Enemaru implements ModInitializer {
             network.enableForceLightUpdate();
 
             // プレイヤーが参加したときにコマンドを実行
+            player.getServerWorld().setWeather(1000000, 0, false, false);
             server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/gamemode adventure");
             server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s resistance 999999 255 true");
             server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s saturation 999999 255 true");
