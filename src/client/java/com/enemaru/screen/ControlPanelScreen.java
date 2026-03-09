@@ -3,7 +3,6 @@ package com.enemaru.screen;
 import com.enemaru.gui.PercentageSlider;
 import com.enemaru.gui.ThermalSlider;
 import com.enemaru.networking.payload.EquipmentPercentC2SPayload;
-import com.enemaru.networking.payload.EquipmentRequestC2SPayload;
 import com.enemaru.screenhandler.ControlPanelScreenHandler;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

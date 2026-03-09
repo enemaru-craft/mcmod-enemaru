@@ -1,6 +1,5 @@
 package com.enemaru.power;
 
-import com.enemaru.blockentity.*;
 import com.enemaru.lighting.LightChannels;
 import com.enemaru.lighting.LightingManager;
 import com.enemaru.lighting.WorldLightPolicy;
@@ -88,26 +87,14 @@ public class PowerNetwork extends PersistentState {
     /**
      * ユーザー操作で点灯／消灯を切り替えるフラグ
      */
-    private boolean isStreetlightsEnabled = false;
     private boolean isTrainEnabled = false;
-    private boolean isFactoryEnabled = false;
     private boolean isBlackout = false;
-    private boolean isHouseEnabled = false;
-    private boolean isFacilityEnabled = false;
     private boolean forceLightUpdate = false;
+
     /**
      * WorldLightPolicyのキャッシュ
      */
     private WorldLightPolicy worldLightPolicy;
-
-    /**
-     * 登録制リスト：現在読み込まれている街灯・シーランタンの BlockEntity
-     */
-//    private final List<StreetLightBlockEntity> streetLights = new ArrayList<>();
-//    private final List<SeaLanternLampBlockEntity> seaLanterns = new ArrayList<>();
-//    private final List<GlowstoneLampBlockEntity> glowstoneLamps = new ArrayList<>();
-//    private final List<EndRodLampBlockEntity> endRodLamps = new ArrayList<>();
-//    private final List<StationEndRodBlockEntity> stationEndRods = new ArrayList<>();
 
     // 吹き出し関連
     private List<String> lastTexts = new ArrayList<>();
@@ -119,13 +106,12 @@ public class PowerNetwork extends PersistentState {
     private List<Vec3d> spawnCoords = new ArrayList<>(List.of(
             new Vec3d(-560, 73, 408),
             new Vec3d(-800, 66, 412)
-//            new Vec3d(-15, 70, 5)
     ));
+
     // 座標に対応する電車の向き
     private List<Float> spawnYaws = new ArrayList<>(List.of(
             90f,
             -90f
-//            180f
     ));
 
     private final int SPAWN_DURATION_TICKS = 20 * 60;
@@ -187,10 +173,6 @@ public class PowerNetwork extends PersistentState {
         }
 
         if (world.getTime() % 60 != 0) return;
-        // 時間を深夜に固定
-        //world.setTimeOfDay(18000);
-        // 天気を晴れに固定
-        //world.setWeather(6000, 0, false, false);
 
         sendThermalPower();
 
@@ -230,31 +212,6 @@ public class PowerNetwork extends PersistentState {
                     return null;
                 });
     }
-
-//    public void sendWorldState(String equipment, boolean enable, ServerWorld world) {
-//        JsonObject obj = new JsonObject();
-//        obj.addProperty("sessionId", Integer.toString(sessionId));
-//        obj.addProperty("equipment", equipment);
-//        String statePayload = obj.toString();
-//        String endpoint = enable ? "/turn-on-equipment" : "/turn-off-equipment";
-//
-//        postAsync(statePayload, endpoint)
-//                .thenAccept(response -> {
-//                    Gson gson = new Gson();
-//                    WorldState states = gson.fromJson(response, WorldState.class);
-//                    updateState(states, world);
-//                    if (debug) {
-//                        System.out.println("State updated successfully: " + response);
-//                    }
-//                })
-//                .exceptionally(ex -> {
-//                    if (debug) {
-//                        System.out.println("State update failed");
-//                        ex.printStackTrace();
-//                    }
-//                    return null;
-//                });
-//    }
 
     public void sendWorldState(String equipment, int percent, ServerWorld world) {
         JsonObject obj = new JsonObject();
@@ -338,10 +295,6 @@ public class PowerNetwork extends PersistentState {
     }
 
     private void updateState(WorldState states, ServerWorld world) {
-//        world.getServer().execute(() -> setHouseEnabled(states.state.isHouseEnabled));
-//        world.getServer().execute(() -> setStreetlightsEnabled(states.state.isLightEnabled));
-//        world.getServer().execute(() -> setFactoryEnabled(states.state.isFactoryEnabled, world));
-//        world.getServer().execute(() -> setFacilityEnabled(states.state.isFacilityEnabled));
         setChannelPercent(LightChannels.LANTERN, states.state.houseLitPercent*100, world);
         setChannelPercent(LightChannels.GLOWSTONE, states.state.lightLitPercent*100, world);
         setChannelPercent(LightChannels.SEA_LANTERN, states.state.factoryLitPercent*100, world);
@@ -358,11 +311,9 @@ public class PowerNetwork extends PersistentState {
         // 電車の処理
         if (states.state.isTrainEnabled) {
             TrainCommand.runTrain(server, source);
-//            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
             setChannelPercent(LightChannels.STATION_END_ROD, 10000, world); // 駅エンドロッド点灯
         } else {
             TrainCommand.stopTrain(server, source);
-//            world.getServer().execute(() -> setTrainEnabled(this.isTrainEnabled));
             setChannelPercent(LightChannels.STATION_END_ROD, 0, world); // 駅エンドロッド消灯
         }
         
@@ -394,37 +345,18 @@ public class PowerNetwork extends PersistentState {
         }
         this.lastTexts = newTexts;
         this.shouldUpdateTexts = false;
-        this.forceLightUpdate = false;
     }
 
 
     /**
      * 許可フラグを取得
      */
-    public boolean getStreetlightsEnabled() {
-        return isStreetlightsEnabled;
-    }
-
     public boolean getTrainEnabled() {
         return isTrainEnabled;
     }
-
-    public boolean getFactoryEnabled() {
-        return isFactoryEnabled;
-    }
-
     public boolean getBlackout() {
         return isBlackout;
     }
-
-    public boolean getHouseEnabled() {
-        return isHouseEnabled;
-    }
-
-    public boolean getFacilityEnabled() {
-        return isFacilityEnabled;
-    }
-
     public int getHousePercent() {
         return getChannelPercent(LightChannels.LANTERN);
     }
@@ -519,7 +451,6 @@ public class PowerNetwork extends PersistentState {
             mqttPublisher.reconnectWithNewClientId(this.cliendId, !localMode);
         }
         enableShouldUpdateTexts();
-        this.forceLightUpdate = true;
     }
 
     public void setLocal(boolean local) {
@@ -569,9 +500,5 @@ public class PowerNetwork extends PersistentState {
 
     public void enableShouldUpdateTexts() {
         this.shouldUpdateTexts = true;
-    }
-
-    public void enableForceLightUpdate() {
-        this.forceLightUpdate = true;
     }
 }
