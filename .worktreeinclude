@@ -1,0 +1,14 @@
+# Orcaが新しいworktreeへ独立したコピーを作成する開発用ファイル。
+# コピー元はOrcaに登録した元のチェックアウト。作成前にMinecraftを終了する。
+# run/はGit管理外のままにし、設定・MOD・ワールドの実体はコミットしない。
+run/config
+run/mods
+run/saves
+run/options.txt
+# 同じPCのIDEAに登録済みのSDKと実行構成を引き継ぐ。
+# Gradle設定は既定のProject SDKを使い、コピーしない。
+.idea/misc.xml
+.idea/runConfigurations
+# コピー後、Orcaのセットアップでmain固有のパスとモジュール名だけ補正する。
+# セットアップコマンド:
+# powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-worktree-runconfig.ps1
