@@ -32,6 +32,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -39,9 +40,6 @@ import net.minecraft.util.Identifier;
 public class Enemaru implements ModInitializer {
     public static final String MOD_ID = "enemaru";
 
-    // This logger is used to write text to the console and the log file.
-    // It is considered best practice to use your mod id as the logger's name.
-    // That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final ScreenHandlerType<ControlPanelScreenHandler> PANEL_SCREEN_HANDLER =
             Registry.register(
@@ -55,19 +53,26 @@ public class Enemaru implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // This code runs as soon as Minecraft is in a mod-load-ready state.
-        // However, some things (like resources) may still be uninitialized.
-        // Proceed with mild caution.
         ModItems.initialize();
         ModBlocks.initialize();
         ModBlockEntities.initialize();
 
-        // Payloadを登録
+        registerPayloadTypes();
+        registerServerReceivers();
+        registerCommands();
+        registerLifecycleEvents();
+
+        LOGGER.info("Hello Fabric world!");
+    }
+
+    private void registerPayloadTypes() {
         PayloadTypeRegistry.playS2C().register(SendBubbleS2CPayload.ID, SendBubbleS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EquipmentRequestC2SPayload.ID, EquipmentRequestC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EquipmentPercentC2SPayload.ID, EquipmentPercentC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ThermalUpdateC2SPayload.ID, ThermalUpdateC2SPayload.CODEC);
+    }
 
+    private void registerServerReceivers() {
         ServerPlayNetworking.registerGlobalReceiver(EquipmentRequestC2SPayload.ID, (payload, context) -> {
             ServerWorld world = context.player().getServerWorld();
             PowerNetwork network = PowerNetwork.get(world);
@@ -87,8 +92,9 @@ public class Enemaru implements ModInitializer {
             PowerNetwork network = PowerNetwork.get(world);
             network.setThermalPower(payload.power());
         });
+    }
 
-
+    private void registerCommands() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             TalkCloudCommand.register(dispatcher, registryAccess);
         });
@@ -108,9 +114,10 @@ public class Enemaru implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             LightingCommand.register(dispatcher, registryAccess);
         });
+    }
 
-        // サーバーのワールド毎ティック（20ティック＝1秒ごと）に
-        // PowerNetwork.tick(...) を呼び出す
+    private void registerLifecycleEvents() {
+        // 各サーバーワールドの毎tick終了時に、電力連携と照明をこの順で更新する
         ServerTickEvents.END_WORLD_TICK.register(world -> {
             if (world instanceof ServerWorld sw) {
                 PowerNetwork.get(sw).tick(sw);
@@ -126,78 +133,41 @@ public class Enemaru implements ModInitializer {
             }
         });
 
-        // サーバー側でブロックエンティティが「ロード」されるたびに呼ばれる
-//        ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, world) -> {
-//            if (!(world instanceof ServerWorld sw)) return;
-//            PowerNetwork net = PowerNetwork.get(sw);
-//
-//            if (be instanceof StreetLightBlockEntity sle) {
-//                net.registerStreetLight(sle);
-//                net.enableForceLightUpdate();
-//            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
-//                net.registerSeaLantern(sleLantern);
-//                net.enableForceLightUpdate();
-//            } else if (be instanceof GlowstoneLampBlockEntity glow) {
-//                net.registerGlowstone(glow);
-//                net.enableForceLightUpdate();
-//            } else if (be instanceof EndRodLampBlockEntity endRod) {
-//                net.registerEndRodLamp(endRod);
-//                net.enableForceLightUpdate();
-//            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
-//                net.registerStationEndRod(stationEndRod);
-//                net.enableForceLightUpdate();
-//            }
-//        });
-
-
-        // ブロックエンティティが「アンロード」されるとき
-//        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((be, world) -> {
-//            if (!(world instanceof ServerWorld sw)) return;
-//            PowerNetwork net = PowerNetwork.get(sw);
-//
-//            if (be instanceof StreetLightBlockEntity sle) {
-//                net.unregisterStreetLight(sle);
-//            } else if (be instanceof SeaLanternLampBlockEntity sleLantern) {
-//                net.unregisterSeaLantern(sleLantern);
-//            } else if (be instanceof GlowstoneLampBlockEntity glow) {
-//                net.unregisterGlowstone(glow);
-//            } else if (be instanceof EndRodLampBlockEntity endRod) {
-//                net.unregisterEndRodLamp(endRod);
-//            } else if (be instanceof StationEndRodBlockEntity stationEndRod) {
-//                net.unregisterStationEndRod(stationEndRod);
-//            }
-//        });
-
-        // プレイヤーがサーバーに参加したときにコントロールパネルを配布する
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity player = handler.player;
-            Item controlPanel = Registries.ITEM.get(Identifier.of(MOD_ID, "control_panel"));
+            giveControlPanelIfMissing(player);
 
-            boolean alreadyHas = false;
-            for (int i = 0; i < player.getInventory().size(); i++) {
-                ItemStack s = player.getInventory().getStack(i);
-                if (!s.isEmpty() && s.getItem() == controlPanel) {
-                    alreadyHas = true;
-                    break;
-                }
-            }
-            if(!alreadyHas){
-                ItemStack stack = new ItemStack(controlPanel, 1);
-                player.giveItemStack(stack);
-            }
             var network = PowerNetwork.get(player.getServerWorld());
             network.enableShouldUpdateTexts();
             network.enableForceLightUpdate();
 
-            // プレイヤーが参加したときにコマンドを実行
-            player.getServerWorld().setWeather(1000000, 0, false, false);
-            server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/gamemode adventure");
-            server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s resistance 999999 255 true");
-            server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s saturation 999999 255 true");
-            player.getAbilities().allowFlying = true;
-            player.sendAbilitiesUpdate();
+            initializePlayerOnJoin(player, server);
         });
+    }
 
-        LOGGER.info("Hello Fabric world!");
+    private void giveControlPanelIfMissing(ServerPlayerEntity player) {
+        Item controlPanel = Registries.ITEM.get(Identifier.of(MOD_ID, "control_panel"));
+
+        boolean alreadyHas = false;
+        for (int i = 0; i < player.getInventory().size(); i++) {
+            ItemStack s = player.getInventory().getStack(i);
+            if (!s.isEmpty() && s.getItem() == controlPanel) {
+                alreadyHas = true;
+                break;
+            }
+        }
+        if(!alreadyHas){
+            ItemStack stack = new ItemStack(controlPanel, 1);
+            player.giveItemStack(stack);
+        }
+    }
+
+    private void initializePlayerOnJoin(ServerPlayerEntity player, MinecraftServer server) {
+        player.getServerWorld().setWeather(1000000, 0, false, false);
+        server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/gamemode adventure");
+        server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s resistance 999999 255 true");
+        server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), "/effect give @s saturation 999999 255 true");
+        player.getAbilities().allowFlying = true;
+        player.sendAbilitiesUpdate();
     }
 }

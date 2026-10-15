@@ -10,16 +10,24 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 
 public class EnemaruClient implements ClientModInitializer {
     public static TalkingcloudsConfig CONFIG;
-	@Override
-	public void onInitializeClient() {
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
-        HandledScreens.register(Enemaru.PANEL_SCREEN_HANDLER, ControlPanelScreen::new);
 
+    @Override
+    public void onInitializeClient() {
+        registerScreens();
+        initializeConfig();
+        registerClientNetworking();
+    }
+
+    private void registerScreens() {
+        HandledScreens.register(Enemaru.PANEL_SCREEN_HANDLER, ControlPanelScreen::new);
+    }
+
+    private void initializeConfig() {
         AutoConfig.register(TalkingcloudsConfig.class, GsonConfigSerializer::new);
         CONFIG = AutoConfig.getConfigHolder(TalkingcloudsConfig.class).getConfig();
+    }
 
+    private void registerClientNetworking() {
         NetworkClient.registerClientHandlers();
-
-
-	}
+    }
 }
